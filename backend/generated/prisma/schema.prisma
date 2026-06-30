@@ -1,0 +1,273 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// --------------------------------------------------
+// 1. Tenancy Core
+// --------------------------------------------------
+
+model Organization {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  slug      String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  companies   Company[]
+  territories Territory[]
+  teams       Team[]
+  roles       Role[]
+  users       User[]
+  sessions    Session[]
+  auditLogs   AuditLog[]
+}
+
+// --------------------------------------------------
+// 2. Corporate Hierarchy
+// --------------------------------------------------
+
+model Company {
+  id             String   @id @default(uuid()) @db.Uuid
+  organizationId String   @db.Uuid
+  name           String
+  code           String? // Optional internal company code
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  branches     Branch[]
+  territories  Territory[] // Optional link to company-specific territories
+
+  @@unique([organizationId, code])
+}
+
+model Branch {
+  id        String   @id @default(uuid()) @db.Uuid
+  companyId String   @db.Uuid
+  name      String
+  code      String? // Optional internal branch code
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  company     Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  departments Department[]
+  teams       Team[]
+  users       User[]
+
+  @@unique([companyId, code])
+}
+
+model Department {
+  id        String   @id @default(uuid()) @db.Uuid
+  branchId  String   @db.Uuid
+  name      String
+  code      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  branch Branch @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  teams  Team[]
+  users  User[]
+
+  @@unique([branchId, code])
+}
+
+model Territory {
+  id             String   @id @default(uuid()) @db.Uuid
+  organizationId String   @db.Uuid
+  companyId      String?  @db.Uuid
+  name           String
+  description    String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  company      Company?     @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  teams        Team[]
+  users        User[] // Users assigned as owners/reps of the territory
+}
+
+model Team {
+  id             String   @id @default(uuid()) @db.Uuid
+  organizationId String   @db.Uuid
+  branchId       String   @db.Uuid
+  departmentId   String?  @db.Uuid
+  territoryId    String?  @db.Uuid
+  name           String
+  description    String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  branch       Branch       @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  department   Department?  @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  territory    Territory?   @relation(fields: [territoryId], references: [id], onDelete: SetNull)
+  users        User[]
+}
+
+// --------------------------------------------------
+// 3. Authentication & Roles (RBAC)
+// --------------------------------------------------
+
+model Role {
+  id             String   @id @default(uuid()) @db.Uuid
+  organizationId String?  @db.Uuid // Nullable to allow global base system roles
+  name           String
+  description    String?
+  isSystem       Boolean  @default(false) // System-protected roles cannot be edited
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization?    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  permissions  RolePermission[]
+  users        UserRole[]
+
+  @@unique([organizationId, name])
+}
+
+model Permission {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @unique // Friendly name (e.g., "Create Leads")
+  slug        String   @unique // Standard slug identifier (e.g., "create:leads")
+  description String?
+  moduleName  String // Categorization/Group (e.g., "leads", "auth")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  roles RolePermission[]
+}
+
+model RolePermission {
+  roleId       String   @db.Uuid
+  permissionId String   @db.Uuid
+  assignedAt   DateTime @default(now())
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+}
+
+// --------------------------------------------------
+// 4. Users & Tenancy Membership
+// --------------------------------------------------
+
+model User {
+  id             String  @id @default(uuid()) @db.Uuid
+  organizationId String  @db.Uuid
+  branchId       String? @db.Uuid
+  departmentId   String? @db.Uuid
+  teamId         String? @db.Uuid
+  territoryId    String? @db.Uuid
+  managerId      String? @db.Uuid // Manager mapping for hierarchy reporting
+
+  email                      String
+  passwordHash               String
+  firstName                  String
+  lastName                   String
+  phoneNumber                String?
+  isActive                   Boolean   @default(true)
+  emailVerifiedAt            DateTime?
+  emailVerificationOtp       String?
+  emailVerificationExpiresAt DateTime?
+  deletedAt                  DateTime?
+  createdAt                  DateTime  @default(now())
+  updatedAt                  DateTime  @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  branch       Branch?      @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  department   Department?  @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  team         Team?        @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  territory    Territory?   @relation(fields: [territoryId], references: [id], onDelete: SetNull)
+
+  manager      User?  @relation("UserReporting", fields: [managerId], references: [id], onDelete: SetNull)
+  subordinates User[] @relation("UserReporting")
+
+  roles             UserRole[]
+  sessions          Session[]
+  refreshTokens     RefreshToken[]
+  auditLogs         AuditLog[]
+  passwordHistories PasswordHistory[]
+
+  @@unique([organizationId, email])
+}
+
+model UserRole {
+  userId     String   @db.Uuid
+  roleId     String   @db.Uuid
+  assignedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+}
+
+// --------------------------------------------------
+// 5. Authentication Sessions
+// --------------------------------------------------
+
+model Session {
+  id             String   @id @default(uuid()) @db.Uuid
+  organizationId String   @db.Uuid
+  userId         String   @db.Uuid
+  token          String   @unique
+  userAgent      String?
+  ipAddress      String?
+  expiresAt      DateTime
+  createdAt      DateTime @default(now())
+
+  organization  Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refreshTokens RefreshToken[]
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  sessionId String   @db.Uuid
+  token     String   @unique
+  isRevoked Boolean  @default(false)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
+
+// --------------------------------------------------
+// 6. Auditing
+// --------------------------------------------------
+
+model AuditLog {
+  id             String   @id @default(uuid()) @db.Uuid
+  organizationId String   @db.Uuid
+  userId         String?  @db.Uuid // Nullable for system-triggered events
+  action         String // e.g., "user.login", "lead.create"
+  moduleName     String // e.g., "auth", "leads"
+  details        Json? // Holds payload, changes, metadata
+  ipAddress      String?
+  userAgent      String?
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+}
+
+model PasswordHistory {
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String   @db.Uuid
+  passwordHash String
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
