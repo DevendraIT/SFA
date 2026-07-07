@@ -1,8 +1,8 @@
 import express from "express";
 import { AuthRepository } from "./auth.repository.js";
 import { AuthService } from "./auth.service.js";
-import { AuthController } from "./auth.controller.js";
-import { authenticate } from "./auth.middleware.js";
+import { AuthController } from "./controllers/AuthController.js";
+import { authenticate } from "../../middlewares/auth.middleware.js";
 import {
   validateLogin,
   validateVerifyEmail,
@@ -36,6 +36,11 @@ router.post("/reset-password", validateResetPassword, authController.resetPasswo
 
 router.post("/change-password", authenticate, validateChangePassword, authController.changePassword);
 router.get("/me", authenticate, authController.getMe);
+
+// Session management endpoints
+router.get("/sessions", authenticate, authController.getSessions);
+router.delete("/sessions/:sessionId", authenticate, authController.terminateSession);
+router.delete("/sessions", authenticate, authController.terminateAllSessions);
 
 export default router;
 export { authController, authService, authRepository };

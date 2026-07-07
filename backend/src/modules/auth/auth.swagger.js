@@ -22,19 +22,14 @@
  *         application/json:
  *           schema:
  *             type: object
- *             required: [organizationSlug, email, password]
+ *             required: [email, password]
  *             properties:
- *               organizationSlug:
- *                 type: string
  *               email:
  *                 type: string
  *                 format: email
  *               password:
  *                 type: string
  *                 format: password
- *               rememberMe:
- *                 type: boolean
- *                 default: false
  *     responses:
  *       200:
  *         description: Login response (either verification required or successful authorization)
@@ -104,10 +99,8 @@
  *         application/json:
  *           schema:
  *             type: object
- *             required: [organizationSlug, email, otp]
+ *             required: [email, otp]
  *             properties:
- *               organizationSlug:
- *                 type: string
  *               email:
  *                 type: string
  *                 format: email
@@ -134,10 +127,8 @@
  *         application/json:
  *           schema:
  *             type: object
- *             required: [organizationSlug, email]
+ *             required: [email]
  *             properties:
- *               organizationSlug:
- *                 type: string
  *               email:
  *                 type: string
  *                 format: email
@@ -162,10 +153,8 @@
  *         application/json:
  *           schema:
  *             type: object
- *             required: [organizationSlug, email]
+ *             required: [email]
  *             properties:
- *               organizationSlug:
- *                 type: string
  *               email:
  *                 type: string
  *                 format: email
@@ -190,10 +179,8 @@
  *         application/json:
  *           schema:
  *             type: object
- *             required: [organizationSlug, email, otp, newPassword]
+ *             required: [email, otp, newPassword]
  *             properties:
- *               organizationSlug:
- *                 type: string
  *               email:
  *                 type: string
  *                 format: email

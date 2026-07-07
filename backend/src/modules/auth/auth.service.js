@@ -7,7 +7,7 @@ import {
   generateNumericOtp,
   parseUserAgent,
 } from "./auth.utils.js";
-import AUTH_CONSTANTS from "./auth.constants.js";
+import AUTH_CONSTANTS from "./constants/auth.constants.js";
 import { logger } from "../../utils/index.js";
 import crypto from "crypto";
 
@@ -21,20 +21,13 @@ export class AuthService {
 
 
   /**
-   * Authenticate user credentials, enforce concurrent session limits, and track devices
-   * @param {string} organizationSlug - tenant slug
+   * Authenticate user credentials and enforce concurrent session limits
    * @param {string} email - user email
    * @param {string} password - user raw password
-   * @param {boolean} rememberMe - remember me flag (extends token expiry)
    * @param {Object} requestMeta - metadata containing IP and User-Agent
    */
-  async login(organizationSlug, email, password, rememberMe = false, requestMeta = {}) {
-    const org = await this.authRepository.findOrganizationBySlug(organizationSlug);
-    if (!org || !org.isActive) {
-      throw AppError.unauthorized("Invalid organization slug or inactive tenant.");
-    }
-
-    const user = await this.authRepository.findUserByEmailAndOrg(org.id, email);
+  async login(email, password, requestMeta = {}) {
+    const user = await this.authRepository.findUserByEmail(email);
     if (!user) {
       throw AppError.unauthorized("Invalid email or password.");
     }
@@ -57,7 +50,7 @@ export class AuthService {
 
         // Log Account lockout event
         await this.authRepository.createAuditLog({
-          organizationId: org.id,
+          organizationId: user.organizationId,
           userId: user.id,
           action: AUTH_CONSTANTS.AUDIT.ACTIONS.ACCOUNT_LOCKED,
           moduleName: AUTH_CONSTANTS.AUDIT.MODULE,
@@ -69,13 +62,13 @@ export class AuthService {
         // Revoke active sessions immediately on lockout for security containment
         await this.authRepository.deleteSessionsByUserId(user.id);
 
-        logger.warn(`🔒 Account locked out: User ID ${user.id} at Tenant ID ${org.id}`);
+        logger.warn(`🔒 Account locked out: User ID ${user.id} at Tenant ID ${user.organizationId}`);
       }
 
       await this.authRepository.updateUser(user.id, updateData);
 
       await this.authRepository.createAuditLog({
-        organizationId: org.id,
+        organizationId: user.organizationId,
         userId: user.id,
         action: AUTH_CONSTANTS.AUDIT.ACTIONS.LOGIN_FAILED,
         moduleName: AUTH_CONSTANTS.AUDIT.MODULE,
@@ -140,16 +133,14 @@ export class AuthService {
     const parsedAgent = parseUserAgent(requestMeta.userAgent);
     const deviceString = `${parsedAgent.browser} on ${parsedAgent.os}`;
 
-    // 7. Calculate Expiry based on Remember Me
-    const sessionMaxAge = rememberMe 
-      ? 30 * 24 * 60 * 60 * 1000 // Remember Me: 30 days
-      : 24 * 60 * 60 * 1000;     // Standard: 24 hours
+    // 7. Calculate Expiry (Standard 24 hours)
+    const sessionMaxAge = 24 * 60 * 60 * 1000; // 24 hours
     const sessionExpiry = new Date(Date.now() + sessionMaxAge);
 
     // 8. Session & Token Creation
     const sessionToken = crypto.randomUUID();
     const session = await this.authRepository.createSession({
-      organizationId: org.id,
+      organizationId: user.organizationId,
       userId: user.id,
       token: sessionToken,
       userAgent: deviceString,
@@ -159,7 +150,7 @@ export class AuthService {
 
     const accessPayload = {
       userId: user.id,
-      organizationId: org.id,
+      organizationId: user.organizationId,
       roleId: user.roles[0]?.roleId || null,
       roleName: user.roles[0]?.role.name || null,
       permissions: user.roles.flatMap((ur) => ur.role.permissions.map((rp) => rp.permission.slug)),
@@ -177,18 +168,27 @@ export class AuthService {
     });
 
     await this.authRepository.createAuditLog({
-      organizationId: org.id,
+      organizationId: user.organizationId,
       userId: user.id,
       action: AUTH_CONSTANTS.AUDIT.ACTIONS.LOGIN_SUCCESS,
       moduleName: AUTH_CONSTANTS.AUDIT.MODULE,
       ipAddress: requestMeta.ipAddress,
       userAgent: deviceString,
-      details: { rememberMe },
     });
+    
+    const {
+      passwordHash,
+      emailVerificationOtp,
+      emailVerificationExpiresAt,
+      failedLoginAttempts,
+      lockoutExpiresAt,
+      deletedAt,
+      ...safeUser
+    } = user;
 
     return {
       emailVerified: true,
-      user,
+      user: safeUser,
       accessToken,
       refreshToken: refreshTokenValue,
     };
@@ -210,7 +210,7 @@ export class AuthService {
     if (tokenRecord.isRevoked) {
       await this.authRepository.revokeRefreshTokensBySession(session.id);
       await this.authRepository.deleteSession(session.id);
-
+      
       await this.authRepository.createAuditLog({
         organizationId: session.organizationId,
         userId: tokenRecord.userId,
@@ -285,11 +285,8 @@ export class AuthService {
   /**
    * Verify User Email Address using OTP
    */
-  async verifyEmail(organizationSlug, email, otp) {
-    const org = await this.authRepository.findOrganizationBySlug(organizationSlug);
-    if (!org) throw AppError.badRequest("Invalid organization slug.");
-
-    const user = await this.authRepository.findUserByEmailAndOrg(org.id, email);
+  async verifyEmail(email, otp) {
+    const user = await this.authRepository.findUserByEmail(email);
     if (!user) throw AppError.badRequest("Invalid request.");
 
     if (user.emailVerifiedAt) return true;
@@ -309,7 +306,7 @@ export class AuthService {
     });
 
     await this.authRepository.createAuditLog({
-      organizationId: org.id,
+      organizationId: user.organizationId,
       userId: user.id,
       action: AUTH_CONSTANTS.AUDIT.ACTIONS.EMAIL_VERIFICATION_SUCCESS,
       moduleName: AUTH_CONSTANTS.AUDIT.MODULE,
@@ -321,11 +318,8 @@ export class AuthService {
   /**
    * Resend verification OTP
    */
-  async resendVerificationOtp(organizationSlug, email) {
-    const org = await this.authRepository.findOrganizationBySlug(organizationSlug);
-    if (!org) throw AppError.badRequest("Invalid organization slug.");
-
-    const user = await this.authRepository.findUserByEmailAndOrg(org.id, email);
+  async resendVerificationOtp(email) {
+    const user = await this.authRepository.findUserByEmail(email);
     if (!user) throw AppError.badRequest("Invalid request.");
 
     if (user.emailVerifiedAt) {
@@ -343,7 +337,7 @@ export class AuthService {
     logger.info(`📧 [EMAIL EMULATOR] Resent verification OTP to ${user.email}: ${otp}`);
 
     await this.authRepository.createAuditLog({
-      organizationId: org.id,
+      organizationId: user.organizationId,
       userId: user.id,
       action: AUTH_CONSTANTS.AUDIT.ACTIONS.EMAIL_VERIFICATION_REQUEST,
       moduleName: AUTH_CONSTANTS.AUDIT.MODULE,
@@ -355,11 +349,8 @@ export class AuthService {
   /**
    * Request forgot password OTP
    */
-  async forgotPassword(organizationSlug, email) {
-    const org = await this.authRepository.findOrganizationBySlug(organizationSlug);
-    if (!org) return true;
-
-    const user = await this.authRepository.findUserByEmailAndOrg(org.id, email);
+  async forgotPassword(email) {
+    const user = await this.authRepository.findUserByEmail(email);
     if (!user) return true;
 
     const otp = generateNumericOtp();
@@ -373,7 +364,7 @@ export class AuthService {
     logger.info(`📧 [EMAIL EMULATOR] Password reset OTP for ${user.email}: ${otp}`);
 
     await this.authRepository.createAuditLog({
-      organizationId: org.id,
+      organizationId: user.organizationId,
       userId: user.id,
       action: AUTH_CONSTANTS.AUDIT.ACTIONS.PASSWORD_RESET_REQUEST,
       moduleName: AUTH_CONSTANTS.AUDIT.MODULE,
@@ -385,11 +376,8 @@ export class AuthService {
   /**
    * Reset user password using OTP (Enforces history policies)
    */
-  async resetPassword(organizationSlug, email, otp, newPassword) {
-    const org = await this.authRepository.findOrganizationBySlug(organizationSlug);
-    if (!org) throw AppError.badRequest("Invalid verification details.");
-
-    const user = await this.authRepository.findUserByEmailAndOrg(org.id, email);
+  async resetPassword(email, otp, newPassword) {
+    const user = await this.authRepository.findUserByEmail(email);
     if (!user || user.passwordResetOtp !== otp) {
       throw AppError.badRequest("Invalid verification details.");
     }
@@ -428,7 +416,7 @@ export class AuthService {
     await this.authRepository.deleteSessionsByUserId(user.id);
 
     await this.authRepository.createAuditLog({
-      organizationId: org.id,
+      organizationId: user.organizationId,
       userId: user.id,
       action: AUTH_CONSTANTS.AUDIT.ACTIONS.PASSWORD_RESET_SUCCESS,
       moduleName: AUTH_CONSTANTS.AUDIT.MODULE,
@@ -477,6 +465,90 @@ export class AuthService {
     });
 
     return true;
+  }
+
+  /**
+   * Get all active sessions for a user (Login History)
+   * @param {string} userId - UUID
+   */
+  async getUserSessions(userId) {
+    const sessions = await this.authRepository.findActiveSessions(userId);
+    return sessions.map((session) => ({
+      id: session.id,
+      userAgent: session.userAgent,
+      ipAddress: session.ipAddress,
+      expiresAt: session.expiresAt,
+      createdAt: session.createdAt,
+    }));
+  }
+
+  /**
+   * Get user profile information
+   * @param {string} userId - UUID
+   */
+  async getProfile(userId) {
+    const user = await this.authRepository.findUserById(userId);
+    if (!user) {
+      throw AppError.notFound("User not found");
+    }
+    return user;
+  }
+
+  /**
+   * Terminate specific session
+   * @param {string} sessionId - UUID of session to terminate
+   * @param {string} userId - UUID of session owner
+   * @param {Object} requestMeta - Request metadata
+   */
+  async terminateSession(sessionId, userId, requestMeta = {}) {
+    const session = await this.authRepository.findSessionById(sessionId);
+
+    if (!session || session.userId !== userId) {
+      throw AppError.forbidden("You do not have permission to terminate this session.");
+    }
+
+    await this.authRepository.revokeRefreshTokensBySession(sessionId);
+    await this.authRepository.deleteSession(sessionId);
+
+    await this.authRepository.createAuditLog({
+      organizationId: session.organizationId,
+      userId,
+      action: AUTH_CONSTANTS.AUDIT.ACTIONS.SESSION_TERMINATED,
+      moduleName: AUTH_CONSTANTS.AUDIT.MODULE,
+      ipAddress: requestMeta.ipAddress,
+      userAgent: requestMeta.userAgent,
+      details: { revokedSessionId: sessionId, method: "user_revocation" },
+    });
+
+    return true;
+  }
+
+  /**
+   * Terminate all sessions except current
+   * @param {string} userId - UUID
+   * @param {string} currentSessionId - UUID of current session to preserve
+   * @param {Object} requestMeta - Request metadata
+   */
+  async terminateAllSessions(userId, currentSessionId, requestMeta = {}) {
+    const sessions = await this.authRepository.findActiveSessions(userId);
+    const sessionsToTerminate = sessions.filter(session => session.id !== currentSessionId);
+    
+    for (const session of sessionsToTerminate) {
+      await this.authRepository.revokeRefreshTokensBySession(session.id);
+      await this.authRepository.deleteSession(session.id);
+    }
+
+    await this.authRepository.createAuditLog({
+      organizationId: sessions[0]?.organizationId,
+      userId,
+      action: AUTH_CONSTANTS.AUDIT.ACTIONS.SESSION_TERMINATED,
+      moduleName: AUTH_CONSTANTS.AUDIT.MODULE,
+      ipAddress: requestMeta.ipAddress,
+      userAgent: requestMeta.userAgent,
+      details: { terminatedSessionsCount: sessionsToTerminate.length, method: "bulk_revocation" },
+    });
+
+    return sessionsToTerminate.length;
   }
 
   /**

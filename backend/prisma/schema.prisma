@@ -15,20 +15,21 @@ datasource db {
 // --------------------------------------------------
 
 model Organization {
-  id           String         @id @default(uuid()) @db.Uuid
-  name         String
-  slug         String         @unique
-  isActive     Boolean        @default(true)
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  
-  companies    Company[]
-  territories  Territory[]
-  teams        Team[]
-  roles        Role[]
-  users        User[]
-  sessions     Session[]
-  auditLogs    AuditLog[]
+  id          String    @id @default(uuid()) @db.Uuid
+  name        String
+  slug        String    @unique
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  companies   Company[]
+  territories Territory[]
+  teams       Team[]
+  roles       Role[]
+  users       User[]
+  sessions    Session[]
+  auditLogs   AuditLog[]
+  leads       Lead[]
 }
 
 // --------------------------------------------------
@@ -36,98 +37,105 @@ model Organization {
 // --------------------------------------------------
 
 model Company {
-  id             String        @id @default(uuid()) @db.Uuid
-  organizationId String        @db.Uuid
+  id             String       @id @default(uuid()) @db.Uuid
+  organizationId String       @db.Uuid
   name           String
-  code           String?       // Optional internal company code
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  code           String?
 
-  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   branches       Branch[]
-  territories    Territory[]   // Optional link to company-specific territories
+  territories    Territory[]
 
   @@unique([organizationId, code])
 }
 
 model Branch {
-  id             String        @id @default(uuid()) @db.Uuid
-  companyId      String        @db.Uuid
-  name           String
-  code           String?       // Optional internal branch code
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  id          String       @id @default(uuid()) @db.Uuid
+  companyId   String       @db.Uuid
+  name        String
+  code        String?
 
-  company        Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  departments    Department[]
-  teams          Team[]
-  users          User[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  company     Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  departments Department[]
+  teams       Team[]
+  users       User[]
 
   @@unique([companyId, code])
 }
 
 model Department {
-  id             String        @id @default(uuid()) @db.Uuid
-  branchId       String        @db.Uuid
-  name           String
-  code           String?
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  id        String     @id @default(uuid()) @db.Uuid
+  branchId  String     @db.Uuid
+  name      String
+  code      String?
 
-  branch         Branch        @relation(fields: [branchId], references: [id], onDelete: Cascade)
-  teams          Team[]
-  users          User[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  branch    Branch     @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  teams     Team[]
+  users     User[]
 
   @@unique([branchId, code])
 }
 
 model Territory {
-  id             String        @id @default(uuid()) @db.Uuid
-  organizationId String        @db.Uuid
-  companyId      String?       @db.Uuid
+  id             String       @id @default(uuid()) @db.Uuid
+  organizationId String       @db.Uuid
+  companyId      String?      @db.Uuid
   name           String
   description    String?
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
 
-  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  company        Company?      @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  company        Company?     @relation(fields: [companyId], references: [id], onDelete: SetNull)
   teams          Team[]
-  users          User[]        // Users assigned as owners/reps of the territory
+  users          User[]
+  leads          Lead[]
 }
 
 model Team {
-  id             String        @id @default(uuid()) @db.Uuid
-  organizationId String        @db.Uuid
-  branchId       String        @db.Uuid
-  departmentId   String?       @db.Uuid
-  territoryId    String?       @db.Uuid
+  id             String       @id @default(uuid()) @db.Uuid
+  organizationId String       @db.Uuid
+  branchId       String       @db.Uuid
+  departmentId   String?      @db.Uuid
+  territoryId    String?      @db.Uuid
   name           String
   description    String?
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
 
-  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  branch         Branch        @relation(fields: [branchId], references: [id], onDelete: Cascade)
-  department     Department?   @relation(fields: [departmentId], references: [id], onDelete: SetNull)
-  territory      Territory?    @relation(fields: [territoryId], references: [id], onDelete: SetNull)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  branch         Branch       @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  department     Department?  @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  territory      Territory?   @relation(fields: [territoryId], references: [id], onDelete: SetNull)
   users          User[]
 }
 
 // --------------------------------------------------
-// 3. Authentication & Roles (RBAC)
+// 3. Authentication & RBAC
 // --------------------------------------------------
 
 model Role {
-  id             String            @id @default(uuid()) @db.Uuid
-  organizationId String?           @db.Uuid // Nullable to allow global base system roles
+  id             String           @id @default(uuid()) @db.Uuid
+  organizationId String?          @db.Uuid
   name           String
   description    String?
-  isSystem       Boolean           @default(false) // System-protected roles cannot be edited
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @updatedAt
+  isSystem       Boolean          @default(false)
 
-  organization   Organization?     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  organization   Organization?    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   permissions    RolePermission[]
   users          UserRole[]
 
@@ -135,140 +143,564 @@ model Role {
 }
 
 model Permission {
-  id             String            @id @default(uuid()) @db.Uuid
-  name           String            @unique // Friendly name (e.g., "Create Leads")
-  slug           String            @unique // Standard slug identifier (e.g., "create:leads")
-  description    String?
-  moduleName     String            // Categorization/Group (e.g., "leads", "auth")
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @updatedAt
+  id          String           @id @default(uuid()) @db.Uuid
+  name        String           @unique
+  slug        String           @unique
+  description String?
+  moduleName  String
 
-  roles          RolePermission[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  roles       RolePermission[]
 }
 
 model RolePermission {
-  roleId         String            @db.Uuid
-  permissionId   String            @db.Uuid
-  assignedAt     DateTime          @default(now())
+  roleId       String     @db.Uuid
+  permissionId String     @db.Uuid
+  assignedAt   DateTime   @default(now())
 
-  role           Role              @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  permission     Permission        @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
 
   @@id([roleId, permissionId])
 }
 
 // --------------------------------------------------
-// 4. Users & Tenancy Membership
+// 4. Users
 // --------------------------------------------------
 
 model User {
-  id             String            @id @default(uuid()) @db.Uuid
-  organizationId String            @db.Uuid
-  branchId       String?           @db.Uuid
-  departmentId   String?           @db.Uuid
-  teamId         String?           @db.Uuid
-  territoryId    String?           @db.Uuid
-  managerId      String?           @db.Uuid // Manager mapping for hierarchy reporting
-  
-  email          String
-  passwordHash   String
-  firstName      String
-  lastName       String
+  id                         String    @id @default(uuid()) @db.Uuid
+  organizationId             String    @db.Uuid
+  branchId                   String?   @db.Uuid
+  departmentId               String?   @db.Uuid
+  teamId                     String?   @db.Uuid
+  territoryId                String?   @db.Uuid
+  managerId                  String?   @db.Uuid
+
+  email                      String
+  passwordHash               String
+  firstName                  String
+  lastName                   String
   phoneNumber                String?
-  isActive                   Boolean           @default(true)
+  isActive                   Boolean   @default(true)
   emailVerifiedAt            DateTime?
   emailVerificationOtp       String?
   emailVerificationExpiresAt DateTime?
   deletedAt                  DateTime?
-  createdAt                  DateTime          @default(now())
-  updatedAt                  DateTime          @updatedAt
 
-  organization   Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  branch         Branch?           @relation(fields: [branchId], references: [id], onDelete: SetNull)
-  department     Department?       @relation(fields: [departmentId], references: [id], onDelete: SetNull)
-  team           Team?             @relation(fields: [teamId], references: [id], onDelete: SetNull)
-  territory      Territory?        @relation(fields: [territoryId], references: [id], onDelete: SetNull)
-  
-  manager        User?             @relation("UserReporting", fields: [managerId], references: [id], onDelete: SetNull)
-  subordinates   User[]            @relation("UserReporting")
-  
-  roles          UserRole[]
-  sessions       Session[]
-  refreshTokens  RefreshToken[]
-  auditLogs      AuditLog[]
-  passwordHistories PasswordHistory[]
+  createdAt                  DateTime  @default(now())
+  updatedAt                  DateTime  @updatedAt
+
+  organization        Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  branch              Branch?               @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  department          Department?           @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  team                Team?                 @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  territory           Territory?            @relation(fields: [territoryId], references: [id], onDelete: SetNull)
+  manager             User?                 @relation("UserReporting", fields: [managerId], references: [id], onDelete: SetNull)
+  subordinates        User[]                @relation("UserReporting")
+
+  roles               UserRole[]
+  sessions            Session[]
+  refreshTokens       RefreshToken[]
+  auditLogs           AuditLog[]
+  passwordHistories   PasswordHistory[]
+  assignedLeads       Lead[]                @relation("LeadAssignee")
+  createdLeads        Lead[]                @relation("LeadCreator")
+  leadActivities      LeadActivity[]
+  leadNotes           LeadNote[]
+  leadDocuments       LeadDocument[]
+  followUps           LeadFollowUp[]        @relation("FollowUpOwner")
+  meetingsOrganized   LeadMeeting[]         @relation("MeetingOrganizer")
+  assignmentHistory   LeadAssignmentHistory[]
+  leadConversions     LeadConversion[]
 
   @@unique([organizationId, email])
 }
 
 model UserRole {
-  userId         String            @db.Uuid
-  roleId         String            @db.Uuid
-  assignedAt     DateTime          @default(now())
+  userId     String   @db.Uuid
+  roleId     String   @db.Uuid
+  assignedAt DateTime @default(now())
 
-  user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role           Role              @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role       Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
 
   @@id([userId, roleId])
 }
 
 // --------------------------------------------------
-// 5. Authentication Sessions
+// 5. Sessions
 // --------------------------------------------------
 
 model Session {
-  id             String            @id @default(uuid()) @db.Uuid
-  organizationId String            @db.Uuid
-  userId         String            @db.Uuid
-  token          String            @unique
+  id             String       @id @default(uuid()) @db.Uuid
+  organizationId String       @db.Uuid
+  userId         String       @db.Uuid
+  token          String       @unique
   userAgent      String?
   ipAddress      String?
   expiresAt      DateTime
-  createdAt      DateTime          @default(now())
 
-  organization   Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   refreshTokens  RefreshToken[]
 }
 
 model RefreshToken {
-  id             String            @id @default(uuid()) @db.Uuid
-  userId         String            @db.Uuid
-  sessionId      String            @db.Uuid
-  token          String            @unique
-  isRevoked      Boolean           @default(false)
-  expiresAt      DateTime
-  createdAt      DateTime          @default(now())
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  sessionId String   @db.Uuid
+  token     String   @unique
+  isRevoked Boolean  @default(false)
+  expiresAt DateTime
 
-  user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  session        Session           @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  session   Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 }
 
 // --------------------------------------------------
-// 6. Auditing
+// 6. Audit & Password History
 // --------------------------------------------------
 
 model AuditLog {
-  id             String            @id @default(uuid()) @db.Uuid
-  organizationId String            @db.Uuid
-  userId         String?           @db.Uuid // Nullable for system-triggered events
-  action         String            // e.g., "user.login", "lead.create"
-  moduleName     String            // e.g., "auth", "leads"
-  details        Json?             // Holds payload, changes, metadata
+  id             String       @id @default(uuid()) @db.Uuid
+  organizationId String       @db.Uuid
+  userId         String?      @db.Uuid
+  action         String
+  moduleName     String
+  details        Json?
   ipAddress      String?
   userAgent      String?
-  createdAt      DateTime          @default(now())
 
-  organization   Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  user           User?             @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt      DateTime     @default(now())
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
 }
 
 model PasswordHistory {
   id           String   @id @default(uuid()) @db.Uuid
   userId       String   @db.Uuid
   passwordHash String
+
   createdAt    DateTime @default(now())
 
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+// ==================================================
+// PHASE 3 & 4 — Lead Management
+// ==================================================
+
+// --------------------------------------------------
+// 7. Lead — Core record
+// --------------------------------------------------
+
+model Lead {
+  id             String            @id @default(uuid()) @db.Uuid
+  organizationId String            @db.Uuid
+  assignedToId   String?           @db.Uuid
+  createdById    String            @db.Uuid
+  territoryId    String?           @db.Uuid
+  branchId       String?           @db.Uuid
+  teamId         String?           @db.Uuid
+
+  // Contact identity
+  firstName      String
+  lastName       String
+  email          String?
+  phone          String?
+  company        String?
+  jobTitle       String?
+  website        String?
+
+  // Classification
+  industry       String?
+  companySize    String?
+  source         LeadSource        @default(MANUAL)
+
+  // Address
+  addressLine1   String?
+  city           String?
+  state          String?
+  country        String?
+  postalCode     String?
+
+  // Lead state
+  status         LeadStatus        @default(NEW)
+  priority       LeadPriority      @default(MEDIUM)
+  qualification  LeadQualification @default(UNQUALIFIED)
+  score          Float             @default(0)
+  notes          String?
+  tags           String[]          @default([])
+
+  // Conversion tracking
+  isConverted    Boolean           @default(false)
+  convertedAt    DateTime?
+
+  // Soft delete
+  deletedAt      DateTime?
+
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  organization       Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  assignedTo         User?                 @relation("LeadAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+  createdBy          User                  @relation("LeadCreator", fields: [createdById], references: [id])
+  territory          Territory?            @relation(fields: [territoryId], references: [id], onDelete: SetNull)
+  activities         LeadActivity[]
+  notes_list         LeadNote[]
+  documents          LeadDocument[]
+  followUps          LeadFollowUp[]
+  meetings           LeadMeeting[]
+  assignmentHistory  LeadAssignmentHistory[]
+  conversions        LeadConversion[]
+
+  @@index([organizationId, status])
+  @@index([organizationId, assignedToId])
+  @@index([organizationId, qualification])
+  @@index([organizationId, score])
+  @@index([organizationId, deletedAt])
+  @@index([organizationId, source])
+  @@index([organizationId, isConverted])
+}
+
+// --------------------------------------------------
+// 8. Lead Activity Timeline
+// --------------------------------------------------
+
+model LeadActivity {
+  id             String       @id @default(uuid()) @db.Uuid
+  organizationId String       @db.Uuid
+  leadId         String       @db.Uuid
+  performedById  String?      @db.Uuid
+  activityType   ActivityType
+  title          String
+  description    String?
+  metadata       Json?
+
+  createdAt      DateTime     @default(now())
+
+  lead           Lead         @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  performedBy    User?        @relation(fields: [performedById], references: [id], onDelete: SetNull)
+
+  @@index([leadId])
+  @@index([organizationId, leadId])
+  @@index([organizationId, activityType])
+}
+
+// --------------------------------------------------
+// 9. Lead Notes
+// Dedicated notes with pin support, edit/delete, internal flag
+// --------------------------------------------------
+
+model LeadNote {
+  id             String    @id @default(uuid()) @db.Uuid
+  organizationId String    @db.Uuid
+  leadId         String    @db.Uuid
+  authorId       String    @db.Uuid
+  content        String
+  isPinned       Boolean   @default(false)
+  isInternal     Boolean   @default(false)   // Internal notes hidden from external views
+  editedAt       DateTime?
+  deletedAt      DateTime?
+
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  lead           Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  author         User      @relation(fields: [authorId], references: [id])
+
+  @@index([leadId, deletedAt])
+  @@index([leadId, isPinned])
+}
+
+// --------------------------------------------------
+// 10. Lead Documents
+// File upload with versioning and category support
+// --------------------------------------------------
+
+model LeadDocument {
+  id             String           @id @default(uuid()) @db.Uuid
+  organizationId String           @db.Uuid
+  leadId         String           @db.Uuid
+  uploadedById   String           @db.Uuid
+  parentId       String?          @db.Uuid  // Non-null = this is a new version of parentId
+  category       DocumentCategory @default(GENERAL)
+  name           String           // Display name
+  originalName   String           // Original file name on upload
+  mimeType       String
+  sizeBytes      Int
+  filePath       String           // Server-side storage path
+  version        Int              @default(1)
+  description    String?
+  deletedAt      DateTime?
+
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  lead           Lead             @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  uploadedBy     User             @relation(fields: [uploadedById], references: [id])
+  parent         LeadDocument?    @relation("DocumentVersions", fields: [parentId], references: [id])
+  versions       LeadDocument[]   @relation("DocumentVersions")
+
+  @@index([leadId, deletedAt])
+  @@index([leadId, category])
+}
+
+// --------------------------------------------------
+// 11. Lead Follow-Up
+// --------------------------------------------------
+
+model LeadFollowUp {
+  id             String         @id @default(uuid()) @db.Uuid
+  organizationId String         @db.Uuid
+  leadId         String         @db.Uuid
+  ownerId        String         @db.Uuid   // Responsible user
+  title          String
+  description    String?
+  dueAt          DateTime
+  completedAt    DateTime?
+  cancelledAt    DateTime?
+  status         FollowUpStatus @default(SCHEDULED)
+  reminderSentAt DateTime?
+  deletedAt      DateTime?
+
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  lead           Lead           @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  owner          User           @relation("FollowUpOwner", fields: [ownerId], references: [id])
+
+  @@index([leadId])
+  @@index([organizationId, status])
+  @@index([organizationId, ownerId, dueAt])
+}
+
+// --------------------------------------------------
+// 12. Lead Meeting
+// --------------------------------------------------
+
+model LeadMeeting {
+  id              String        @id @default(uuid()) @db.Uuid
+  organizationId  String        @db.Uuid
+  leadId          String        @db.Uuid
+  organizerId     String        @db.Uuid
+  title           String
+  agenda          String?
+  location        String?
+  meetingUrl      String?
+  scheduledAt     DateTime
+  durationMinutes Int           @default(60)
+  status          MeetingStatus @default(SCHEDULED)
+  outcome         String?
+  meetingNotes    String?
+  cancelledAt     DateTime?
+  cancelReason    String?
+  participants    Json          @default("[]")  // Array of { userId, name, email, role }
+  deletedAt       DateTime?
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  lead            Lead          @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  organizer       User          @relation("MeetingOrganizer", fields: [organizerId], references: [id])
+
+  @@index([leadId])
+  @@index([organizationId, status])
+  @@index([organizationId, organizerId])
+}
+
+// --------------------------------------------------
+// 13. Lead Assignment History
+// --------------------------------------------------
+
+model LeadAssignmentHistory {
+  id              String             @id @default(uuid()) @db.Uuid
+  organizationId  String             @db.Uuid
+  leadId          String             @db.Uuid
+  assignedToId    String?            @db.Uuid   // Null = unassigned
+  assignedById    String             @db.Uuid
+  assignmentType  AssignmentType
+  reason          String?
+  assignedAt      DateTime           @default(now())
+
+  lead            Lead               @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  assignedTo      User?              @relation(fields: [assignedToId], references: [id], onDelete: SetNull)
+
+  @@index([leadId])
+  @@index([organizationId, assignedToId])
+}
+
+// --------------------------------------------------
+// 14. Lead Conversion
+// Track conversion to Customer, Contact, or Opportunity
+// --------------------------------------------------
+
+model LeadConversion {
+  id               String           @id @default(uuid()) @db.Uuid
+  organizationId   String           @db.Uuid
+  leadId           String           @db.Uuid
+  convertedById    String           @db.Uuid
+  conversionType   ConversionType   // CUSTOMER | CONTACT | OPPORTUNITY
+  targetEntityId   String?          @db.Uuid  // ID in target module (once implemented)
+  targetEntityType String?          // "Customer" | "Contact" | "Opportunity"
+  notes            String?
+  convertedAt      DateTime         @default(now())
+
+  lead             Lead             @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  convertedBy      User             @relation(fields: [convertedById], references: [id])
+
+  @@index([leadId])
+  @@index([organizationId, conversionType])
+}
+
+// --------------------------------------------------
+// 15. Lead Export Job
+// --------------------------------------------------
+
+model LeadExportJob {
+  id             String       @id @default(uuid()) @db.Uuid
+  organizationId String       @db.Uuid
+  requestedById  String       @db.Uuid
+  format         ExportFormat
+  filters        Json
+  totalRecords   Int          @default(0)
+  status         ExportStatus @default(PENDING)
+  filePath       String?
+  errorMessage   String?
+  expiresAt      DateTime?
+  completedAt    DateTime?
+
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([organizationId, requestedById])
+  @@index([organizationId, status])
+}
+
+// --------------------------------------------------
+// 16. Enums
+// --------------------------------------------------
+
+enum LeadSource {
+  MANUAL
+  API
+  REFERRAL
+  WEBSITE
+  SOCIAL_MEDIA
+  EVENT
+  CAMPAIGN
+  OTHER
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  PROPOSAL
+  NEGOTIATION
+  WON
+  LOST
+  ARCHIVED
+}
+
+enum LeadPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum LeadQualification {
+  UNQUALIFIED
+  COLD
+  WARM
+  HOT
+}
+
+enum ActivityType {
+  CREATED
+  UPDATED
+  STATUS_CHANGED
+  PRIORITY_CHANGED
+  ASSIGNED
+  NOTE_ADDED
+  NOTE_EDITED
+  NOTE_DELETED
+  NOTE_PINNED
+  DOCUMENT_UPLOADED
+  DOCUMENT_DELETED
+  FOLLOW_UP_SCHEDULED
+  FOLLOW_UP_COMPLETED
+  FOLLOW_UP_CANCELLED
+  MEETING_SCHEDULED
+  MEETING_UPDATED
+  MEETING_COMPLETED
+  MEETING_CANCELLED
+  SCORE_UPDATED
+  QUALIFICATION_CHANGED
+  CONVERTED
+  EXPORTED
+  DELETED
+  RESTORED
+}
+
+enum DocumentCategory {
+  GENERAL
+  CONTRACT
+  PROPOSAL
+  PRESENTATION
+  INVOICE
+  IDENTITY
+  OTHER
+}
+
+enum FollowUpStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+  OVERDUE
+}
+
+enum MeetingStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum AssignmentType {
+  MANUAL
+  AUTO
+  ROUND_ROBIN
+  TERRITORY_BASED
+  TEAM_BASED
+  REASSIGNED
+  UNASSIGNED
+}
+
+enum ConversionType {
+  CUSTOMER
+  CONTACT
+  OPPORTUNITY
+}
+
+enum ExportFormat {
+  CSV
+  EXCEL
+}
+
+enum ExportStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}

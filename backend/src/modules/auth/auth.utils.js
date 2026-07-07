@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
-import AUTH_CONSTANTS from "./auth.constants.js";
+import AUTH_CONSTANTS from "./constants/auth.constants.js";
 import config from "../../config/env.js";
 import { logger } from "../../utils/index.js";
 

@@ -15,14 +15,12 @@ export class AuthRepository {
   }
 
   /**
-   * Find user by email and organization ID with full role/permission graph
-   * @param {string} organizationId - UUID
+   * Find user by email with full role/permission graph
    * @param {string} email - lowercased email
    */
-  async findUserByEmailAndOrg(organizationId, email) {
+  async findUserByEmail(email) {
     return prisma.user.findFirst({
       where: {
-        organizationId,
         email,
         deletedAt: null,
       },

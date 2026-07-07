@@ -9,8 +9,9 @@ import { AppError } from '../shared/response.js';
  */
 export const validate = (schema, source = 'body') => {
   return (req, res, next) => {
+    let data;
     try {
-      const data = source === 'body' ? req.body : source === 'params' ? req.params : req.query;
+      data = source === 'body' ? req.body : source === 'params' ? req.params : req.query;
 
       const validated = schema.parse(data);
 
@@ -25,10 +26,19 @@ export const validate = (schema, source = 'body') => {
       next();
     } catch (error) {
       if (error instanceof z.ZodError) {
-        const errors = (error.issues || error.errors || []).map((err) => ({
+        const errors = error.issues.map((err) => ({
           field: err.path.join('.'),
           message: err.message,
+          received: err.received
         }));
+        
+        // Log detailed validation error for debugging
+        console.error('❌ Validation Error Details:', {
+          source,
+          errors,
+          originalData: data
+        });
+        
         return next(AppError.badRequest('Validation failed', errors));
       }
       next(error);
