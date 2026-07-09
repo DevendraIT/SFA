@@ -1,13 +1,17 @@
-import express from "express";
-import { ReportsRepository } from "./reports.repository.js";
-import { ReportsService } from "./reports.service.js";
-import { ReportsController } from "./reports.controller.js";
+import { Router } from 'express';
+import { ReportsController } from './reports.controller.js';
+import { ReportsService } from './reports.service.js';
+import { ReportsRepository } from './reports.repository.js';
+import { authenticate, requireOrganization } from '../../middlewares/auth.middleware.js';
 
-const router = express.Router();
+const router = Router();
 
-const reportsRepository = new ReportsRepository();
-const reportsService = new ReportsService(reportsRepository);
-const reportsController = new ReportsController(reportsService);
+const repo = new ReportsRepository();
+const service = new ReportsService(repo);
+const controller = new ReportsController(service);
+
+router.use(authenticate, requireOrganization);
+
+router.get('/export', controller.downloadReport);
 
 export default router;
-export { reportsController, reportsService, reportsRepository };

@@ -100,4 +100,50 @@ export class TeamRepository {
     });
     return !!territory;
   }
+
+  // --- Assignment / Hierarchy queries ---
+
+  async findFirstUserByRole(organizationId, roleId) {
+    const userRole = await prisma.userRole.findFirst({
+      where: { roleId, user: { organizationId, isActive: true } },
+      include: { user: { select: { id: true } } },
+    });
+    return userRole?.user?.id || null;
+  }
+
+  async findUsersByRole(organizationId, roleId) {
+    return prisma.userRole.findMany({
+      where: { roleId, user: { organizationId, isActive: true } },
+      include: { user: { select: { id: true } } },
+    });
+  }
+
+  async findFirstUserByTerritory(organizationId, territoryId) {
+    const user = await prisma.user.findFirst({
+      where: { organizationId, territoryId, isActive: true },
+      select: { id: true },
+    });
+    return user?.id || null;
+  }
+
+  async findManagerByUserId(userId) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { managerId: true },
+    });
+    return user?.managerId || null;
+  }
+
+  async findUserCountsForWorkload(organizationId, userIds) {
+    const counts = await prisma.lead.groupBy({
+      by: ['assignedToId'],
+      where: {
+        organizationId,
+        assignedToId: { in: userIds },
+        status: { notIn: ['CLOSED_WON', 'CLOSED_LOST', 'WON', 'LOST'] },
+      },
+      _count: { assignedToId: true },
+    });
+    return counts;
+  }
 }

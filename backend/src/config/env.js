@@ -30,6 +30,32 @@ const envSchema = z.object({
   
   // Swagger Documentation
   SWAGGER_ENABLED: z.string().default("true"),
+
+  // Cloudinary
+  CLOUDINARY_CLOUD_NAME: z.string().optional(),
+  CLOUDINARY_API_KEY: z.string().optional(),
+  CLOUDINARY_API_SECRET: z.string().optional(),
+
+  // Redis / BullMQ
+  REDIS_URL: z.string().default("redis://127.0.0.1:6379"),
+
+  // Email Delivery
+  EMAIL_PROVIDER: z.enum(["mock", "smtp", "sendgrid", "ses"]).default("mock"),
+  SMTP_HOST: z.string().optional(),
+  SMTP_PORT: z.string().optional(),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASS: z.string().optional(),
+  SENDGRID_API_KEY: z.string().optional(),
+  AWS_REGION: z.string().optional(),
+  AWS_ACCESS_KEY_ID: z.string().optional(),
+  AWS_SECRET_ACCESS_KEY: z.string().optional(),
+  EMAIL_FROM_ADDRESS: z.string().default("noreply@sfa-example.com"),
+  EMAIL_FROM_NAME: z.string().default("SFA Engine"),
+
+  // AI Analysis
+  AI_PROVIDER: z.enum(["mock", "openai", "gemini"]).default("mock"),
+  OPENAI_API_KEY: z.string().optional(),
+  GEMINI_API_KEY: z.string().optional(),
 });
 
 // Load DB_URL to DATABASE_URL if DATABASE_URL is not set
@@ -73,6 +99,40 @@ export const config = {
   },
   
   SWAGGER_ENABLED: parsed.data.SWAGGER_ENABLED === "true",
+
+  CLOUDINARY: {
+    cloudName: parsed.data.CLOUDINARY_CLOUD_NAME,
+    apiKey: parsed.data.CLOUDINARY_API_KEY,
+    apiSecret: parsed.data.CLOUDINARY_API_SECRET,
+  },
+
+  REDIS_URL: parsed.data.REDIS_URL,
+
+  EMAIL: {
+    provider: parsed.data.EMAIL_PROVIDER,
+    fromAddress: parsed.data.EMAIL_FROM_ADDRESS,
+    fromName: parsed.data.EMAIL_FROM_NAME,
+    smtp: {
+      host: parsed.data.SMTP_HOST,
+      port: parsed.data.SMTP_PORT ? parseInt(parsed.data.SMTP_PORT, 10) : 587,
+      user: parsed.data.SMTP_USER,
+      pass: parsed.data.SMTP_PASS,
+    },
+    sendgrid: {
+      apiKey: parsed.data.SENDGRID_API_KEY,
+    },
+    aws: {
+      region: parsed.data.AWS_REGION,
+      accessKeyId: parsed.data.AWS_ACCESS_KEY_ID,
+      secretAccessKey: parsed.data.AWS_SECRET_ACCESS_KEY,
+    },
+  },
+
+  AI: {
+    provider: parsed.data.AI_PROVIDER,
+    openai: { apiKey: parsed.data.OPENAI_API_KEY },
+    gemini: { apiKey: parsed.data.GEMINI_API_KEY },
+  }
 };
 
 export default config;

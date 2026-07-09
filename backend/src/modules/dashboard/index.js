@@ -1,6 +1,8 @@
-import dashboardRouter from "./dashboard.routes.js";
-export { DashboardRepository } from "./dashboard.repository.js";
-export { DashboardService } from "./dashboard.service.js";
-export { DashboardController } from "./dashboard.controller.js";
+import dashboardRoutes from './dashboard.routes.js';
+import { registerDashboardListeners } from './dashboard.listeners.js';
+import logger from '../../utils/logger.js';
 
-export default dashboardRouter;
+registerDashboardListeners();
+logger.info('[dashboard] Dashboard module initialized (Listeners registered).');
+
+export default dashboardRoutes;

@@ -1,7 +1,8 @@
-﻿import { AppError } from '../../../shared/response.js';
+import { AppError } from '../../../shared/response.js';
 import { logAudit } from '../../../utils/audit.js';
 import { writeLeadsCsv, writeLeadsExcel, buildExportFileName } from '../helpers/lead.export.js';
 import LEADS_CONSTANTS from '../constants/lead.constants.js';
+import EventBus from '../../workflow-automation/events/EventBus.js';
 import { mkdirSync, existsSync, renameSync } from 'fs';
 import { join, dirname, extname } from 'path';
 import { fileURLToPath } from 'url';
@@ -89,6 +90,16 @@ export class LeadsService {
     const lead = await this.repo.createLead({ ...data, organizationId, createdById: req.user.id });
     await this._activity({ organizationId, leadId: lead.id, performedById: req.user.id, activityType: 'CREATED', title: 'Lead created', description: `${lead.firstName} ${lead.lastName} added as a new lead.` });
     await logAudit({ organizationId, userId: req.user.id, action: LEADS_CONSTANTS.AUDIT.CREATED, moduleName: LEADS_CONSTANTS.MODULE, details: { leadId: lead.id }, req });
+
+    EventBus.emit('LEAD_CREATED', {
+      organizationId,
+      entityId: lead.id,
+      leadId:   lead.id,
+      userId:   req.user.id,
+      source:   lead.source,
+      status:   lead.status,
+    });
+
     return lead;
   }
 
@@ -139,6 +150,16 @@ export class LeadsService {
     const updated = await this.repo.updateLead(id, { status });
     await this._activity({ organizationId, leadId: id, performedById: req.user.id, activityType: 'STATUS_CHANGED', title: `Status changed to ${status}`, description: note ?? `Status changed from ${previousStatus} to ${status}.`, metadata: { previousStatus, newStatus: status } });
     await logAudit({ organizationId, userId: req.user.id, action: LEADS_CONSTANTS.AUDIT.STATUS_CHANGED, moduleName: LEADS_CONSTANTS.MODULE, details: { leadId: id, previousStatus, newStatus: status }, req });
+
+    EventBus.emit('LEAD_STATUS_CHANGED', {
+      organizationId,
+      entityId:       id,
+      leadId:         id,
+      userId:         req.user.id,
+      previousStatus,
+      newStatus:      status,
+    });
+
     return updated;
   }
 
@@ -181,6 +202,18 @@ export class LeadsService {
     await this.repo.createAssignmentHistory({ organizationId, leadId: id, assignedToId: assignedToId ?? null, assignedById: req.user.id, assignmentType: assignmentType ?? 'MANUAL', reason: note ?? null });
     await this._activity({ organizationId, leadId: id, performedById: req.user.id, activityType: 'ASSIGNED', title: assignedToId ? 'Lead assigned' : 'Lead unassigned', description: note, metadata: { previousAssignee, newAssignee: assignedToId ?? null, assignmentType } });
     await logAudit({ organizationId, userId: req.user.id, action: LEADS_CONSTANTS.AUDIT.ASSIGNED, moduleName: LEADS_CONSTANTS.MODULE, details: { leadId: id, previousAssignee, newAssignee: assignedToId ?? null, assignmentType }, req });
+
+    if (assignedToId) {
+      EventBus.emit('LEAD_ASSIGNED', {
+        organizationId,
+        entityId:     id,
+        leadId:       id,
+        assignedToId,
+        assignedById: req.user.id,
+        assignmentType: assignmentType ?? 'MANUAL',
+      });
+    }
+
     return updated;
   }
 

@@ -1,4 +1,4 @@
-﻿import express from "express";
+import express from "express";
 import swaggerUi from "swagger-ui-express";
 import config from "../config/env.js";
 import swaggerSpec from "../config/swagger.js";
@@ -57,5 +57,36 @@ router.use("/orders", salesOrderRouter);
 // Permissions
 import permissionRouter from "../modules/permissions/index.js";
 router.use("/permissions", permissionRouter);
+
+// AI Lead Engine
+import aiLeadEngineRouter from "../modules/ai-lead-engine/index.js";
+router.use("/ai-lead-engine", aiLeadEngineRouter);
+
+import workflowRouter, { startWorkflowEngine } from "../modules/workflow-automation/index.js";
+router.use("/workflows", workflowRouter);
+startWorkflowEngine(); // Boot the central automation engine
+
+// Field Force
+import fieldForceRouter, { initFieldForce } from "../modules/field-force/index.js";
+router.use("/field-force", fieldForceRouter);
+initFieldForce();
+
+// Target & Performance
+import targetPerformanceRouter, { initTargetPerformance } from "../modules/target-performance/index.js";
+router.use("/target-performance", targetPerformanceRouter);
+initTargetPerformance();
+
+// Dashboard
+import dashboardRouter from "../modules/dashboard/index.js";
+router.use("/dashboard", dashboardRouter);
+
+// Reports
+import reportsRouter from "../modules/reports/index.js";
+router.use("/reports", reportsRouter);
+
+// Notifications
+import notificationsRouter, { initNotifications } from "../modules/notifications/index.js";
+router.use("/notifications", notificationsRouter);
+initNotifications();
 
 export default router;

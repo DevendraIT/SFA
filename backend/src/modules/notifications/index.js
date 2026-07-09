@@ -1,6 +1,15 @@
-import notificationsRouter from "./notifications.routes.js";
-export { NotificationsRepository } from "./notifications.repository.js";
-export { NotificationsService } from "./notifications.service.js";
-export { NotificationsController } from "./notifications.controller.js";
+import notificationsRoutes from './notifications.routes.js';
+import { registerNotificationListeners } from './notifications.listeners.js';
+import logger from '../../utils/logger.js';
 
-export default notificationsRouter;
+let initialized = false;
+
+export function initNotifications() {
+  if (initialized) return;
+  initialized = true;
+  
+  registerNotificationListeners();
+  logger.info('[notifications] Notifications module initialized (Listeners registered).');
+}
+
+export default notificationsRoutes;

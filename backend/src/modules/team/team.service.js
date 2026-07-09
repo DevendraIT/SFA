@@ -142,4 +142,39 @@ export class TeamService {
 
     throw AppError.conflict('Team restore is unavailable because the current Prisma schema does not provide soft-delete fields.');
   }
+
+  // --- Assignment & Hierarchy Methods ---
+
+  async resolveUserByRole(organizationId, roleId) {
+    return this.repo.findFirstUserByRole(organizationId, roleId);
+  }
+
+  async resolveRoundRobin(organizationId, roleId, payload) {
+    const users = await this.repo.findUsersByRole(organizationId, roleId);
+    if (!users || users.length === 0) return null;
+
+    const seed = payload.entityId || payload.leadId || payload.orderId || String(Date.now());
+    const index = seed.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0) % users.length;
+    return users[index].user.id;
+  }
+
+  async resolveByTerritory(organizationId, territoryId) {
+    return this.repo.findFirstUserByTerritory(organizationId, territoryId);
+  }
+
+  async resolveManager(userId) {
+    return this.repo.findManagerByUserId(userId);
+  }
+
+  async resolveLeastWorkload(organizationId, roleId) {
+    const userRoles = await this.repo.findUsersByRole(organizationId, roleId);
+    if (!userRoles || userRoles.length === 0) return null;
+
+    const userIds = userRoles.map(ur => ur.user.id);
+    const counts = await this.repo.findUserCountsForWorkload(organizationId, userIds);
+    
+    const countMap = Object.fromEntries(counts.map(c => [c.assignedToId, c._count.assignedToId]));
+    const sorted = userIds.sort((a, b) => (countMap[a] || 0) - (countMap[b] || 0));
+    return sorted[0];
+  }
 }

@@ -272,6 +272,435 @@ exports.Prisma.PasswordHistoryScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.LeadScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  assignedToId: 'assignedToId',
+  createdById: 'createdById',
+  territoryId: 'territoryId',
+  branchId: 'branchId',
+  teamId: 'teamId',
+  firstName: 'firstName',
+  lastName: 'lastName',
+  email: 'email',
+  phone: 'phone',
+  company: 'company',
+  jobTitle: 'jobTitle',
+  website: 'website',
+  industry: 'industry',
+  companySize: 'companySize',
+  source: 'source',
+  addressLine1: 'addressLine1',
+  city: 'city',
+  state: 'state',
+  country: 'country',
+  postalCode: 'postalCode',
+  status: 'status',
+  priority: 'priority',
+  qualification: 'qualification',
+  score: 'score',
+  notes: 'notes',
+  tags: 'tags',
+  isConverted: 'isConverted',
+  convertedAt: 'convertedAt',
+  deletedAt: 'deletedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.LeadActivityScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  leadId: 'leadId',
+  performedById: 'performedById',
+  activityType: 'activityType',
+  title: 'title',
+  description: 'description',
+  metadata: 'metadata',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.LeadNoteScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  leadId: 'leadId',
+  authorId: 'authorId',
+  content: 'content',
+  isPinned: 'isPinned',
+  isInternal: 'isInternal',
+  editedAt: 'editedAt',
+  deletedAt: 'deletedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.LeadDocumentScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  leadId: 'leadId',
+  uploadedById: 'uploadedById',
+  parentId: 'parentId',
+  category: 'category',
+  name: 'name',
+  originalName: 'originalName',
+  mimeType: 'mimeType',
+  sizeBytes: 'sizeBytes',
+  filePath: 'filePath',
+  version: 'version',
+  description: 'description',
+  deletedAt: 'deletedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.LeadFollowUpScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  leadId: 'leadId',
+  ownerId: 'ownerId',
+  title: 'title',
+  description: 'description',
+  dueAt: 'dueAt',
+  completedAt: 'completedAt',
+  cancelledAt: 'cancelledAt',
+  status: 'status',
+  reminderSentAt: 'reminderSentAt',
+  deletedAt: 'deletedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.LeadMeetingScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  leadId: 'leadId',
+  organizerId: 'organizerId',
+  title: 'title',
+  agenda: 'agenda',
+  location: 'location',
+  meetingUrl: 'meetingUrl',
+  scheduledAt: 'scheduledAt',
+  durationMinutes: 'durationMinutes',
+  status: 'status',
+  outcome: 'outcome',
+  meetingNotes: 'meetingNotes',
+  cancelledAt: 'cancelledAt',
+  cancelReason: 'cancelReason',
+  participants: 'participants',
+  deletedAt: 'deletedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.LeadAssignmentHistoryScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  leadId: 'leadId',
+  assignedToId: 'assignedToId',
+  assignedById: 'assignedById',
+  assignmentType: 'assignmentType',
+  reason: 'reason',
+  assignedAt: 'assignedAt'
+};
+
+exports.Prisma.LeadConversionScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  leadId: 'leadId',
+  convertedById: 'convertedById',
+  conversionType: 'conversionType',
+  targetEntityId: 'targetEntityId',
+  targetEntityType: 'targetEntityType',
+  notes: 'notes',
+  convertedAt: 'convertedAt'
+};
+
+exports.Prisma.LeadExportJobScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  requestedById: 'requestedById',
+  format: 'format',
+  filters: 'filters',
+  totalRecords: 'totalRecords',
+  status: 'status',
+  filePath: 'filePath',
+  errorMessage: 'errorMessage',
+  expiresAt: 'expiresAt',
+  completedAt: 'completedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ProspectScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  importJobId: 'importJobId',
+  email: 'email',
+  firstName: 'firstName',
+  lastName: 'lastName',
+  company: 'company',
+  jobTitle: 'jobTitle',
+  phone: 'phone',
+  website: 'website',
+  industry: 'industry',
+  companySize: 'companySize',
+  country: 'country',
+  state: 'state',
+  city: 'city',
+  score: 'score',
+  qualificationStatus: 'qualificationStatus',
+  isConvertedToLead: 'isConvertedToLead',
+  leadId: 'leadId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ImportJobScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  uploadedById: 'uploadedById',
+  fileName: 'fileName',
+  originalName: 'originalName',
+  status: 'status',
+  totalRecords: 'totalRecords',
+  processedRecords: 'processedRecords',
+  failedRecords: 'failedRecords',
+  errorMessage: 'errorMessage',
+  completedAt: 'completedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.EmailTemplateScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  createdById: 'createdById',
+  name: 'name',
+  subject: 'subject',
+  body: 'body',
+  variables: 'variables',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.EmailCampaignScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  createdById: 'createdById',
+  templateId: 'templateId',
+  name: 'name',
+  subject: 'subject',
+  templateBody: 'templateBody',
+  status: 'status',
+  scheduledAt: 'scheduledAt',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CampaignProspectScalarFieldEnum = {
+  campaignId: 'campaignId',
+  prospectId: 'prospectId',
+  addedAt: 'addedAt'
+};
+
+exports.Prisma.EmailActivityScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  campaignId: 'campaignId',
+  prospectId: 'prospectId',
+  type: 'type',
+  providerMsgId: 'providerMsgId',
+  metadata: 'metadata',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.AiAnalysisScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  prospectId: 'prospectId',
+  emailActivityId: 'emailActivityId',
+  sentiment: 'sentiment',
+  intent: 'intent',
+  confidenceScore: 'confidenceScore',
+  summary: 'summary',
+  rawResponse: 'rawResponse',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.AttendanceScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  userId: 'userId',
+  date: 'date',
+  checkInAt: 'checkInAt',
+  checkOutAt: 'checkOutAt',
+  checkInLoc: 'checkInLoc',
+  checkOutLoc: 'checkOutLoc',
+  status: 'status',
+  durationMins: 'durationMins',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.VisitScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  userId: 'userId',
+  leadId: 'leadId',
+  title: 'title',
+  type: 'type',
+  status: 'status',
+  scheduledAt: 'scheduledAt',
+  completedAt: 'completedAt',
+  location: 'location',
+  notes: 'notes',
+  photoUrl: 'photoUrl',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ExpenseScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  userId: 'userId',
+  approvedById: 'approvedById',
+  amount: 'amount',
+  category: 'category',
+  date: 'date',
+  status: 'status',
+  receiptUrl: 'receiptUrl',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.DailyActivityReportScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  userId: 'userId',
+  date: 'date',
+  totalVisits: 'totalVisits',
+  totalOrders: 'totalOrders',
+  summary: 'summary',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.TargetScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  userId: 'userId',
+  teamId: 'teamId',
+  metric: 'metric',
+  period: 'period',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  targetValue: 'targetValue',
+  achievedValue: 'achievedValue',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.NotificationScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  userId: 'userId',
+  title: 'title',
+  message: 'message',
+  type: 'type',
+  status: 'status',
+  referenceType: 'referenceType',
+  referenceId: 'referenceId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.NotificationTemplateScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  name: 'name',
+  subject: 'subject',
+  body: 'body',
+  type: 'type',
+  variables: 'variables',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.TaskScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  userId: 'userId',
+  title: 'title',
+  description: 'description',
+  status: 'status',
+  dueDate: 'dueDate',
+  referenceType: 'referenceType',
+  referenceId: 'referenceId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.BeatPlanScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  userId: 'userId',
+  title: 'title',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CalendarEventScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  userId: 'userId',
+  title: 'title',
+  description: 'description',
+  startTime: 'startTime',
+  endTime: 'endTime',
+  type: 'type',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.WorkflowSettingsScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  autoAssign: 'autoAssign',
+  requireApproval: 'requireApproval',
+  approvalHierarchy: 'approvalHierarchy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.NotificationPreferenceScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  userId: 'userId',
+  emailEnabled: 'emailEnabled',
+  smsEnabled: 'smsEnabled',
+  inAppEnabled: 'inAppEnabled',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.BusinessRuleConfigScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  ruleKey: 'ruleKey',
+  ruleValue: 'ruleValue',
+  description: 'description',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -279,6 +708,10 @@ exports.Prisma.SortOrder = {
 
 exports.Prisma.NullableJsonNullValueInput = {
   DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
+};
+
+exports.Prisma.JsonNullValueInput = {
   JsonNull: Prisma.JsonNull
 };
 
@@ -297,7 +730,247 @@ exports.Prisma.JsonNullValueFilter = {
   JsonNull: Prisma.JsonNull,
   AnyNull: Prisma.AnyNull
 };
+exports.LeadSource = exports.$Enums.LeadSource = {
+  MANUAL: 'MANUAL',
+  API: 'API',
+  REFERRAL: 'REFERRAL',
+  WEBSITE: 'WEBSITE',
+  SOCIAL_MEDIA: 'SOCIAL_MEDIA',
+  EVENT: 'EVENT',
+  CAMPAIGN: 'CAMPAIGN',
+  OTHER: 'OTHER'
+};
 
+exports.LeadStatus = exports.$Enums.LeadStatus = {
+  NEW: 'NEW',
+  CONTACTED: 'CONTACTED',
+  QUALIFIED: 'QUALIFIED',
+  PROPOSAL: 'PROPOSAL',
+  NEGOTIATION: 'NEGOTIATION',
+  WON: 'WON',
+  LOST: 'LOST',
+  ARCHIVED: 'ARCHIVED'
+};
+
+exports.LeadPriority = exports.$Enums.LeadPriority = {
+  LOW: 'LOW',
+  MEDIUM: 'MEDIUM',
+  HIGH: 'HIGH',
+  URGENT: 'URGENT'
+};
+
+exports.LeadQualification = exports.$Enums.LeadQualification = {
+  UNQUALIFIED: 'UNQUALIFIED',
+  COLD: 'COLD',
+  WARM: 'WARM',
+  HOT: 'HOT'
+};
+
+exports.ActivityType = exports.$Enums.ActivityType = {
+  CREATED: 'CREATED',
+  UPDATED: 'UPDATED',
+  STATUS_CHANGED: 'STATUS_CHANGED',
+  PRIORITY_CHANGED: 'PRIORITY_CHANGED',
+  ASSIGNED: 'ASSIGNED',
+  NOTE_ADDED: 'NOTE_ADDED',
+  NOTE_EDITED: 'NOTE_EDITED',
+  NOTE_DELETED: 'NOTE_DELETED',
+  NOTE_PINNED: 'NOTE_PINNED',
+  DOCUMENT_UPLOADED: 'DOCUMENT_UPLOADED',
+  DOCUMENT_DELETED: 'DOCUMENT_DELETED',
+  FOLLOW_UP_SCHEDULED: 'FOLLOW_UP_SCHEDULED',
+  FOLLOW_UP_COMPLETED: 'FOLLOW_UP_COMPLETED',
+  FOLLOW_UP_CANCELLED: 'FOLLOW_UP_CANCELLED',
+  MEETING_SCHEDULED: 'MEETING_SCHEDULED',
+  MEETING_UPDATED: 'MEETING_UPDATED',
+  MEETING_COMPLETED: 'MEETING_COMPLETED',
+  MEETING_CANCELLED: 'MEETING_CANCELLED',
+  SCORE_UPDATED: 'SCORE_UPDATED',
+  QUALIFICATION_CHANGED: 'QUALIFICATION_CHANGED',
+  CONVERTED: 'CONVERTED',
+  EXPORTED: 'EXPORTED',
+  DELETED: 'DELETED',
+  RESTORED: 'RESTORED'
+};
+
+exports.DocumentCategory = exports.$Enums.DocumentCategory = {
+  GENERAL: 'GENERAL',
+  CONTRACT: 'CONTRACT',
+  PROPOSAL: 'PROPOSAL',
+  PRESENTATION: 'PRESENTATION',
+  INVOICE: 'INVOICE',
+  IDENTITY: 'IDENTITY',
+  OTHER: 'OTHER'
+};
+
+exports.FollowUpStatus = exports.$Enums.FollowUpStatus = {
+  SCHEDULED: 'SCHEDULED',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED',
+  OVERDUE: 'OVERDUE'
+};
+
+exports.MeetingStatus = exports.$Enums.MeetingStatus = {
+  SCHEDULED: 'SCHEDULED',
+  IN_PROGRESS: 'IN_PROGRESS',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED',
+  NO_SHOW: 'NO_SHOW'
+};
+
+exports.AssignmentType = exports.$Enums.AssignmentType = {
+  MANUAL: 'MANUAL',
+  AUTO: 'AUTO',
+  ROUND_ROBIN: 'ROUND_ROBIN',
+  TERRITORY_BASED: 'TERRITORY_BASED',
+  TEAM_BASED: 'TEAM_BASED',
+  REASSIGNED: 'REASSIGNED',
+  UNASSIGNED: 'UNASSIGNED'
+};
+
+exports.ConversionType = exports.$Enums.ConversionType = {
+  CUSTOMER: 'CUSTOMER',
+  CONTACT: 'CONTACT',
+  OPPORTUNITY: 'OPPORTUNITY'
+};
+
+exports.ExportFormat = exports.$Enums.ExportFormat = {
+  CSV: 'CSV',
+  EXCEL: 'EXCEL'
+};
+
+exports.ExportStatus = exports.$Enums.ExportStatus = {
+  PENDING: 'PENDING',
+  PROCESSING: 'PROCESSING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED'
+};
+
+exports.ProspectQualification = exports.$Enums.ProspectQualification = {
+  UNQUALIFIED: 'UNQUALIFIED',
+  COLD: 'COLD',
+  WARM: 'WARM',
+  HOT: 'HOT',
+  SPAM: 'SPAM',
+  DISQUALIFIED: 'DISQUALIFIED'
+};
+
+exports.ImportStatus = exports.$Enums.ImportStatus = {
+  PENDING: 'PENDING',
+  PROCESSING: 'PROCESSING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED'
+};
+
+exports.CampaignStatus = exports.$Enums.CampaignStatus = {
+  DRAFT: 'DRAFT',
+  SCHEDULED: 'SCHEDULED',
+  RUNNING: 'RUNNING',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED',
+  FAILED: 'FAILED'
+};
+
+exports.EmailEventType = exports.$Enums.EmailEventType = {
+  SENT: 'SENT',
+  DELIVERED: 'DELIVERED',
+  OPENED: 'OPENED',
+  CLICKED: 'CLICKED',
+  REPLIED: 'REPLIED',
+  BOUNCED: 'BOUNCED',
+  FAILED: 'FAILED',
+  UNSUBSCRIBED: 'UNSUBSCRIBED'
+};
+
+exports.AiSentiment = exports.$Enums.AiSentiment = {
+  POSITIVE: 'POSITIVE',
+  NEUTRAL: 'NEUTRAL',
+  NEGATIVE: 'NEGATIVE'
+};
+
+exports.AiIntent = exports.$Enums.AiIntent = {
+  NONE: 'NONE',
+  MEETING_REQUEST: 'MEETING_REQUEST',
+  CALL_REQUEST: 'CALL_REQUEST',
+  PRICING_REQUEST: 'PRICING_REQUEST',
+  DEMO_REQUEST: 'DEMO_REQUEST',
+  MORE_INFO: 'MORE_INFO',
+  NOT_INTERESTED: 'NOT_INTERESTED',
+  OUT_OF_OFFICE: 'OUT_OF_OFFICE',
+  WRONG_PERSON: 'WRONG_PERSON'
+};
+
+exports.AttendanceStatus = exports.$Enums.AttendanceStatus = {
+  PRESENT: 'PRESENT',
+  ABSENT: 'ABSENT',
+  LEAVE: 'LEAVE',
+  HALFDAY: 'HALFDAY'
+};
+
+exports.VisitType = exports.$Enums.VisitType = {
+  COLD_CALL: 'COLD_CALL',
+  FOLLOW_UP: 'FOLLOW_UP',
+  MEETING: 'MEETING',
+  DEMO: 'DEMO'
+};
+
+exports.VisitStatus = exports.$Enums.VisitStatus = {
+  PLANNED: 'PLANNED',
+  IN_PROGRESS: 'IN_PROGRESS',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED'
+};
+
+exports.ExpenseCategory = exports.$Enums.ExpenseCategory = {
+  TRAVEL: 'TRAVEL',
+  MEALS: 'MEALS',
+  ACCOMMODATION: 'ACCOMMODATION',
+  OTHER: 'OTHER'
+};
+
+exports.ExpenseStatus = exports.$Enums.ExpenseStatus = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED'
+};
+
+exports.DarStatus = exports.$Enums.DarStatus = {
+  DRAFT: 'DRAFT',
+  SUBMITTED: 'SUBMITTED',
+  APPROVED: 'APPROVED'
+};
+
+exports.TargetMetric = exports.$Enums.TargetMetric = {
+  REVENUE: 'REVENUE',
+  VISITS: 'VISITS',
+  NEW_LEADS: 'NEW_LEADS',
+  CONVERSIONS: 'CONVERSIONS',
+  ATTENDANCE: 'ATTENDANCE',
+  DAR: 'DAR',
+  ACTIVITIES: 'ACTIVITIES'
+};
+
+exports.TargetPeriod = exports.$Enums.TargetPeriod = {
+  MONTHLY: 'MONTHLY',
+  QUARTERLY: 'QUARTERLY',
+  YEARLY: 'YEARLY'
+};
+
+exports.TargetStatus = exports.$Enums.TargetStatus = {
+  ACTIVE: 'ACTIVE',
+  CLOSED: 'CLOSED'
+};
+
+exports.NotificationType = exports.$Enums.NotificationType = {
+  EMAIL: 'EMAIL',
+  SMS: 'SMS',
+  IN_APP: 'IN_APP'
+};
+
+exports.NotificationStatus = exports.$Enums.NotificationStatus = {
+  UNREAD: 'UNREAD',
+  READ: 'READ'
+};
 
 exports.Prisma.ModelName = {
   Organization: 'Organization',
@@ -314,7 +987,36 @@ exports.Prisma.ModelName = {
   Session: 'Session',
   RefreshToken: 'RefreshToken',
   AuditLog: 'AuditLog',
-  PasswordHistory: 'PasswordHistory'
+  PasswordHistory: 'PasswordHistory',
+  Lead: 'Lead',
+  LeadActivity: 'LeadActivity',
+  LeadNote: 'LeadNote',
+  LeadDocument: 'LeadDocument',
+  LeadFollowUp: 'LeadFollowUp',
+  LeadMeeting: 'LeadMeeting',
+  LeadAssignmentHistory: 'LeadAssignmentHistory',
+  LeadConversion: 'LeadConversion',
+  LeadExportJob: 'LeadExportJob',
+  Prospect: 'Prospect',
+  ImportJob: 'ImportJob',
+  EmailTemplate: 'EmailTemplate',
+  EmailCampaign: 'EmailCampaign',
+  CampaignProspect: 'CampaignProspect',
+  EmailActivity: 'EmailActivity',
+  AiAnalysis: 'AiAnalysis',
+  Attendance: 'Attendance',
+  Visit: 'Visit',
+  Expense: 'Expense',
+  DailyActivityReport: 'DailyActivityReport',
+  Target: 'Target',
+  Notification: 'Notification',
+  NotificationTemplate: 'NotificationTemplate',
+  Task: 'Task',
+  BeatPlan: 'BeatPlan',
+  CalendarEvent: 'CalendarEvent',
+  WorkflowSettings: 'WorkflowSettings',
+  NotificationPreference: 'NotificationPreference',
+  BusinessRuleConfig: 'BusinessRuleConfig'
 };
 
 /**

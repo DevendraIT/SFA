@@ -1,13 +1,17 @@
-import express from "express";
-import { NotificationsRepository } from "./notifications.repository.js";
-import { NotificationsService } from "./notifications.service.js";
-import { NotificationsController } from "./notifications.controller.js";
+import { Router } from 'express';
+import { NotificationsController } from './notifications.controller.js';
+import { NotificationsService } from './notifications.service.js';
+import { NotificationsRepository } from './notifications.repository.js';
+import { authenticate, requireOrganization } from '../../middlewares/auth.middleware.js';
 
-const router = express.Router();
+const router = Router();
+const repo = new NotificationsRepository();
+export const notificationsService = new NotificationsService(repo);
+const controller = new NotificationsController(notificationsService);
 
-const notificationsRepository = new NotificationsRepository();
-const notificationsService = new NotificationsService(notificationsRepository);
-const notificationsController = new NotificationsController(notificationsService);
+router.use(authenticate, requireOrganization);
+
+router.get('/me', controller.getMyNotifications);
+router.patch('/:id/read', controller.markAsRead);
 
 export default router;
-export { notificationsController, notificationsService, notificationsRepository };
