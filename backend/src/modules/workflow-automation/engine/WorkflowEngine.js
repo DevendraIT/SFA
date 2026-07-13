@@ -3,7 +3,7 @@ import { RuleEngine } from '../rules/RuleEngine.js';
 import { AssignmentEngine } from '../assignment/AssignmentEngine.js';
 import { WorkflowRuleRepository, WorkflowExecutionRepository } from '../repositories/WorkflowRepository.js';
 import logger from '../../../utils/logger.js';
-import prisma from '../../../config/database.js';
+import { prisma } from '../../../config/database.js';
 
 /**
  * WorkflowEngine

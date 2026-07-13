@@ -417,4 +417,237 @@ export class LeadsService {
     await this._activity({ organizationId, leadId, performedById: req.user.id, activityType: 'DOCUMENT_DELETED', title: `Document deleted: ${doc.name}` });
     await logAudit({ organizationId, userId: req.user.id, action: LEADS_CONSTANTS.AUDIT.DOCUMENT_DELETED, moduleName: LEADS_CONSTANTS.MODULE, details: { leadId, documentId, name: doc.name }, req });
   }
+
+  // ============================================================
+  // FOLLOW-UPS
+  // ============================================================
+
+  async listFollowUps(leadId, organizationId, query) {
+    await this._requireLead(leadId, organizationId);
+    const skip = (query.page - 1) * query.limit;
+    const { followUps, total } = await this.repo.findFollowUps(leadId, { skip, take: query.limit });
+    return { followUps, meta: this._meta(total, query.page, query.limit) };
+  }
+
+  async createFollowUp(leadId, organizationId, data, req) {
+    await this._requireLead(leadId, organizationId);
+    const followUp = await this.repo.createFollowUp({
+      leadId,
+      organizationId,
+      ownerId: req.user.id,
+      ...data,
+    });
+    await this._activity({ leadId, organizationId, actionType: 'FOLLOW_UP_SCHEDULED', performedById: req.user.id });
+    return followUp;
+  }
+
+  async updateFollowUp(leadId, followUpId, organizationId, data, req) {
+    await this._requireLead(leadId, organizationId);
+    const followUp = await this.repo.findFollowUpById(followUpId, leadId);
+    if (!followUp) throw AppError.notFound('Follow-up not found.');
+    const updated = await this.repo.updateFollowUp(followUpId, data);
+    await this._activity({ leadId, organizationId, actionType: 'FOLLOW_UP_UPDATED', performedById: req.user.id });
+    return updated;
+  }
+
+  async completeFollowUp(leadId, followUpId, organizationId, data, req) {
+    await this._requireLead(leadId, organizationId);
+    const followUp = await this.repo.findFollowUpById(followUpId, leadId);
+    if (!followUp) throw AppError.notFound('Follow-up not found.');
+    const updated = await this.repo.updateFollowUp(followUpId, { status: 'COMPLETED', completedAt: new Date() });
+    await this._activity({ leadId, organizationId, actionType: 'FOLLOW_UP_COMPLETED', performedById: req.user.id });
+    return updated;
+  }
+
+  async cancelFollowUp(leadId, followUpId, organizationId, data, req) {
+    await this._requireLead(leadId, organizationId);
+    const followUp = await this.repo.findFollowUpById(followUpId, leadId);
+    if (!followUp) throw AppError.notFound('Follow-up not found.');
+    const updated = await this.repo.updateFollowUp(followUpId, { status: 'CANCELLED', cancelledAt: new Date() });
+    await this._activity({ leadId, organizationId, actionType: 'FOLLOW_UP_CANCELLED', performedById: req.user.id });
+    return updated;
+  }
+
+  async deleteFollowUp(leadId, followUpId, organizationId, req) {
+    await this._requireLead(leadId, organizationId);
+    const followUp = await this.repo.findFollowUpById(followUpId, leadId);
+    if (!followUp) throw AppError.notFound('Follow-up not found.');
+    await this.repo.softDeleteFollowUp(followUpId);
+    await this._activity({ leadId, organizationId, actionType: 'FOLLOW_UP_DELETED', performedById: req.user.id });
+  }
+
+  async getOverdueFollowUps(organizationId, query) {
+    const skip = (query.page - 1) * query.limit;
+    const { followUps, total } = await this.repo.findOverdueFollowUps(organizationId, { skip, take: query.limit });
+    return { followUps, meta: this._meta(total, query.page, query.limit) };
+  }
+
+  // ============================================================
+  // MEETINGS
+  // ============================================================
+
+  async listMeetings(leadId, organizationId, query) {
+    await this._requireLead(leadId, organizationId);
+    const skip = (query.page - 1) * query.limit;
+    const { meetings, total } = await this.repo.findMeetings(leadId, { skip, take: query.limit });
+    return { meetings, meta: this._meta(total, query.page, query.limit) };
+  }
+
+  async createMeeting(leadId, organizationId, data, req) {
+    await this._requireLead(leadId, organizationId);
+    const meeting = await this.repo.createMeeting({
+      leadId,
+      organizationId,
+      organizerId: req.user.id,
+      ...data,
+    });
+    await this._activity({ leadId, organizationId, actionType: 'MEETING_SCHEDULED', performedById: req.user.id });
+    return meeting;
+  }
+
+  async getMeeting(leadId, meetingId, organizationId) {
+    await this._requireLead(leadId, organizationId);
+    const meeting = await this.repo.findMeetingById(meetingId, leadId);
+    if (!meeting) throw AppError.notFound('Meeting not found.');
+    return meeting;
+  }
+
+  async updateMeeting(leadId, meetingId, organizationId, data, req) {
+    await this._requireLead(leadId, organizationId);
+    const meeting = await this.repo.findMeetingById(meetingId, leadId);
+    if (!meeting) throw AppError.notFound('Meeting not found.');
+    const updated = await this.repo.updateMeeting(meetingId, data);
+    await this._activity({ leadId, organizationId, actionType: 'MEETING_UPDATED', performedById: req.user.id });
+    return updated;
+  }
+
+  async completeMeeting(leadId, meetingId, organizationId, data, req) {
+    await this._requireLead(leadId, organizationId);
+    const meeting = await this.repo.findMeetingById(meetingId, leadId);
+    if (!meeting) throw AppError.notFound('Meeting not found.');
+    const updated = await this.repo.updateMeeting(meetingId, {
+      status: 'COMPLETED',
+      meetingNotes: data.notes,
+    });
+    await this._activity({ leadId, organizationId, actionType: 'MEETING_COMPLETED', performedById: req.user.id });
+    return updated;
+  }
+
+  async cancelMeeting(leadId, meetingId, organizationId, data, req) {
+    await this._requireLead(leadId, organizationId);
+    const meeting = await this.repo.findMeetingById(meetingId, leadId);
+    if (!meeting) throw AppError.notFound('Meeting not found.');
+    const updated = await this.repo.updateMeeting(meetingId, {
+      status: 'CANCELLED',
+      cancelledAt: new Date(),
+      cancelReason: data.reason,
+    });
+    await this._activity({ leadId, organizationId, actionType: 'MEETING_CANCELLED', performedById: req.user.id });
+    return updated;
+  }
+
+  async deleteMeeting(leadId, meetingId, organizationId, req) {
+    await this._requireLead(leadId, organizationId);
+    const meeting = await this.repo.findMeetingById(meetingId, leadId);
+    if (!meeting) throw AppError.notFound('Meeting not found.');
+    await this.repo.softDeleteMeeting(meetingId);
+    await this._activity({ leadId, organizationId, actionType: 'MEETING_DELETED', performedById: req.user.id });
+  }
+
+  // ============================================================
+  // CONVERSION
+  // ============================================================
+
+  async convertLead(id, organizationId, data, req) {
+    const lead = await this._requireLead(id, organizationId);
+    if (lead.isConverted) throw AppError.conflict('Lead is already converted.');
+
+    await this.repo.updateLead(id, { isConverted: true, convertedAt: new Date() });
+    const conversion = await this.repo.createConversion({
+      leadId: id,
+      organizationId,
+      convertedById: req.user.id,
+      conversionType: data.conversionType,
+      targetEntityId: data.targetEntityId,
+      targetEntityType: data.targetEntityType,
+      notes: data.notes,
+    });
+    await this._activity({ leadId: id, organizationId, actionType: 'CONVERTED', performedById: req.user.id });
+    return conversion;
+  }
+
+  async getConversions(id, organizationId) {
+    await this._requireLead(id, organizationId);
+    return await this.repo.findConversionsByLeadId(id);
+  }
+
+  // ============================================================
+  // ACTIVITY TIMELINE
+  // ============================================================
+
+  async listActivities(leadId, organizationId, query) {
+    await this._requireLead(leadId, organizationId);
+    const skip = (query.page - 1) * query.limit;
+    const { activities, total } = await this.repo.findActivities(leadId, { skip, take: query.limit });
+    return { activities, meta: this._meta(total, query.page, query.limit) };
+  }
+
+  // ============================================================
+  // EXPORT & ANALYTICS
+  // ============================================================
+
+  async getStats(organizationId) {
+    return await this.repo.getLeadStats(organizationId);
+  }
+
+  async getAnalytics(organizationId, query) {
+    return await this.repo.getLeadAnalytics(organizationId, query);
+  }
+
+  async exportLeads(organizationId, query, req) {
+    const { format = 'CSV', filters = {} } = query;
+    
+    const leads = await this.repo.findLeadsForExport(organizationId, filters);
+    if (!leads.length) throw AppError.notFound('No leads found to export.');
+
+    const fileName = buildExportFileName(format);
+    let fileBuffer;
+
+    if (format.toUpperCase() === 'EXCEL') {
+      fileBuffer = await writeLeadsExcel(leads, fileName);
+    } else {
+      fileBuffer = await writeLeadsCsv(leads, fileName);
+    }
+
+    const exportJob = await this.repo.createExportJob({
+      organizationId,
+      requestedById: req.user.id,
+      format,
+      filters,
+      totalRecords: leads.length,
+      status: 'COMPLETED',
+      filePath: fileName,
+    });
+
+    return { fileBuffer, fileName, exportJob };
+  }
+
+  async listExportJobs(organizationId, query) {
+    const skip = (query.page - 1) * query.limit;
+    const { jobs, total } = await this.repo.findExportJobs(organizationId, { skip, take: query.limit });
+    return { jobs, meta: this._meta(total, query.page, query.limit) };
+  }
+
+  async getExportJob(organizationId, jobId) {
+    const job = await this.repo.findExportJobById(jobId, organizationId);
+    if (!job) throw AppError.notFound('Export job not found.');
+    return job;
+  }
+
+  async downloadExport(organizationId, jobId) {
+    const job = await this.repo.findExportJobById(jobId, organizationId);
+    if (!job) throw AppError.notFound('Export job not found.');
+    if (job.status !== 'COMPLETED') throw AppError.badRequest('Export is not yet ready.');
+    return job;
+  }
 }

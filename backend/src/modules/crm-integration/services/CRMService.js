@@ -4,7 +4,7 @@
  */
 
 import { AppError } from '../../../shared/response.js';
-import { logAudit } from '../../../shared/utils/index.js';
+import { logAudit } from '../../../utils/audit.js';
 import { CRM_CONSTANTS } from '../constants/crm.constants.js';
 
 export class CRMService {

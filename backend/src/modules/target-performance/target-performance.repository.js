@@ -1,4 +1,4 @@
-import prisma from '../../config/database.js';
+import { prisma } from '../../config/database.js';
 
 export class TargetPerformanceRepository {
   async getTargets(organizationId, { userId, teamId, metric, period, status }) {

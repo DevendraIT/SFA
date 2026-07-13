@@ -1,4 +1,4 @@
-import prisma from '../../../config/database.js';
+import { prisma } from '../../../config/database.js';
 
 /**
  * Branch Repository
@@ -157,6 +157,30 @@ export class BranchRepository {
     return prisma.branch.delete({
       where: { id },
     });
+  }
+
+  async softDelete(id) {
+    return prisma.branch.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
+  }
+
+  async restore(id) {
+    return prisma.branch.update({
+      where: { id },
+      data: { deletedAt: null },
+    });
+  }
+
+  async bulkCreate(data) {
+    return prisma.branch.createMany({ data, skipDuplicates: true });
+  }
+
+  async bulkUpdate(updates) {
+    return Promise.all(
+      updates.map(({ id, ...data }) => this.update(id, data))
+    );
   }
 
   async existsByCode(companyId, code, excludeId = null) {

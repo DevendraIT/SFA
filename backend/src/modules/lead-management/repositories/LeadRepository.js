@@ -1,4 +1,4 @@
-import prisma from '../../../config/database.js';
+import { prisma } from '../../../config/database.js';
 
 /**
  * Leads Repository
@@ -806,5 +806,299 @@ export class LeadsRepository {
       select: { id: true },
     });
     return !!t;
+  }
+
+  // ============================================================
+  // FOLLOW-UP METHODS
+  // ============================================================
+
+  async findFollowUps(leadId, { skip, take }) {
+    const followUps = await prisma.leadFollowUp.findMany({
+      where: { leadId, deletedAt: null },
+      skip,
+      take,
+      orderBy: { dueAt: 'asc' },
+      include: { owner: { select: { id: true, firstName: true, lastName: true, email: true } } },
+    });
+    const total = await prisma.leadFollowUp.count({
+      where: { leadId, deletedAt: null },
+    });
+    return { followUps, total };
+  }
+
+  async findFollowUpById(followUpId, leadId) {
+    return await prisma.leadFollowUp.findFirst({
+      where: { id: followUpId, leadId, deletedAt: null },
+      include: { owner: true },
+    });
+  }
+
+  async createFollowUp(data) {
+    return await prisma.leadFollowUp.create({
+      data,
+      include: { owner: true },
+    });
+  }
+
+  async updateFollowUp(followUpId, data) {
+    return await prisma.leadFollowUp.update({
+      where: { id: followUpId },
+      data,
+      include: { owner: true },
+    });
+  }
+
+  async softDeleteFollowUp(followUpId) {
+    return await prisma.leadFollowUp.update({
+      where: { id: followUpId },
+      data: { deletedAt: new Date() },
+    });
+  }
+
+  async findOverdueFollowUps(organizationId, { skip, take }) {
+    const followUps = await prisma.leadFollowUp.findMany({
+      where: {
+        lead: { organizationId },
+        status: 'SCHEDULED',
+        dueAt: { lt: new Date() },
+        deletedAt: null,
+      },
+      skip,
+      take,
+      include: { lead: true, owner: true },
+      orderBy: { dueAt: 'asc' },
+    });
+    const total = await prisma.leadFollowUp.count({
+      where: {
+        lead: { organizationId },
+        status: 'SCHEDULED',
+        dueAt: { lt: new Date() },
+        deletedAt: null,
+      },
+    });
+    return { followUps, total };
+  }
+
+  // ============================================================
+  // MEETING METHODS
+  // ============================================================
+
+  async findMeetings(leadId, { skip, take }) {
+    const meetings = await prisma.leadMeeting.findMany({
+      where: { leadId, deletedAt: null },
+      skip,
+      take,
+      orderBy: { scheduledAt: 'asc' },
+      include: { organizer: { select: { id: true, firstName: true, lastName: true, email: true } } },
+    });
+    const total = await prisma.leadMeeting.count({
+      where: { leadId, deletedAt: null },
+    });
+    return { meetings, total };
+  }
+
+  async findMeetingById(meetingId, leadId) {
+    return await prisma.leadMeeting.findFirst({
+      where: { id: meetingId, leadId, deletedAt: null },
+      include: { organizer: true },
+    });
+  }
+
+  async createMeeting(data) {
+    return await prisma.leadMeeting.create({
+      data,
+      include: { organizer: true },
+    });
+  }
+
+  async updateMeeting(meetingId, data) {
+    return await prisma.leadMeeting.update({
+      where: { id: meetingId },
+      data,
+      include: { organizer: true },
+    });
+  }
+
+  async softDeleteMeeting(meetingId) {
+    return await prisma.leadMeeting.update({
+      where: { id: meetingId },
+      data: { deletedAt: new Date() },
+    });
+  }
+
+  // ============================================================
+  // CONVERSION METHODS
+  // ============================================================
+
+  async createConversion(data) {
+    return await prisma.leadConversion.create({
+      data,
+      include: { convertedBy: true },
+    });
+  }
+
+  async findConversionsByLeadId(leadId) {
+    return await prisma.leadConversion.findMany({
+      where: { leadId },
+      include: { convertedBy: true },
+      orderBy: { convertedAt: 'desc' },
+    });
+  }
+
+  // ============================================================
+  // ACTIVITY METHODS
+  // ============================================================
+
+  async findActivities(leadId, { skip, take }) {
+    const activities = await prisma.leadActivity.findMany({
+      where: { leadId },
+      skip,
+      take,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        performedBy: { select: { id: true, firstName: true, lastName: true, email: true } },
+      },
+    });
+    const total = await prisma.leadActivity.count({ where: { leadId } });
+    return { activities, total };
+  }
+
+  // ============================================================
+  // EXPORT/IMPORT METHODS
+  // ============================================================
+
+  async findLeadsForExport(organizationId, filters = {}) {
+    return await prisma.lead.findMany({
+      where: {
+        organizationId,
+        deletedAt: null,
+        ...(filters.status && { status: filters.status }),
+        ...(filters.qualification && { qualification: filters.qualification }),
+        ...(filters.assignedToId && { assignedToId: filters.assignedToId }),
+      },
+      include: {
+        assignedTo: { select: { id: true, firstName: true, lastName: true, email: true } },
+        createdBy: { select: { id: true, firstName: true, lastName: true, email: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async createExportJob(data) {
+    return await prisma.leadExportJob.create({ data });
+  }
+
+  async findExportJobs(organizationId, { skip, take }) {
+    const jobs = await prisma.leadExportJob.findMany({
+      where: { organizationId },
+      skip,
+      take,
+      orderBy: { createdAt: 'desc' },
+    });
+    const total = await prisma.leadExportJob.count({
+      where: { organizationId },
+    });
+    return { jobs, total };
+  }
+
+  async findExportJobById(jobId, organizationId) {
+    return await prisma.leadExportJob.findFirst({
+      where: { id: jobId, organizationId },
+    });
+  }
+
+  // ============================================================
+  // ANALYTICS METHODS
+  // ============================================================
+
+  async getLeadStats(organizationId) {
+    const [totalLeads, leadsByStatus, leadsByQualification, leadsByAssignee] = await Promise.all([
+      prisma.lead.count({ where: { organizationId, deletedAt: null } }),
+      prisma.lead.groupBy({
+        by: ['status'],
+        where: { organizationId, deletedAt: null },
+        _count: { id: true },
+      }),
+      prisma.lead.groupBy({
+        by: ['qualification'],
+        where: { organizationId, deletedAt: null },
+        _count: { id: true },
+      }),
+      prisma.lead.groupBy({
+        by: ['assignedToId'],
+        where: { organizationId, deletedAt: null },
+        _count: { id: true },
+      }),
+    ]);
+    return {
+      totalLeads,
+      byStatus: Object.fromEntries(leadsByStatus.map(s => [s.status, s._count.id])),
+      byQualification: Object.fromEntries(leadsByQualification.map(q => [q.qualification, q._count.id])),
+      byAssignee: leadsByAssignee,
+    };
+  }
+
+  async getLeadAnalytics(organizationId, query = {}) {
+    return await prisma.lead.findMany({
+      where: {
+        organizationId,
+        deletedAt: null,
+      },
+      select: {
+        id: true,
+        status: true,
+        qualification: true,
+        priority: true,
+        score: true,
+        isConverted: true,
+        assignedToId: true,
+        territoryId: true,
+        source: true,
+        createdAt: true,
+        updatedAt: true,
+        assignedTo: { select: { id: true, firstName: true, lastName: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: query.limit || 100,
+      skip: ((query.page || 1) - 1) * (query.limit || 100),
+    });
+  }
+
+  // ============================================================
+  // VALIDATION HELPER METHODS
+  // ============================================================
+
+  async findActiveUsersInTeam(teamId, organizationId) {
+    return await prisma.user.findMany({
+      where: {
+        teamId,
+        organizationId,
+        isActive: true,
+        deletedAt: null,
+      },
+      select: { id: true, firstName: true, lastName: true, email: true },
+    });
+  }
+
+  async findActiveUsersInTerritory(territoryId, organizationId) {
+    return await prisma.user.findMany({
+      where: {
+        territoryId,
+        organizationId,
+        isActive: true,
+        deletedAt: null,
+      },
+      select: { id: true, firstName: true, lastName: true, email: true },
+    });
+  }
+
+  async findLeadsByIds(ids, organizationId) {
+    return await prisma.lead.findMany({
+      where: {
+        id: { in: ids },
+        organizationId,
+        deletedAt: null,
+      },
+    });
   }
 }

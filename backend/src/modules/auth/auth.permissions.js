@@ -1,182 +1,211 @@
 /**
- * Enterprise Role-Based Access Control (RBAC) Permissions Configuration
+ * Central RBAC Permission Definitions
+ * All permission slugs used across the application
  */
 
-// --------------------------------------------------
-// 1. MODULE PERMISSION CONSTANTS
-// --------------------------------------------------
 export const PERMISSIONS = {
+  // Organization Management
+  ORGANIZATION: {
+    READ: 'read:organization',
+    CREATE: 'create:organization',
+    UPDATE: 'update:organization',
+    DELETE: 'delete:organization',
+  },
+
+  // Company Management
+  COMPANIES: {
+    READ: 'read:companies',
+    CREATE: 'create:company',
+    UPDATE: 'update:company',
+    DELETE: 'delete:company',
+  },
+
+  // Branch Management
+  BRANCHES: {
+    READ: 'read:branches',
+    CREATE: 'create:branch',
+    UPDATE: 'update:branch',
+    DELETE: 'delete:branch',
+  },
+
+  // Department Management
+  DEPARTMENTS: {
+    READ: 'read:departments',
+    CREATE: 'create:department',
+    UPDATE: 'update:department',
+    DELETE: 'delete:department',
+  },
+
+  // Territory Management
+  TERRITORIES: {
+    READ: 'read:territories',
+    CREATE: 'create:territory',
+    UPDATE: 'update:territory',
+    DELETE: 'delete:territory',
+  },
+
   // User Management
   USERS: {
-    READ: "read:users",
-    CREATE: "write:users",
-    UPDATE: "update:users",
-    DELETE: "delete:users",
-  },
-  
-  // Organization Structure Settings
-  ORGANIZATION: {
-    READ: "read:organization",
-    UPDATE: "update:organization",
+    READ: 'read:users',
+    CREATE: 'create:user',
+    UPDATE: 'update:user',
+    DELETE: 'delete:user',
+    ACTIVATE: 'activate:user',
+    DEACTIVATE: 'deactivate:user',
   },
 
-  // Security & Sessions Control
-  SECURITY: {
-    MANAGE_SESSIONS: "manage:sessions",
-    VIEW_AUDIT_LOGS: "read:audit_logs",
+  // Role Management
+  ROLES: {
+    READ: 'read:roles',
+    CREATE: 'create:role',
+    UPDATE: 'update:role',
+    DELETE: 'delete:role',
   },
 
-  // Sales CRM Core entities
+  // Permission Management
+  PERMISSIONS: {
+    READ: 'read:permissions',
+    ASSIGN: 'assign:permissions',
+  },
+
+  // Lead Management
   LEADS: {
-    READ: "read:leads",
-    CREATE: "write:leads",
-    UPDATE: "update:leads",
-    DELETE: "delete:leads",
+    READ: 'read:leads',
+    CREATE: 'create:lead',
+    UPDATE: 'update:lead',
+    DELETE: 'delete:lead',
+    ASSIGN: 'assign:lead',
+    CONVERT: 'convert:lead',
+    EXPORT: 'export:leads',
+    IMPORT: 'import:leads',
   },
-  
-  CUSTOMERS: {
-    READ: "read:customers",
-    CREATE: "write:customers",
-    UPDATE: "update:customers",
-    DELETE: "delete:customers",
+
+  // Contact Management
+  CONTACTS: {
+    READ: 'read:contacts',
+    CREATE: 'create:contact',
+    UPDATE: 'update:contact',
+    DELETE: 'delete:contact',
   },
-  
+
+  // Opportunity Management
   OPPORTUNITIES: {
-    READ: "read:opportunities",
-    CREATE: "write:opportunities",
-    UPDATE: "update:opportunities",
-    DELETE: "delete:opportunities",
+    READ: 'read:opportunities',
+    CREATE: 'create:opportunity',
+    UPDATE: 'update:opportunity',
+    DELETE: 'delete:opportunity',
   },
-  
+
+  // Quotation Management
+  QUOTATIONS: {
+    READ: 'read:quotations',
+    CREATE: 'create:quotation',
+    UPDATE: 'update:quotation',
+    DELETE: 'delete:quotation',
+    APPROVE: 'approve:quotation',
+  },
+
+  // Sales Order Management
   ORDERS: {
-    READ: "read:orders",
-    CREATE: "write:orders",
-    UPDATE: "update:orders",
-    DELETE: "delete:orders",
+    READ: 'read:orders',
+    CREATE: 'create:order',
+    UPDATE: 'update:order',
+    DELETE: 'delete:order',
+    APPROVE: 'approve:order',
+    CANCEL: 'cancel:order',
+  },
+
+  // Field Force Management
+  FIELD_FORCE: {
+    READ: 'read:field-force',
+    CHECK_IN: 'check-in:field-force',
+    CHECK_OUT: 'check-out:field-force',
+    LOG_EXPENSE: 'log-expense:field-force',
+    APPROVE_EXPENSE: 'approve-expense:field-force',
+  },
+
+  // Attendance Management
+  ATTENDANCE: {
+    READ: 'read:attendance',
+    MARK: 'mark:attendance',
+    APPROVE: 'approve:attendance',
+  },
+
+  // Visits Management
+  VISITS: {
+    READ: 'read:visits',
+    CREATE: 'create:visit',
+    UPDATE: 'update:visit',
+    COMPLETE: 'complete:visit',
+  },
+
+  // Tasks Management
+  TASKS: {
+    READ: 'read:tasks',
+    CREATE: 'create:task',
+    UPDATE: 'update:task',
+    DELETE: 'delete:task',
+    COMPLETE: 'complete:task',
+  },
+
+  // Notifications
+  NOTIFICATIONS: {
+    READ: 'read:notifications',
+    MANAGE: 'manage:notifications',
+  },
+
+  // Dashboard & Analytics
+  DASHBOARD: {
+    READ: 'read:dashboard',
+    EXPORT: 'export:dashboard',
+  },
+
+  // Reports
+  REPORTS: {
+    READ: 'read:reports',
+    EXPORT: 'export:reports',
+    CREATE: 'create:report',
+  },
+
+  // Settings & Configuration
+  SETTINGS: {
+    READ: 'read:settings',
+    UPDATE: 'update:settings',
+    MANAGE_INTEGRATIONS: 'manage:integrations',
+  },
+
+  // CRM Integration
+  CRM: {
+    SYNC: 'sync:crm',
+    READ: 'read:crm',
+    UPDATE: 'update:crm',
+  },
+
+  // AI & Automation
+  AI: {
+    CONFIGURE: 'configure:ai',
+    READ: 'read:ai',
+  },
+
+  // System Admin
+  SYSTEM: {
+    MANAGE_AUDIT_LOGS: 'manage:audit-logs',
+    MANAGE_USERS: 'manage:users',
+    SYSTEM_CONFIG: 'system:config',
   },
 };
 
-// --------------------------------------------------
-// 2. STANDARD ENTERPRISE ROLES & MAPS
-// --------------------------------------------------
-export const ROLES = {
-  ADMINISTRATOR: "Administrator",
-  SALES_MANAGER: "Sales Manager",
-  SALES_REPRESENTATIVE: "Sales Representative",
-};
-
 /**
- * Standard Default Permission Sets mapped per Role
- */
-export const ROLE_PERMISSION_MAPPING = {
-  [ROLES.ADMINISTRATOR]: [
-    ...Object.values(PERMISSIONS.USERS),
-    ...Object.values(PERMISSIONS.ORGANIZATION),
-    ...Object.values(PERMISSIONS.SECURITY),
-    ...Object.values(PERMISSIONS.LEADS),
-    ...Object.values(PERMISSIONS.CUSTOMERS),
-    ...Object.values(PERMISSIONS.OPPORTUNITIES),
-    ...Object.values(PERMISSIONS.ORDERS),
-  ],
-  [ROLES.SALES_MANAGER]: [
-    PERMISSIONS.USERS.READ,
-    PERMISSIONS.ORGANIZATION.READ,
-    PERMISSIONS.LEADS.READ,
-    PERMISSIONS.LEADS.CREATE,
-    PERMISSIONS.LEADS.UPDATE,
-    PERMISSIONS.CUSTOMERS.READ,
-    PERMISSIONS.CUSTOMERS.CREATE,
-    PERMISSIONS.CUSTOMERS.UPDATE,
-    PERMISSIONS.OPPORTUNITIES.READ,
-    PERMISSIONS.OPPORTUNITIES.CREATE,
-    PERMISSIONS.OPPORTUNITIES.UPDATE,
-    PERMISSIONS.ORDERS.READ,
-    PERMISSIONS.ORDERS.CREATE,
-    PERMISSIONS.ORDERS.UPDATE,
-  ],
-  [ROLES.SALES_REPRESENTATIVE]: [
-    PERMISSIONS.ORGANIZATION.READ,
-    PERMISSIONS.LEADS.READ,
-    PERMISSIONS.LEADS.CREATE,
-    PERMISSIONS.LEADS.UPDATE,
-    PERMISSIONS.CUSTOMERS.READ,
-    PERMISSIONS.CUSTOMERS.CREATE,
-    PERMISSIONS.CUSTOMERS.UPDATE,
-    PERMISSIONS.OPPORTUNITIES.READ,
-    PERMISSIONS.OPPORTUNITIES.CREATE,
-    PERMISSIONS.OPPORTUNITIES.UPDATE,
-  ],
-};
-
-// --------------------------------------------------
-// 3. AUTHORIZATION UTILITY HELPERS
-// --------------------------------------------------
-
-/**
- * Check if a user context possesses a specific permission slug
- * @param {Object} user - Sanitized request user object
- * @param {string} permission - Permission slug
- * @returns {boolean} Access outcome
+ * Check if user has a specific permission
+ * @param {Object} user - User object with permissions array
+ * @param {string} permission - Permission slug to check
+ * @returns {boolean}
  */
 export const hasPermission = (user, permission) => {
-  if (!user || !user.permissions) return false;
-  
-  // Administrator always bypassed
-  if (user.roles?.includes(ROLES.ADMINISTRATOR)) return true;
-  
+  if (!user || !user.permissions) {
+    return false;
+  }
   return user.permissions.includes(permission);
 };
 
-/**
- * Check if user possesses ANY of the listed permissions
- * @param {Object} user - Sanitized request user object
- * @param {string[]} permissions - Permissions list
- * @returns {boolean} Access outcome
- */
-export const hasAnyPermission = (user, permissions = []) => {
-  if (!user || !user.permissions) return false;
-  if (user.roles?.includes(ROLES.ADMINISTRATOR)) return true;
-  return permissions.some((permission) => user.permissions.includes(permission));
-};
-
-/**
- * Check if user possesses ALL of the listed permissions
- * @param {Object} user - Sanitized request user object
- * @param {string[]} permissions - Permissions list
- * @returns {boolean} Access outcome
- */
-export const hasAllPermissions = (user, permissions = []) => {
-  if (!user || !user.permissions) return false;
-  if (user.roles?.includes(ROLES.ADMINISTRATOR)) return true;
-  return permissions.every((permission) => user.permissions.includes(permission));
-};
-
-/**
- * Helper checking if user belongs to specific role
- * @param {Object} user - User request profile
- * @param {string} roleName - Target role name
- * @returns {boolean} check result
- */
-export const isRole = (user, roleName) => {
-  if (!user || !user.roles) return false;
-  return user.roles.includes(roleName);
-};
-
-/**
- * Easy helper checking if user has owner/admin status
- * @param {Object} user - User request profile
- */
-export const isAdmin = (user) => {
-  return isRole(user, ROLES.ADMINISTRATOR);
-};
-
-export default {
-  PERMISSIONS,
-  ROLES,
-  ROLE_PERMISSION_MAPPING,
-  hasPermission,
-  hasAnyPermission,
-  hasAllPermissions,
-  isRole,
-  isAdmin,
-};
+export default PERMISSIONS;

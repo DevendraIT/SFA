@@ -1,4 +1,4 @@
-import prisma from '../../../config/database.js';
+import { prisma } from '../../../config/database.js';
 
 /**
  * Company Repository
@@ -130,6 +130,30 @@ export class CompanyRepository {
     return prisma.company.delete({
       where: { id },
     });
+  }
+
+  async softDelete(id) {
+    return prisma.company.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
+  }
+
+  async restore(id) {
+    return prisma.company.update({
+      where: { id },
+      data: { deletedAt: null },
+    });
+  }
+
+  async bulkCreate(data) {
+    return prisma.company.createMany({ data, skipDuplicates: true });
+  }
+
+  async bulkUpdate(updates) {
+    return Promise.all(
+      updates.map(({ id, ...data }) => this.update(id, data))
+    );
   }
 
   async existsByCode(organizationId, code, excludeId = null) {

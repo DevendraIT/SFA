@@ -6,6 +6,7 @@ import {
   changePasswordSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
+  updateProfileSchema,
 } from "./auth.schema.js";
 
 /**
@@ -17,3 +18,4 @@ export const validateResendOtp = validate(resendOtpSchema, "body");
 export const validateChangePassword = validate(changePasswordSchema, "body");
 export const validateForgotPassword = validate(forgotPasswordSchema, "body");
 export const validateResetPassword = validate(resetPasswordSchema, "body");
+export const validateUpdateProfile = validate(updateProfileSchema, "body");

@@ -1,4 +1,4 @@
-import prisma from '../../../config/database.js';
+import { prisma } from '../../../config/database.js';
 
 /**
  * Territory Repository
@@ -137,5 +137,29 @@ export class TerritoryRepository {
     return prisma.territory.delete({
       where: { id },
     });
+  }
+
+  async softDelete(id) {
+    return prisma.territory.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
+  }
+
+  async restore(id) {
+    return prisma.territory.update({
+      where: { id },
+      data: { deletedAt: null },
+    });
+  }
+
+  async bulkCreate(data) {
+    return prisma.territory.createMany({ data, skipDuplicates: true });
+  }
+
+  async bulkUpdate(updates) {
+    return Promise.all(
+      updates.map(({ id, ...data }) => this.update(id, data))
+    );
   }
 }

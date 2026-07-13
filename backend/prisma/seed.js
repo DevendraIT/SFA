@@ -1,11 +1,15 @@
 import 'dotenv/config';
-import prisma from '../src/config/database.js';
+import { prisma } from './src/config/database.js';
 import bcrypt from 'bcryptjs';
+import {
+  ENTERPRISE_ROLES,
+  ENTERPRISE_ROLE_LEVELS,
+  ENTERPRISE_ROLE_HIERARCHY,
+} from './src/modules/roles/constants/role.constants.js';
 
 async function main() {
   console.log('🌱 Starting database seeding...');
 
-  // 1. Create Organization
   const org = await prisma.organization.upsert({
     where: { slug: 'acme-corp' },
     update: {},
@@ -18,33 +22,82 @@ async function main() {
 
   console.log(`🏢 Organization created: ${org.name} (${org.slug})`);
 
-  // 2. Create Administrator Role
-  const adminRole = await prisma.role.upsert({
-    where: {
-      organizationId_name: {
-        organizationId: org.id,
-        name: 'Administrator',
+  const rolesMap = {};
+
+  for (const [roleName, level] of Object.entries(ENTERPRISE_ROLE_LEVELS)) {
+    const name = ENTERPRISE_ROLES[roleName];
+    const parentRoleName = ENTERPRISE_ROLE_HIERARCHY[name];
+    const parentRole = parentRoleName ? rolesMap[parentRoleName] : null;
+
+    const role = await prisma.role.upsert({
+      where: {
+        organizationId_name: {
+          organizationId: org.id,
+          name,
+        },
       },
-    },
-    update: {},
-    create: {
-      organizationId: org.id,
-      name: 'Administrator',
-      description: 'System Administrator with full access',
-      isSystem: true,
-    },
-  });
+      update: {},
+      create: {
+        organizationId: org.id,
+        name,
+        description: `Enterprise ${name} role`,
+        isSystem: true,
+        level,
+        parentRoleId: parentRole?.id || null,
+      },
+    });
 
-  console.log(`👑 Role created: ${adminRole.name}`);
+    rolesMap[name] = role;
+    console.log(`👑 Role created: ${name} (Level ${level})`);
+  }
 
-  // 3. Create Default Permissions
   const permissionsData = [
     { name: 'Read Users', slug: 'read:users', moduleName: 'users' },
-    { name: 'Write Users', slug: 'write:users', moduleName: 'users' },
+    { name: 'Create Users', slug: 'create:users', moduleName: 'users' },
+    { name: 'Update Users', slug: 'update:users', moduleName: 'users' },
+    { name: 'Delete Users', slug: 'delete:users', moduleName: 'users' },
     { name: 'Manage Sessions', slug: 'manage:sessions', moduleName: 'auth' },
-    { name: 'Read Organization', slug: 'read:organization', moduleName: 'organization' },
-    { name: 'Update Organization', slug: 'update:organization', moduleName: 'organization' },
+    { name: 'Read Organization', slug: 'organization:read', moduleName: 'organization' },
+    { name: 'Create Organization', slug: 'organization:create', moduleName: 'organization' },
+    { name: 'Update Organization', slug: 'organization:update', moduleName: 'organization' },
+    { name: 'Delete Organization', slug: 'organization:delete', moduleName: 'organization' },
+    { name: 'Read Companies', slug: 'company:read', moduleName: 'organization' },
+    { name: 'Create Company', slug: 'company:create', moduleName: 'organization' },
+    { name: 'Update Company', slug: 'company:update', moduleName: 'organization' },
+    { name: 'Delete Company', slug: 'company:delete', moduleName: 'organization' },
+    { name: 'Read Branches', slug: 'branch:read', moduleName: 'organization' },
+    { name: 'Create Branch', slug: 'branch:create', moduleName: 'organization' },
+    { name: 'Update Branch', slug: 'branch:update', moduleName: 'organization' },
+    { name: 'Delete Branch', slug: 'branch:delete', moduleName: 'organization' },
+    { name: 'Read Departments', slug: 'department:read', moduleName: 'organization' },
+    { name: 'Create Department', slug: 'department:create', moduleName: 'organization' },
+    { name: 'Update Department', slug: 'department:update', moduleName: 'organization' },
+    { name: 'Delete Department', slug: 'department:delete', moduleName: 'organization' },
+    { name: 'Read Territories', slug: 'territory:read', moduleName: 'organization' },
+    { name: 'Create Territory', slug: 'territory:create', moduleName: 'organization' },
+    { name: 'Update Territory', slug: 'territory:update', moduleName: 'organization' },
+    { name: 'Delete Territory', slug: 'territory:delete', moduleName: 'organization' },
+    { name: 'Read Leads', slug: 'lead:read', moduleName: 'lead-management' },
+    { name: 'Create Leads', slug: 'lead:create', moduleName: 'lead-management' },
+    { name: 'Update Leads', slug: 'lead:update', moduleName: 'lead-management' },
+    { name: 'Delete Leads', slug: 'lead:delete', moduleName: 'lead-management' },
+    { name: 'Export Leads', slug: 'lead:export', moduleName: 'lead-management' },
+    { name: 'Read Orders', slug: 'order:read', moduleName: 'sales-order' },
+    { name: 'Create Orders', slug: 'order:create', moduleName: 'sales-order' },
+    { name: 'Update Orders', slug: 'order:update', moduleName: 'sales-order' },
+    { name: 'Delete Orders', slug: 'order:delete', moduleName: 'sales-order' },
+    { name: 'Approve Orders', slug: 'order:approve', moduleName: 'sales-order' },
+    { name: 'Read Attendance', slug: 'attendance:read', moduleName: 'field-force' },
+    { name: 'Check In/Out', slug: 'attendance:write', moduleName: 'field-force' },
+    { name: 'Read Visits', slug: 'visit:read', moduleName: 'field-force' },
+    { name: 'Manage Visits', slug: 'visit:write', moduleName: 'field-force' },
+    { name: 'Read Expenses', slug: 'expense:read', moduleName: 'field-force' },
+    { name: 'Log Expenses', slug: 'expense:write', moduleName: 'field-force' },
+    { name: 'Approve Expenses', slug: 'expense:approve', moduleName: 'field-force' },
   ];
+
+  const createdPermissions = [];
+  const adminRole = rolesMap[ENTERPRISE_ROLES.ORGANIZATION_ADMINISTRATOR];
 
   for (const permData of permissionsData) {
     const permission = await prisma.permission.upsert({
@@ -52,8 +105,8 @@ async function main() {
       update: {},
       create: permData,
     });
+    createdPermissions.push(permission);
 
-    // Link permission to Admin role
     await prisma.rolePermission.upsert({
       where: {
         roleId_permissionId: {
@@ -69,9 +122,8 @@ async function main() {
     });
   }
 
-  console.log('🔒 Permissions seeded and mapped to Administrator');
+  console.log(`🔒 Seeded ${createdPermissions.length} permissions and mapped to Organization Administrator`);
 
-  // 4. Create Admin User
   const passwordHash = await bcrypt.hash('Password123!', 10);
   const user = await prisma.user.upsert({
     where: {
@@ -94,7 +146,6 @@ async function main() {
 
   console.log(`👤 Admin User created: ${user.email}`);
 
-  // 5. Map User to Admin Role
   await prisma.userRole.upsert({
     where: {
       userId_roleId: {
@@ -109,7 +160,6 @@ async function main() {
     },
   });
 
-  // 6. Create Initial Password History record to bypass 90-day expiry check on login
   await prisma.passwordHistory.create({
     data: {
       userId: user.id,

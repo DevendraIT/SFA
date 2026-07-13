@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ROLE_STATUS, ROLE_VALIDATION, RESERVED_ROLE_NAMES } from '../constants/role.constants.js';
+import { ROLE_VALIDATION, RESERVED_ROLE_NAMES } from '../constants/role.constants.js';
 
 const uuidSchema = (label) => z.string().uuid({ message: `Invalid ${label} ID.` });
 
@@ -9,8 +9,6 @@ export const listRoleSchema = z.object({
   search: z.string().trim().optional(),
   sortBy: z.string().trim().optional().default('createdAt'),
   sortOrder: z.enum(['asc', 'desc']).default('desc'),
-  status: z.enum([ROLE_STATUS.ACTIVE, ROLE_STATUS.INACTIVE, ROLE_STATUS.SUSPENDED]).optional(),
-  type: z.string().trim().optional(),
 });
 
 export const createRoleSchema = z.object({
@@ -27,7 +25,6 @@ export const createRoleSchema = z.object({
     .trim()
     .max(ROLE_VALIDATION.DESCRIPTION_MAX_LENGTH, `Description cannot exceed ${ROLE_VALIDATION.DESCRIPTION_MAX_LENGTH} characters.`)
     .optional(),
-  status: z.enum([ROLE_STATUS.ACTIVE, ROLE_STATUS.INACTIVE, ROLE_STATUS.SUSPENDED]).default(ROLE_STATUS.ACTIVE),
   permissions: z
     .array(z.string().trim().min(1))
     .max(ROLE_VALIDATION.PERMISSIONS_MAX_COUNT, `Cannot exceed ${ROLE_VALIDATION.PERMISSIONS_MAX_COUNT} permissions.`)
@@ -51,7 +48,6 @@ export const updateRoleSchema = z.object({
     .max(ROLE_VALIDATION.DESCRIPTION_MAX_LENGTH, `Description cannot exceed ${ROLE_VALIDATION.DESCRIPTION_MAX_LENGTH} characters.`)
     .optional()
     .nullable(),
-  status: z.enum([ROLE_STATUS.ACTIVE, ROLE_STATUS.INACTIVE, ROLE_STATUS.SUSPENDED]).optional(),
   permissions: z
     .array(z.string().trim().min(1))
     .max(ROLE_VALIDATION.PERMISSIONS_MAX_COUNT, `Cannot exceed ${ROLE_VALIDATION.PERMISSIONS_MAX_COUNT} permissions.`)

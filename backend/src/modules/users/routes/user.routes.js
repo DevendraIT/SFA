@@ -35,6 +35,13 @@ router.delete('/:id', authorize(P.DELETE_USER), validate(idParamSchema, 'params'
 // Role Management
 router.put('/:id/roles', authorize(P.UPDATE_USER), validate(idParamSchema, 'params'), validate(updateUserRolesSchema, 'body'), userController.updateUserRoles);
 
+// User Status Management
+router.patch('/:id/activate', authorize(P.UPDATE_USER), validate(idParamSchema, 'params'), userController.activateUser);
+router.patch('/:id/deactivate', authorize(P.UPDATE_USER), validate(idParamSchema, 'params'), userController.deactivateUser);
+
+// Bulk Operations
+router.post('/bulk/update', authorize(P.UPDATE_USER), userController.bulkUpdateUsers);
+
 // Reporting Hierarchy
 router.get('/:id/subordinates', authorize(P.READ_USER), validate(idParamSchema, 'params'), userController.getSubordinates);
 router.get('/:id/hierarchy', authorize(P.READ_USER), validate(idParamSchema, 'params'), userController.getManagerHierarchy);

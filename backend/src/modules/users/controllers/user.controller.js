@@ -80,4 +80,36 @@ export class UserController {
       next(error);
     }
   };
+
+  activateUser = async (req, res, next) => {
+    try {
+      const user = await this.service.activateUser(req.params.id, req.user.organizationId, req);
+      res.json(ApiResponse.success('User activated successfully.', user));
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  deactivateUser = async (req, res, next) => {
+    try {
+      const user = await this.service.deactivateUser(req.params.id, req.user.organizationId, req);
+      res.json(ApiResponse.success('User deactivated successfully.', user));
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  bulkUpdateUsers = async (req, res, next) => {
+    try {
+      const result = await this.service.bulkUpdateUsers(
+        req.user.organizationId, 
+        req.body.userIds, 
+        req.body.data, 
+        req
+      );
+      res.json(ApiResponse.success('Users updated successfully.', result));
+    } catch (error) {
+      next(error);
+    }
+  };
 }

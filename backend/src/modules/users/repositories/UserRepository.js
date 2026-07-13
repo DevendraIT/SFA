@@ -1,4 +1,4 @@
-import prisma from '../../../config/database.js';
+import { prisma } from '../../../config/database.js';
 
 /**
  * Users Repository
@@ -150,6 +150,22 @@ export class UserRepository {
     });
   }
 
+  async activateUser(id) {
+    return prisma.user.update({
+      where: { id },
+      data: { isActive: true },
+      select: this.#userSelect,
+    });
+  }
+
+  async deactivateUser(id) {
+    return prisma.user.update({
+      where: { id },
+      data: { isActive: false },
+      select: this.#userSelect,
+    });
+  }
+
   // --------------------------------------------------
   // Reporting Hierarchy (via Prisma raw CTE)
   // --------------------------------------------------
@@ -246,5 +262,60 @@ export class UserRepository {
       select: { id: true },
     });
     return !!territory;
+  }
+
+  // --------------------------------------------------
+  // Bulk Operations
+  // --------------------------------------------------
+
+  async findUsersByIds(userIds, organizationId) {
+    return prisma.user.findMany({
+      where: { id: { in: userIds }, organizationId, deletedAt: null },
+      select: {
+        ...this.#userSelect,
+        roles: { include: { role: { select: { id: true, name: true } } } },
+      },
+    });
+  }
+
+  async bulkUpdateUsers(userIds, data) {
+    return prisma.user.updateMany({
+      where: { id: { in: userIds } },
+      data,
+    });
+  }
+
+  // --------------------------------------------------
+  // Active Records Check (for deletion prevention)
+  // --------------------------------------------------
+
+  async countActiveLeadsByUser(userId) {
+    try {
+      return prisma.lead.count({
+        where: { assignedToId: userId, deletedAt: null, isConverted: false },
+      });
+    } catch {
+      return 0;
+    }
+  }
+
+  async countActiveSalesOrdersByUser(userId) {
+    try {
+      return prisma.salesOrder?.count?.({
+        where: { createdById: userId },
+      }) || 0;
+    } catch {
+      return 0;
+    }
+  }
+
+  async countActiveTasksByUser(userId) {
+    try {
+      return prisma.task?.count?.({
+        where: { assignedToId: userId, completedAt: null },
+      }) || 0;
+    } catch {
+      return 0;
+    }
   }
 }

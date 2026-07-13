@@ -153,13 +153,17 @@ model Role {
   name           String
   description    String?
   isSystem       Boolean @default(false)
+  level          Int?
+  parentRoleId   String? @db.Uuid
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  organization Organization?    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  permissions  RolePermission[]
-  users        UserRole[]
+  organization  Organization?    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parentRole    Role?             @relation("RoleHierarchy", fields: [parentRoleId], references: [id], onDelete: SetNull)
+  childRoles    Role[]            @relation("RoleHierarchy")
+  permissions   RolePermission[]
+  users         UserRole[]
 
   @@unique([organizationId, name])
 }
@@ -210,6 +214,10 @@ model User {
   emailVerifiedAt            DateTime?
   emailVerificationOtp       String?
   emailVerificationExpiresAt DateTime?
+  failedLoginAttempts        Int       @default(0)
+  lockoutExpiresAt           DateTime?
+  passwordResetOtp           String?
+  passwordResetExpiresAt     DateTime?
   deletedAt                  DateTime?
 
   createdAt DateTime @default(now())

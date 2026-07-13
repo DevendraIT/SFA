@@ -121,4 +121,126 @@ export class FieldForceService {
       estimatedDuration: '45 mins'
     };
   }
+
+  // ===== GET/LIST SERVICE METHODS =====
+
+  async getAttendance(organizationId, userId, date) {
+    return this.repo.getAttendance(organizationId, userId, date);
+  }
+
+  async listAttendance(organizationId, filters = {}) {
+    return this.repo.listAttendance(organizationId, filters);
+  }
+
+  async getVisit(visitId, organizationId) {
+    const visit = await this.repo.getVisit(visitId, organizationId);
+    if (!visit) throw AppError.notFound('Visit not found');
+    return visit;
+  }
+
+  async listVisits(organizationId, filters = {}) {
+    return this.repo.listVisits(organizationId, filters);
+  }
+
+  async getExpense(expenseId, organizationId) {
+    const expense = await this.repo.getExpense(expenseId, organizationId);
+    if (!expense) throw AppError.notFound('Expense not found');
+    return expense;
+  }
+
+  async listExpenses(organizationId, filters = {}) {
+    return this.repo.listExpenses(organizationId, filters);
+  }
+
+  async approveExpense(expenseId, organizationId, userId) {
+    const expense = await this.getExpense(expenseId, organizationId);
+    const updated = await this.repo.updateExpenseStatus(expenseId, organizationId, 'APPROVED', userId);
+    
+    EventBus.emit(WORKFLOW_EVENTS.EXPENSE_APPROVED, {
+      organizationId,
+      expenseId,
+      approvedById: userId,
+      amount: expense.amount,
+    });
+
+    return updated;
+  }
+
+  async rejectExpense(expenseId, organizationId) {
+    return await this.repo.updateExpenseStatus(expenseId, organizationId, 'REJECTED');
+  }
+
+  async getDailyActivityReport(darId, organizationId) {
+    const dar = await this.repo.getDailyActivityReport(darId, organizationId);
+    if (!dar) throw AppError.notFound('Daily Activity Report not found');
+    return dar;
+  }
+
+  async listDailyActivityReports(organizationId, filters = {}) {
+    return this.repo.listDailyActivityReports(organizationId, filters);
+  }
+
+  async submitDailyActivityReport(darId, organizationId) {
+    const dar = await this.getDailyActivityReport(darId, organizationId);
+    const updated = await this.repo.updateDarStatus(darId, organizationId, 'SUBMITTED');
+
+    EventBus.emit(WORKFLOW_EVENTS.DAR_SUBMITTED, {
+      organizationId,
+      darId,
+      userId: dar.userId,
+      date: dar.date,
+    });
+
+    return updated;
+  }
+
+  async approveDailyActivityReport(darId, organizationId) {
+    return await this.repo.updateDarStatus(darId, organizationId, 'APPROVED');
+  }
+
+  async getTask(taskId, organizationId) {
+    const task = await this.repo.getTask(taskId, organizationId);
+    if (!task) throw AppError.notFound('Task not found');
+    return task;
+  }
+
+  async listTasks(organizationId, filters = {}) {
+    return this.repo.listTasks(organizationId, filters);
+  }
+
+  async completeTask(taskId, organizationId) {
+    return await this.repo.updateTaskStatus(taskId, organizationId, 'COMPLETED');
+  }
+
+  async getBeatPlan(beatPlanId, organizationId) {
+    const plan = await this.repo.getBeatPlan(beatPlanId, organizationId);
+    if (!plan) throw AppError.notFound('Beat Plan not found');
+    return plan;
+  }
+
+  async listBeatPlans(organizationId, filters = {}) {
+    return this.repo.listBeatPlans(organizationId, filters);
+  }
+
+  async getCalendarEvent(eventId, organizationId) {
+    const event = await this.repo.getCalendarEvent(eventId, organizationId);
+    if (!event) throw AppError.notFound('Calendar Event not found');
+    return event;
+  }
+
+  async listCalendarEvents(organizationId, filters = {}) {
+    return this.repo.listCalendarEvents(organizationId, filters);
+  }
+
+  async getAttendanceSummary(organizationId, userId, startDate, endDate) {
+    return this.repo.getAttendanceSummary(organizationId, userId, startDate, endDate);
+  }
+
+  async getVisitsSummary(organizationId, userId, startDate, endDate) {
+    return this.repo.getVisitsSummary(organizationId, userId, startDate, endDate);
+  }
+
+  async getExpenseSummary(organizationId, userId, startDate, endDate) {
+    return this.repo.getExpenseSummary(organizationId, userId, startDate, endDate);
+  }
 }

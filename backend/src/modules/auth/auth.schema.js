@@ -155,3 +155,34 @@ export const resetPasswordSchema = z.object({
 
   newPassword: strongPasswordSchema,
 });
+
+// -------------------------------
+// Update Profile
+// -------------------------------
+export const updateProfileSchema = z.object({
+  firstName: z
+    .string()
+    .trim()
+    .min(2, { message: "First name must be at least 2 characters." })
+    .max(50, { message: "First name cannot exceed 50 characters." })
+    .transform(sanitizeText)
+    .optional(),
+
+  lastName: z
+    .string()
+    .trim()
+    .min(2, { message: "Last name must be at least 2 characters." })
+    .max(50, { message: "Last name cannot exceed 50 characters." })
+    .transform(sanitizeText)
+    .optional(),
+
+  phoneNumber: z
+    .string()
+    .trim()
+    .regex(/^\+?[\d\s\-\(\)]{10,}$/, { message: "Invalid phone number format." })
+    .transform(sanitizeText)
+    .optional(),
+}).refine(
+  (data) => Object.values(data).some(v => v !== undefined),
+  { message: "At least one field must be provided for update." }
+);

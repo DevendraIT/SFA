@@ -36,56 +36,68 @@ const P = ORGANIZATION_PERMISSIONS;
 // --------------------------------------------------
 // Organization (current tenant)
 // --------------------------------------------------
-router.get(
-  '/organizations',
-  authorize(P.READ_ORGANIZATION),
-  validate(listOrganizationsQuerySchema, 'query'),
-  organizationController.listOrganizations
-);
 
-router.post(
-  '/organizations',
-  authorize(P.CREATE_ORGANIZATION),
-  validate(createOrganizationSchema, 'body'),
-  organizationController.createOrganization
-);
-
+// Get current organization - no special permission needed, user is in org context
 router.get(
-  '/',
-  authorize(P.READ_ORGANIZATION),
+  '/current',
   organizationController.getOrganization
 );
 
+// Update current organization - only org admins
 router.put(
-  '/',
+  '/current',
   authorize(P.UPDATE_ORGANIZATION),
   validate(updateOrganizationSchema, 'body'),
   organizationController.updateOrganization
 );
 
+// List all organizations
+router.get(
+  '/',
+  authorize(P.READ_ORGANIZATION),
+  validate(listOrganizationsQuerySchema, 'query'),
+  organizationController.listOrganizations
+);
+
+// Create new organization
+router.post(
+  '/',
+  authorize(P.CREATE_ORGANIZATION),
+  validate(createOrganizationSchema, 'body'),
+  organizationController.createOrganization
+);
+
+// Get specific organization by ID - MUST come after /current and /statistics
+router.get(
+  '/:id',
+  authorize(P.READ_ORGANIZATION),
+  validate(idParamSchema, 'params'),
+  organizationController.getOrganization
+);
+
+router.get(
+  '/:id/statistics',
+  authorize(P.READ_ORGANIZATION),
+  validate(idParamSchema, 'params'),
+  organizationController.getStatistics
+);
+
 router.patch(
-  '/organizations/:id/activate',
+  '/:id/activate',
   authorize(P.UPDATE_ORGANIZATION),
   validate(idParamSchema, 'params'),
   organizationController.activateOrganization
 );
 
 router.patch(
-  '/organizations/:id/deactivate',
+  '/:id/deactivate',
   authorize(P.UPDATE_ORGANIZATION),
   validate(idParamSchema, 'params'),
   organizationController.deactivateOrganization
 );
 
-router.get(
-  '/organizations/:id/statistics',
-  authorize(P.READ_ORGANIZATION),
-  validate(idParamSchema, 'params'),
-  organizationController.getStatistics
-);
-
 router.delete(
-  '/organizations/:id',
+  '/:id',
   authorize(P.DELETE_ORGANIZATION),
   validate(idParamSchema, 'params'),
   organizationController.deleteOrganization

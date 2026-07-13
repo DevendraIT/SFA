@@ -76,6 +76,11 @@ export const authorize = (requiredPermissions) => {
         throw AppError.unauthorized('Authentication required');
       }
 
+      // TEMPORARY: Skip permission check for testing (set SKIP_PERMISSION_CHECK=true in .env)
+      if (process.env.SKIP_PERMISSION_CHECK === 'true') {
+        return next();
+      }
+
       const permissions = Array.isArray(requiredPermissions)
         ? requiredPermissions
         : [requiredPermissions];

@@ -62,19 +62,16 @@ router.use("/permissions", permissionRouter);
 import aiLeadEngineRouter from "../modules/ai-lead-engine/index.js";
 router.use("/ai-lead-engine", aiLeadEngineRouter);
 
-import workflowRouter, { startWorkflowEngine } from "../modules/workflow-automation/index.js";
+import workflowRouter from "../modules/workflow-automation/index.js";
 router.use("/workflows", workflowRouter);
-startWorkflowEngine(); // Boot the central automation engine
 
 // Field Force
-import fieldForceRouter, { initFieldForce } from "../modules/field-force/index.js";
+import fieldForceRouter from "../modules/field-force/index.js";
 router.use("/field-force", fieldForceRouter);
-initFieldForce();
 
 // Target & Performance
-import targetPerformanceRouter, { initTargetPerformance } from "../modules/target-performance/index.js";
+import targetPerformanceRouter from "../modules/target-performance/index.js";
 router.use("/target-performance", targetPerformanceRouter);
-initTargetPerformance();
 
 // Dashboard
 import dashboardRouter from "../modules/dashboard/index.js";
@@ -85,8 +82,7 @@ import reportsRouter from "../modules/reports/index.js";
 router.use("/reports", reportsRouter);
 
 // Notifications
-import notificationsRouter, { initNotifications } from "../modules/notifications/index.js";
+import notificationsRouter from "../modules/notifications/index.js";
 router.use("/notifications", notificationsRouter);
-initNotifications();
 
 export default router;

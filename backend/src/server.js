@@ -1,14 +1,28 @@
 import app from "./app.js";
 import config from "./config/env.js";
 import { logger } from "./utils/index.js";
-import prisma from "./config/database.js";
+import { prisma } from "./config/database.js";
+import { startWorkflowEngine } from "./modules/workflow-automation/index.js";
+import { initFieldForce } from "./modules/field-force/index.js";
+import { initNotifications } from "./modules/notifications/index.js";
+import { initTargetPerformance } from "./modules/target-performance/index.js";
 
 const PORT = config.PORT || 5000;
 
-const server = app.listen(PORT, "0.0.0.0", () => {
+const server = app.listen(PORT, "0.0.0.0", async () => {
   logger.info(`🚀 Server successfully started in ${config.NODE_ENV} mode`);
   logger.info(`📡 Listening on http://localhost:${PORT}/api/${config.API_VERSION}`);
   logger.info(`📖 API Documentation available at http://localhost:${PORT}/api/${config.API_VERSION}/docs`);
+  
+  // Initialize modules after database connection is ready
+  try {
+    startWorkflowEngine();
+    initFieldForce();
+    initNotifications();
+    initTargetPerformance();
+  } catch (error) {
+    logger.error("Error initializing modules:", error);
+  }
 });
 
 // Handle uncaught exceptions

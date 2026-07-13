@@ -1,4 +1,4 @@
-import prisma from '../../../config/database.js';
+import { prisma } from '../../../config/database.js';
 
 /**
  * Department Repository
@@ -178,6 +178,30 @@ export class DepartmentRepository {
     return prisma.department.delete({
       where: { id },
     });
+  }
+
+  async softDelete(id) {
+    return prisma.department.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
+  }
+
+  async restore(id) {
+    return prisma.department.update({
+      where: { id },
+      data: { deletedAt: null },
+    });
+  }
+
+  async bulkCreate(data) {
+    return prisma.department.createMany({ data, skipDuplicates: true });
+  }
+
+  async bulkUpdate(updates) {
+    return Promise.all(
+      updates.map(({ id, ...data }) => this.update(id, data))
+    );
   }
 
   async existsByCode(branchId, code, excludeId = null) {

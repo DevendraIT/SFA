@@ -1,11 +1,6 @@
-import prisma from '../../../config/database.js';
+import { prisma } from '../../../config/database.js';
 
-/**
- * Role Repository
- * Handles all database operations for Role entity
- */
 export class RoleRepository {
-
   async findAll(organizationId, options = {}) {
     const {
       skip = 0,
@@ -13,8 +8,6 @@ export class RoleRepository {
       search,
       sortBy = 'createdAt',
       sortOrder = 'desc',
-      status,
-      type
     } = options;
 
     const where = { organizationId };
@@ -25,14 +18,6 @@ export class RoleRepository {
         { description: { contains: search, mode: 'insensitive' } },
       ];
     }
-    
-    if (status) {
-      where.status = status;
-    }
-
-    if (type) {
-      where.type = type;
-    }
 
     const [roles, total] = await Promise.all([
       prisma.role.findMany({
@@ -41,6 +26,20 @@ export class RoleRepository {
         take,
         orderBy: { [sortBy]: sortOrder },
         include: {
+          parentRole: {
+            select: {
+              id: true,
+              name: true,
+              level: true,
+            },
+          },
+          childRoles: {
+            select: {
+              id: true,
+              name: true,
+              level: true,
+            },
+          },
           _count: {
             select: {
               users: true,
@@ -62,6 +61,20 @@ export class RoleRepository {
         organizationId 
       },
       include: {
+        parentRole: {
+          select: {
+            id: true,
+            name: true,
+            level: true,
+          },
+        },
+        childRoles: {
+          select: {
+            id: true,
+            name: true,
+            level: true,
+          },
+        },
         permissions: {
           select: {
             permission: {
@@ -96,6 +109,13 @@ export class RoleRepository {
     return prisma.role.create({
       data,
       include: {
+        parentRole: {
+          select: {
+            id: true,
+            name: true,
+            level: true,
+          },
+        },
         _count: {
           select: {
             users: true,
@@ -111,6 +131,13 @@ export class RoleRepository {
       where: { id },
       data,
       include: {
+        parentRole: {
+          select: {
+            id: true,
+            name: true,
+            level: true,
+          },
+        },
         _count: {
           select: {
             users: true,
@@ -142,75 +169,56 @@ export class RoleRepository {
   }
 
   async getStatistics(organizationId) {
-    return prisma.$transaction(async (tx) => {
-      const [
-        totalRoles,
-        activeRoles,
-        inactiveRoles,
-        systemRoles,
-        customRoles,
-        rolesWithUsers,
-        totalAssignedUsers,
-      ] = await Promise.all([
-        tx.role.count({ 
-          where: { organizationId } 
-        }),
-        tx.role.count({ 
-          where: { 
-            organizationId, 
-            status: 'active' 
-          } 
-        }),
-        tx.role.count({ 
-          where: { 
-            organizationId, 
-            status: 'inactive' 
-          } 
-        }),
-        tx.role.count({ 
-          where: { 
-            organizationId, 
-            type: 'system' 
-          } 
-        }),
-        tx.role.count({ 
-          where: { 
-            organizationId, 
-            type: 'custom' 
-          } 
-        }),
-        tx.role.count({
-          where: {
-            organizationId,
-            users: {
-              some: {}
-            }
+    const [
+      totalRoles,
+      systemRoles,
+      customRoles,
+      rolesWithUsers,
+      totalAssignedUsers,
+    ] = await Promise.all([
+      prisma.role.count({ 
+        where: { organizationId } 
+      }),
+      prisma.role.count({ 
+        where: { 
+          organizationId, 
+          isSystem: true 
+        } 
+      }),
+      prisma.role.count({ 
+        where: { 
+          organizationId, 
+          isSystem: false 
+        } 
+      }),
+      prisma.role.count({
+        where: {
+          organizationId,
+          users: {
+            some: {}
           }
-        }),
-        tx.user.count({ 
-          where: { 
-            role: { organizationId },
-            roleId: { not: null }
-          } 
-        }),
-      ]);
-
-      const unassignedRoles = totalRoles - rolesWithUsers;
-
-      return {
-        roles: { 
-          total: totalRoles, 
-          active: activeRoles, 
-          inactive: inactiveRoles,
-          system: systemRoles,
-          custom: customRoles,
-          assigned: rolesWithUsers,
-          unassigned: unassignedRoles
-        },
-        users: {
-          assigned: totalAssignedUsers
         }
-      };
-    });
+      }),
+      prisma.userRole.count({ 
+        where: { 
+          role: { organizationId }
+        } 
+      }),
+    ]);
+
+    const unassignedRoles = totalRoles - rolesWithUsers;
+
+    return {
+      roles: { 
+        total: totalRoles,
+        system: systemRoles,
+        custom: customRoles,
+        assigned: rolesWithUsers,
+        unassigned: unassignedRoles
+      },
+      users: {
+        assigned: totalAssignedUsers
+      }
+    };
   }
 }

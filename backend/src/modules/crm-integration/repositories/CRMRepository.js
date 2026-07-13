@@ -2,7 +2,7 @@
  * CRM Integration Repository - Enterprise Modular Monolith
  * Handles all CRM integration data access
  */
-import prisma from '../../../config/database.js';
+import { prisma } from '../../../config/database.js';
 
 export class CRMRepository {
  

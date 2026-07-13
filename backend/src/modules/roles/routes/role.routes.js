@@ -1,7 +1,7 @@
 import express from 'express';
 import { authenticate, requireOrganization, authorize } from '../../../middlewares/auth.middleware.js';
 import validate from '../../../middlewares/validation.middleware.js';
-import { RoleRepository } from '../repositories/RoleRepository.js';
+import { RoleRepository } from '../repositories/role.repository.js';
 import { RoleService } from '../services/role.service.js';
 import { RoleController } from '../controllers/role.controller.js';
 import {

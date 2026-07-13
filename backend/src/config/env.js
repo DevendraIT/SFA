@@ -52,6 +52,10 @@ const envSchema = z.object({
   EMAIL_FROM_ADDRESS: z.string().default("noreply@sfa-example.com"),
   EMAIL_FROM_NAME: z.string().default("SFA Engine"),
 
+  // Auth Configuration
+  PASSWORD_EXPIRY_DAYS: z.string().default("90"),
+  MAX_CONCURRENT_SESSIONS: z.string().default("3"),
+
   // AI Analysis
   AI_PROVIDER: z.enum(["mock", "openai", "gemini"]).default("mock"),
   OPENAI_API_KEY: z.string().optional(),
@@ -132,7 +136,10 @@ export const config = {
     provider: parsed.data.AI_PROVIDER,
     openai: { apiKey: parsed.data.OPENAI_API_KEY },
     gemini: { apiKey: parsed.data.GEMINI_API_KEY },
-  }
+  },
+
+  PASSWORD_EXPIRY_DAYS: parseInt(parsed.data.PASSWORD_EXPIRY_DAYS, 10),
+  MAX_CONCURRENT_SESSIONS: parseInt(parsed.data.MAX_CONCURRENT_SESSIONS, 10),
 };
 
 export default config;

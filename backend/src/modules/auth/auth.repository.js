@@ -1,4 +1,4 @@
-import prisma from "../../config/database.js";
+import { prisma } from "../../config/database.js";
 
 /**
  * Authentication Module Database Repository
@@ -285,6 +285,18 @@ export class AuthRepository {
           },
         },
       },
+    });
+  }
+
+  /**
+   * Update user profile fields
+   * @param {string} userId - UUID
+   * @param {Object} data - { firstName, lastName, phoneNumber }
+   */
+  async updateUserProfile(userId, data) {
+    return prisma.user.update({
+      where: { id: userId },
+      data,
     });
   }
 }

@@ -153,6 +153,22 @@ export class AuthController extends BaseController {
   });
 
   /**
+   * Update current user profile
+   */
+  updateProfile = this.asyncHandler(async (req, res) => {
+    const user = this.extractUser(req);
+    const { firstName, lastName, phoneNumber } = req.body;
+    
+    const updated = await this.service.updateProfile(user.id, {
+      firstName,
+      lastName,
+      phoneNumber,
+    });
+    
+    return this.handleSuccess(res, updated, 'Profile updated successfully');
+  });
+
+  /**
    * Get user sessions
    */
   getSessions = this.asyncHandler(async (req, res) => {
