@@ -51,6 +51,7 @@ model Organization {
   workflowSettings      WorkflowSettings[]
   notificationPrefs     NotificationPreference[]
   businessRules         BusinessRuleConfig[]
+  campaigns             Campaign[]
 }
 
 // --------------------------------------------------
@@ -153,11 +154,15 @@ model Role {
   name           String
   description    String?
   isSystem       Boolean @default(false)
+  level          Int?
+  parentRoleId   String? @db.Uuid
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   organization Organization?    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parentRole   Role?            @relation("RoleHierarchy", fields: [parentRoleId], references: [id], onDelete: SetNull)
+  childRoles   Role[]           @relation("RoleHierarchy")
   permissions  RolePermission[]
   users        UserRole[]
 
@@ -210,6 +215,10 @@ model User {
   emailVerifiedAt            DateTime?
   emailVerificationOtp       String?
   emailVerificationExpiresAt DateTime?
+  failedLoginAttempts        Int       @default(0)
+  lockoutExpiresAt           DateTime?
+  passwordResetOtp           String?
+  passwordResetExpiresAt     DateTime?
   deletedAt                  DateTime?
 
   createdAt DateTime @default(now())
@@ -252,6 +261,8 @@ model User {
   beatPlans         BeatPlan[]
   calendarEvents    CalendarEvent[]
   notificationPrefs NotificationPreference[]
+  campaignsCreated  Campaign[]               @relation("CampaignCreatedBy")
+  campaignsUpdated  Campaign[]               @relation("CampaignUpdatedBy")
 
   @@unique([organizationId, email])
 }
@@ -399,6 +410,7 @@ model Lead {
   assignmentHistory LeadAssignmentHistory[]
   conversions       LeadConversion[]
   visits            Visit[]
+  campaignLeads     CampaignLead[]
 
   @@index([organizationId, status])
   @@index([organizationId, assignedToId])
@@ -1329,4 +1341,123 @@ model BusinessRuleConfig {
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@unique([organizationId, ruleKey])
+}
+
+// ==================================================
+// PHASE 6 — Campaign Management
+// ==================================================
+
+model Campaign {
+  id              String            @id @default(uuid()) @db.Uuid
+  organizationId  String            @db.Uuid
+  name            String
+  description     String?
+  status          CampaignRunStatus @default(Draft)
+  campaignChannel CampaignChannel?
+  category        String?
+  serviceType     String?
+  templateId      String?           @db.Uuid
+  emailProvider   EmailProvider?
+  scheduledAt     DateTime?
+  startedAt       DateTime?
+  completedAt     DateTime?
+  createdById     String            @db.Uuid
+  updatedById     String            @db.Uuid
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization  Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdBy     User           @relation("CampaignCreatedBy", fields: [createdById], references: [id])
+  updatedBy     User           @relation("CampaignUpdatedBy", fields: [updatedById], references: [id])
+  campaignLeads CampaignLead[]
+  campaignLogs  CampaignLog[]
+
+  @@index([organizationId, status])
+}
+
+model CampaignLead {
+  id          String             @id @default(uuid()) @db.Uuid
+  campaignId  String             @db.Uuid
+  leadId      String             @db.Uuid
+  email       String
+  contactName String?
+  company     String?
+  status      CampaignLeadStatus @default(Pending)
+  replyType   ReplyType          @default(None)
+
+  sentAt       DateTime?
+  openedAt     DateTime?
+  clickedAt    DateTime?
+  repliedAt    DateTime?
+  errorMessage String?
+
+  campaign     Campaign      @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  lead         Lead          @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  campaignLogs CampaignLog[]
+
+  @@index([campaignId, status])
+  @@index([leadId])
+}
+
+model CampaignLog {
+  id               String  @id @default(uuid()) @db.Uuid
+  campaignId       String  @db.Uuid
+  leadId           String? @db.Uuid
+  event            String
+  status           String
+  message          String?
+  providerResponse Json?
+
+  createdAt DateTime @default(now())
+
+  campaign Campaign      @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  lead     CampaignLead? @relation(fields: [leadId], references: [id], onDelete: SetNull)
+
+  @@index([campaignId])
+  @@index([leadId])
+}
+
+enum CampaignRunStatus {
+  Draft
+  Scheduled
+  Running
+  Paused
+  Completed
+  Cancelled
+}
+
+enum CampaignChannel {
+  Email
+  SMS
+  WhatsApp
+}
+
+enum EmailProvider {
+  SMTP
+  Gmail
+}
+
+enum CampaignLeadStatus {
+  Pending
+  Queued
+  Sent
+  Delivered
+  Opened
+  Clicked
+  Replied
+  Interested
+  DemoScheduled
+  Qualified
+  Lost
+  Failed
+}
+
+enum ReplyType {
+  None
+  Interested
+  Demo
+  Pricing
+  NotInterested
+  Other
 }

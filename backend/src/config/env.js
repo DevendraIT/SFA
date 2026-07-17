@@ -60,6 +60,9 @@ const envSchema = z.object({
   AI_PROVIDER: z.enum(["mock", "openai", "gemini"]).default("mock"),
   OPENAI_API_KEY: z.string().optional(),
   GEMINI_API_KEY: z.string().optional(),
+  
+  // N8n Integration
+  N8N_WEBHOOK_URL: z.string().optional(),
 });
 
 // Load DB_URL to DATABASE_URL if DATABASE_URL is not set
@@ -140,6 +143,8 @@ export const config = {
 
   PASSWORD_EXPIRY_DAYS: parseInt(parsed.data.PASSWORD_EXPIRY_DAYS, 10),
   MAX_CONCURRENT_SESSIONS: parseInt(parsed.data.MAX_CONCURRENT_SESSIONS, 10),
+
+  N8N_WEBHOOK_URL: parsed.data.N8N_WEBHOOK_URL,
 };
 
 export default config;

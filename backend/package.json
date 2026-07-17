@@ -50,5 +50,10 @@
     "nodemon": "^3.1.14",
     "prettier": "^3.8.4",
     "prisma": "^7.8.0"
-  }
+  },
+  "description": "",
+  "main": "prisma.config.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }

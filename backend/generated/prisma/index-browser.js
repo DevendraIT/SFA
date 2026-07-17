@@ -184,6 +184,8 @@ exports.Prisma.RoleScalarFieldEnum = {
   name: 'name',
   description: 'description',
   isSystem: 'isSystem',
+  level: 'level',
+  parentRoleId: 'parentRoleId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -221,6 +223,10 @@ exports.Prisma.UserScalarFieldEnum = {
   emailVerifiedAt: 'emailVerifiedAt',
   emailVerificationOtp: 'emailVerificationOtp',
   emailVerificationExpiresAt: 'emailVerificationExpiresAt',
+  failedLoginAttempts: 'failedLoginAttempts',
+  lockoutExpiresAt: 'lockoutExpiresAt',
+  passwordResetOtp: 'passwordResetOtp',
+  passwordResetExpiresAt: 'passwordResetExpiresAt',
   deletedAt: 'deletedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -701,6 +707,53 @@ exports.Prisma.BusinessRuleConfigScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.CampaignScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  name: 'name',
+  description: 'description',
+  status: 'status',
+  campaignChannel: 'campaignChannel',
+  category: 'category',
+  serviceType: 'serviceType',
+  templateId: 'templateId',
+  emailProvider: 'emailProvider',
+  scheduledAt: 'scheduledAt',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  createdById: 'createdById',
+  updatedById: 'updatedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CampaignLeadScalarFieldEnum = {
+  id: 'id',
+  campaignId: 'campaignId',
+  leadId: 'leadId',
+  email: 'email',
+  contactName: 'contactName',
+  company: 'company',
+  status: 'status',
+  replyType: 'replyType',
+  sentAt: 'sentAt',
+  openedAt: 'openedAt',
+  clickedAt: 'clickedAt',
+  repliedAt: 'repliedAt',
+  errorMessage: 'errorMessage'
+};
+
+exports.Prisma.CampaignLogScalarFieldEnum = {
+  id: 'id',
+  campaignId: 'campaignId',
+  leadId: 'leadId',
+  event: 'event',
+  status: 'status',
+  message: 'message',
+  providerResponse: 'providerResponse',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -972,6 +1025,50 @@ exports.NotificationStatus = exports.$Enums.NotificationStatus = {
   READ: 'READ'
 };
 
+exports.CampaignRunStatus = exports.$Enums.CampaignRunStatus = {
+  Draft: 'Draft',
+  Scheduled: 'Scheduled',
+  Running: 'Running',
+  Paused: 'Paused',
+  Completed: 'Completed',
+  Cancelled: 'Cancelled'
+};
+
+exports.CampaignChannel = exports.$Enums.CampaignChannel = {
+  Email: 'Email',
+  SMS: 'SMS',
+  WhatsApp: 'WhatsApp'
+};
+
+exports.EmailProvider = exports.$Enums.EmailProvider = {
+  SMTP: 'SMTP',
+  Gmail: 'Gmail'
+};
+
+exports.CampaignLeadStatus = exports.$Enums.CampaignLeadStatus = {
+  Pending: 'Pending',
+  Queued: 'Queued',
+  Sent: 'Sent',
+  Delivered: 'Delivered',
+  Opened: 'Opened',
+  Clicked: 'Clicked',
+  Replied: 'Replied',
+  Interested: 'Interested',
+  DemoScheduled: 'DemoScheduled',
+  Qualified: 'Qualified',
+  Lost: 'Lost',
+  Failed: 'Failed'
+};
+
+exports.ReplyType = exports.$Enums.ReplyType = {
+  None: 'None',
+  Interested: 'Interested',
+  Demo: 'Demo',
+  Pricing: 'Pricing',
+  NotInterested: 'NotInterested',
+  Other: 'Other'
+};
+
 exports.Prisma.ModelName = {
   Organization: 'Organization',
   Company: 'Company',
@@ -1016,7 +1113,10 @@ exports.Prisma.ModelName = {
   CalendarEvent: 'CalendarEvent',
   WorkflowSettings: 'WorkflowSettings',
   NotificationPreference: 'NotificationPreference',
-  BusinessRuleConfig: 'BusinessRuleConfig'
+  BusinessRuleConfig: 'BusinessRuleConfig',
+  Campaign: 'Campaign',
+  CampaignLead: 'CampaignLead',
+  CampaignLog: 'CampaignLog'
 };
 
 /**

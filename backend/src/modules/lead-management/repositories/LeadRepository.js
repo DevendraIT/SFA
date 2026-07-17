@@ -170,6 +170,20 @@ export class LeadsRepository {
     });
   }
 
+  async findByFilter(organizationId, filters = {}) {
+    const where = this._buildWhere(organizationId, filters);
+    
+    // Explicitly add filter for email if required
+    if (filters.hasEmail) {
+      where.email = { not: null };
+    }
+
+    return prisma.lead.findMany({
+      where,
+      select: this._leadListSelect,
+    });
+  }
+
   async findLeadsByIds(ids, organizationId) {
     return prisma.lead.findMany({
       where: { id: { in: ids }, organizationId, deletedAt: null },

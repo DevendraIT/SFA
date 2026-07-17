@@ -85,4 +85,8 @@ router.use("/reports", reportsRouter);
 import notificationsRouter from "../modules/notifications/index.js";
 router.use("/notifications", notificationsRouter);
 
+// Campaigns
+import campaignRouter from "../modules/campaign/index.js";
+router.use("/campaigns", campaignRouter);
+
 export default router;

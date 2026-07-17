@@ -20,7 +20,12 @@ export const validate = (schema, source = 'body') => {
       } else if (source === 'params') {
         req.params = validated;
       } else if (source === 'query') {
-        req.query = validated;
+        Object.defineProperty(req, 'query', {
+          value: validated,
+          writable: true,
+          enumerable: true,
+          configurable: true
+        });
       }
 
       next();
