@@ -6,7 +6,7 @@
 export const AUTH_CONSTANTS = {
   // JWT Token settings
   JWT: {
-    ACCESS_TOKEN_EXPIRY: '15m',
+    ACCESS_TOKEN_EXPIRY: '480m',
     REFRESH_TOKEN_EXPIRY: '7d',
     REMEMBER_ME_EXPIRY: '30d',
   },

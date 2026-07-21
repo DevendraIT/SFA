@@ -18,37 +18,66 @@ export class AuthRepository {
    * Find user by email with full role/permission graph
    * @param {string} email - lowercased email
    */
-  async findUserByEmail(email) {
-    return prisma.user.findFirst({
-      where: {
-        email,
-        deletedAt: null,
-      },
-      include: {
-        roles: {
-          include: {
-            role: {
-              include: {
-                permissions: {
-                  include: {
-                    permission: true,
-                  },
+  async findAuthByEmail(email) {
+
+  const allUsers = await prisma.user.findMany({
+    select: {
+      id: true,
+      email: true,
+      deletedAt: true,
+    },
+  });
+
+  const user = await prisma.user.findFirst({
+    where: {
+      email,
+      deletedAt: null,
+    },
+    include: {
+      roles: {
+        include: {
+          role: {
+            include: {
+              permissions: {
+                include: {
+                  permission: true,
                 },
               },
             },
           },
         },
       },
-    });
-  }
+    },
+  });
+
+
+  if (!user) return null;
+
+  return {
+    userId: user.id,
+    email: user.email,
+    organizationId: user.organizationId,
+    passwordHash: user.passwordHash,
+    failedLoginAttempts: user.failedLoginAttempts,
+    lockoutExpiresAt: user.lockoutExpiresAt,
+    emailVerifiedAt: user.emailVerifiedAt,
+    emailVerificationOtp: user.emailVerificationOtp,
+    emailVerificationExpiresAt: user.emailVerificationExpiresAt,
+    passwordResetOtp: user.passwordResetOtp,
+    passwordResetExpiresAt: user.passwordResetExpiresAt,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+    user,
+  };
+}
 
   /**
-   * Find user by ID with roles and permissions
+   * Find user by ID with full role/permission graph
    * @param {string} userId - UUID
    */
   async findUserById(userId) {
-    return prisma.user.findUnique({
-      where: { id: userId },
+    return prisma.user.findFirst({
+      where: { id: userId, deletedAt: null },
       include: {
         roles: {
           include: {
@@ -68,11 +97,38 @@ export class AuthRepository {
   }
 
   /**
-   * Update User attributes
+   * Find auth credential by User ID
+   * @param {string} userId - UUID
+   */
+  async findAuthByUserId(userId) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+    if (!user) return null;
+    return {
+      userId: user.id,
+      email: user.email,
+      organizationId: user.organizationId,
+      passwordHash: user.passwordHash,
+      failedLoginAttempts: user.failedLoginAttempts,
+      lockoutExpiresAt: user.lockoutExpiresAt,
+      emailVerifiedAt: user.emailVerifiedAt,
+      emailVerificationOtp: user.emailVerificationOtp,
+      emailVerificationExpiresAt: user.emailVerificationExpiresAt,
+      passwordResetOtp: user.passwordResetOtp,
+      passwordResetExpiresAt: user.passwordResetExpiresAt,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      user: user,
+    };
+  }
+
+  /**
+   * Update User Auth attributes
    * @param {string} userId - UUID
    * @param {Object} data - Update payload
    */
-  async updateUser(userId, data) {
+  async updateUserAuth(userId, data) {
     return prisma.user.update({
       where: { id: userId },
       data,
@@ -133,49 +189,27 @@ export class AuthRepository {
   }
 
   /**
-   * Create Refresh Token
-   * @param {Object} data - fields
+   * Find Session by Refresh Token
+   * @param {string} refreshToken - refresh token value
    */
-  async createRefreshToken(data) {
-    return prisma.refreshToken.create({
-      data,
-    });
-  }
-
-  /**
-   * Find Refresh Token with session details
-   * @param {string} token - refresh token value
-   */
-  async findRefreshToken(token) {
-    return prisma.refreshToken.findUnique({
-      where: { token },
+  async findSessionByRefreshToken(refreshToken) {
+    return prisma.session.findUnique({
+      where: { refreshToken },
       include: {
         user: true,
-        session: true,
       },
     });
   }
 
   /**
-   * Update Refresh Token attributes
+   * Update Session attributes
    * @param {string} id - UUID
    * @param {Object} data - payload
    */
-  async updateRefreshToken(id, data) {
-    return prisma.refreshToken.update({
+  async updateSession(id, data) {
+    return prisma.session.update({
       where: { id },
       data,
-    });
-  }
-
-  /**
-   * Revoke all refresh tokens associated with a session
-   * @param {string} sessionId - UUID
-   */
-  async revokeRefreshTokensBySession(sessionId) {
-    return prisma.refreshToken.updateMany({
-      where: { sessionId },
-      data: { isRevoked: true },
     });
   }
 

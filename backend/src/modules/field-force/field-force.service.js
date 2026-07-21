@@ -1,6 +1,4 @@
 import { AppError } from '../../shared/response.js';
-import EventBus from '../workflow-automation/events/EventBus.js';
-import { WORKFLOW_EVENTS } from '../workflow-automation/constants/workflow.events.js';
 
 export class FieldForceService {
   constructor(fieldForceRepository) {
@@ -14,26 +12,14 @@ export class FieldForceService {
     
     const attendance = await this.repo.checkIn(organizationId, userId, data);
 
-    EventBus.emit(WORKFLOW_EVENTS.ATTENDANCE_CHECKED_IN, {
-      organizationId,
-      userId,
-      attendanceId: attendance.id,
-      timestamp: attendance.checkInAt,
-    });
-
+    
     return attendance;
   }
 
   async checkOut(organizationId, userId, data) {
     const attendance = await this.repo.checkOut(organizationId, userId, data);
 
-    EventBus.emit(WORKFLOW_EVENTS.ATTENDANCE_CHECKED_OUT, {
-      organizationId,
-      userId,
-      attendanceId: attendance.id,
-      timestamp: attendance.checkOutAt,
-    });
-
+    
     return attendance;
   }
 
@@ -44,25 +30,14 @@ export class FieldForceService {
   async startVisit(visitId, organizationId, userId) {
     const visit = await this.repo.updateVisitStatus(visitId, organizationId, 'IN_PROGRESS');
 
-    EventBus.emit(WORKFLOW_EVENTS.VISIT_STARTED, {
-      organizationId,
-      userId,
-      visitId,
-    });
-
+    
     return visit;
   }
 
   async completeVisit(visitId, organizationId, userId, data) {
     const visit = await this.repo.updateVisitStatus(visitId, organizationId, 'COMPLETED', data);
 
-    EventBus.emit(WORKFLOW_EVENTS.VISIT_COMPLETED, {
-      organizationId,
-      userId,
-      visitId,
-      leadId: visit.leadId,
-    });
-
+    
     return visit;
   }
 
@@ -80,32 +55,56 @@ export class FieldForceService {
 
   async createTask(organizationId, userId, data) {
     const task = await this.repo.createTask(organizationId, userId, data);
-    EventBus.emit(WORKFLOW_EVENTS.TASK_CREATED, { organizationId, userId, taskId: task.id });
-    return task;
+        return task;
   }
 
   async generateDar(organizationId, userId, data) {
-    return this.repo.createDar(organizationId, userId, data);
+    const { prisma } = await import('../../config/database.js');
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const [visitsCount, ordersCount] = await Promise.all([
+      prisma.visit.count({
+        where: {
+          organizationId,
+          userId,
+          scheduledAt: { gte: today, lt: tomorrow },
+        }
+      }),
+      prisma.order.count({
+        where: {
+          organizationId,
+          ownerId: userId,
+          createdAt: { gte: today, lt: tomorrow },
+          isDeleted: false,
+        }
+      })
+    ]);
+
+    const darData = {
+      ...data,
+      totalVisits: visitsCount,
+      totalOrders: ordersCount,
+    };
+
+    return this.repo.createDar(organizationId, userId, darData);
   }
 
   async createBeatPlan(organizationId, userId, data) {
     return this.repo.createBeatPlan(organizationId, userId, data);
   }
 
+  async assignBeatPlan(organizationId, managerId, data) {
+    if (!data.assignedTo) {
+      throw AppError.badRequest('Subordinate user ID is required to assign a beat plan.');
+    }
+    return this.repo.createBeatPlan(organizationId, data.assignedTo, data);
+  }
+
   async approveBeatPlan(planId, organizationId, userId) {
-    const plan = await this.repo.updateBeatPlanStatus(planId, organizationId, 'APPROVED');
-
-    EventBus.emit(WORKFLOW_EVENTS.BEAT_PLAN_APPROVED, {
-      organizationId,
-      userId: plan.userId,
-      approvedById: userId,
-      beatPlanId: plan.id,
-      startDate: plan.startDate,
-      endDate: plan.endDate,
-      title: plan.title
-    });
-
-    return plan;
+    return this.repo.updateBeatPlanStatus(planId, organizationId, 'APPROVED');
   }
 
   async createCalendarEvent(organizationId, userId, data) {
@@ -113,12 +112,22 @@ export class FieldForceService {
   }
 
   async optimizeRoute(organizationId, userId, visitIds) {
-    // Mock Route Optimization logic for API testing
-    // In production, this would call Google Maps Route Optimization API
+    const { prisma } = await import('../../config/database.js');
+    
+    // Sort visits chronologically based on database records instead of faking a map route
+    const visits = await prisma.visit.findMany({
+      where: {
+        organizationId,
+        id: { in: visitIds }
+      },
+      orderBy: { scheduledAt: 'asc' },
+      select: { id: true, scheduledAt: true }
+    });
+
     return {
-      optimizedOrder: visitIds.reverse(),
-      estimatedDistance: '15.5 km',
-      estimatedDuration: '45 mins'
+      optimizedOrder: visits.map(v => v.id),
+      estimatedDistance: 'N/A (Maps Disabled)',
+      estimatedDuration: 'N/A (Maps Disabled)'
     };
   }
 
@@ -156,13 +165,7 @@ export class FieldForceService {
     const expense = await this.getExpense(expenseId, organizationId);
     const updated = await this.repo.updateExpenseStatus(expenseId, organizationId, 'APPROVED', userId);
     
-    EventBus.emit(WORKFLOW_EVENTS.EXPENSE_APPROVED, {
-      organizationId,
-      expenseId,
-      approvedById: userId,
-      amount: expense.amount,
-    });
-
+    
     return updated;
   }
 
@@ -184,13 +187,7 @@ export class FieldForceService {
     const dar = await this.getDailyActivityReport(darId, organizationId);
     const updated = await this.repo.updateDarStatus(darId, organizationId, 'SUBMITTED');
 
-    EventBus.emit(WORKFLOW_EVENTS.DAR_SUBMITTED, {
-      organizationId,
-      darId,
-      userId: dar.userId,
-      date: dar.date,
-    });
-
+    
     return updated;
   }
 

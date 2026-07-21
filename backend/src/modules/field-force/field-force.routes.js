@@ -56,6 +56,7 @@ router.patch('/tasks/:id/complete', controller.completeTaskDetail);
 
 // ===== BEAT PLANS =====
 router.post('/beat-plans', controller.createBeatPlan);
+router.post('/beat-plans/assign', controller.assignBeatPlan);
 router.get('/beat-plans', controller.listBeatPlansData);
 router.get('/beat-plans/:id', controller.getBeatPlanDetail);
 router.post('/beat-plans/:id/approve', controller.approveBeatPlan);

@@ -36,8 +36,7 @@ const envSchema = z.object({
   CLOUDINARY_API_KEY: z.string().optional(),
   CLOUDINARY_API_SECRET: z.string().optional(),
 
-  // Redis / BullMQ
-  REDIS_URL: z.string().default("redis://127.0.0.1:6379"),
+
 
   // Email Delivery
   EMAIL_PROVIDER: z.enum(["mock", "smtp", "sendgrid", "ses"]).default("mock"),
@@ -113,7 +112,6 @@ export const config = {
     apiSecret: parsed.data.CLOUDINARY_API_SECRET,
   },
 
-  REDIS_URL: parsed.data.REDIS_URL,
 
   EMAIL: {
     provider: parsed.data.EMAIL_PROVIDER,

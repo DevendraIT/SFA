@@ -1,6 +1,4 @@
 import logger from '../../utils/logger.js';
-import EventBus from '../workflow-automation/events/EventBus.js';
-import { WORKFLOW_EVENTS } from '../workflow-automation/constants/workflow.events.js';
 
 export class NotificationsService {
   constructor(notificationsRepository) {

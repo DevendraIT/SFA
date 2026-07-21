@@ -59,6 +59,35 @@ router.get(
   organizationController.listOrganizations
 );
 
+router.get(
+  '/companies',
+  authorize(P.READ_COMPANIES),
+  validate(listQuerySchema, 'query'),
+  organizationController.listCompanies
+);
+
+router.get(
+  '/branches',
+  authorize(P.READ_BRANCHES),
+  validate(listQuerySchema, 'query'),
+  organizationController.listBranches
+);
+
+router.get(
+  '/departments',
+  authorize(P.READ_DEPARTMENTS),
+  validate(listQuerySchema, 'query'),
+  organizationController.listDepartments
+);
+
+router.get(
+  '/territories',
+  authorize(P.READ_TERRITORIES),
+  validate(listQuerySchema, 'query'),
+  organizationController.listTerritories
+);
+
+
 // Create new organization
 router.post(
   '/',
@@ -106,12 +135,6 @@ router.delete(
 // --------------------------------------------------
 // Companies
 // --------------------------------------------------
-router.get(
-  '/companies',
-  authorize(P.READ_COMPANIES),
-  validate(listQuerySchema, 'query'),
-  organizationController.listCompanies
-);
 
 router.post(
   '/companies',
@@ -152,12 +175,7 @@ router.patch(
 // --------------------------------------------------
 // Branches
 // --------------------------------------------------
-router.get(
-  '/branches',
-  authorize(P.READ_BRANCHES),
-  validate(listQuerySchema, 'query'),
-  organizationController.listBranches
-);
+
 
 router.post(
   '/branches',
@@ -198,12 +216,7 @@ router.patch(
 // --------------------------------------------------
 // Departments
 // --------------------------------------------------
-router.get(
-  '/departments',
-  authorize(P.READ_DEPARTMENTS),
-  validate(listQuerySchema, 'query'),
-  organizationController.listDepartments
-);
+
 
 router.post(
   '/departments',
@@ -244,12 +257,7 @@ router.patch(
 // --------------------------------------------------
 // Territories
 // --------------------------------------------------
-router.get(
-  '/territories',
-  authorize(P.READ_TERRITORIES),
-  validate(listQuerySchema, 'query'),
-  organizationController.listTerritories
-);
+
 
 router.post(
   '/territories',

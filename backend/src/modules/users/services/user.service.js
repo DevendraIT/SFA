@@ -87,9 +87,9 @@ export class UserService {
     }
 
     // Validate user type is not reserved for system creation
-    if (data.type && RESERVED_USER_TYPES.includes(data.type.toLowerCase())) {
-      throw AppError.badRequest('Reserved user type cannot be manually assigned.');
-    }
+    // if (data.type && RESERVED_USER_TYPES.includes(data.type.toLowerCase())) {
+    //   throw AppError.badRequest('Reserved user type cannot be manually assigned.');
+    // }
 
     // Validate roles belong to the organization and meet minimum requirements
     const { roleIds, password, ...userFields } = data;
@@ -119,9 +119,13 @@ export class UserService {
     const user = await this.repo.createUser(
       {
         ...userFields,
+        email: data.email, // Kept in User for profile purposes
         organizationId,
+      },
+      {
+        email: data.email,
         passwordHash,
-        // Auto-verify for admin-created users
+        organizationId,
         emailVerifiedAt: DEFAULT_USER_SETTINGS.AUTO_VERIFY_ADMIN_CREATED ? new Date() : null,
       },
       roleIds
@@ -197,9 +201,9 @@ export class UserService {
     if (!user) throw AppError.notFound(USER_ERRORS.NOT_FOUND);
 
     // Prevent role changes for reserved user types
-    if (user.type && RESERVED_USER_TYPES.includes(user.type.toLowerCase())) {
-      throw AppError.badRequest('Roles cannot be modified for reserved user types.');
-    }
+    // if (user.type && RESERVED_USER_TYPES.includes(user.type.toLowerCase())) {
+    //   throw AppError.badRequest('Roles cannot be modified for reserved user types.');
+    // }
 
     await this._validateRoles(roleIds, organizationId);
     await this.repo.updateUserRoles(id, roleIds);
@@ -252,9 +256,9 @@ export class UserService {
     }
 
     // Prevent deactivation of reserved user types
-    if (user.type && RESERVED_USER_TYPES.includes(user.type.toLowerCase())) {
-      throw AppError.badRequest('Reserved user types cannot be deactivated.');
-    }
+    // if (user.type && RESERVED_USER_TYPES.includes(user.type.toLowerCase())) {
+    //   throw AppError.badRequest('Reserved user types cannot be deactivated.');
+    // }
 
     const updated = await this.repo.updateUser(id, { isActive: false });
 
@@ -280,9 +284,9 @@ export class UserService {
     if (!user) throw AppError.notFound(USER_ERRORS.NOT_FOUND);
 
     // Prevent deletion of reserved user types
-    if (user.type && RESERVED_USER_TYPES.includes(user.type.toLowerCase())) {
-      throw AppError.badRequest('Reserved user types cannot be deleted.');
-    }
+    // if (user.type && RESERVED_USER_TYPES.includes(user.type.toLowerCase())) {
+    //   throw AppError.badRequest('Reserved user types cannot be deleted.');
+    // }
 
     // Check if user has subordinates - prevent deletion
     const subordinates = await this.repo.findSubordinatesRecursive(id);

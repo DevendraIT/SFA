@@ -18,6 +18,8 @@ export const getPrismaClient = () => {
     return prismaInstance;
   }
 
+  console.log("DATABASE_URL:", process.env.DATABASE_URL);
+
   const adapter = new PrismaNeon({
     connectionString: process.env.DATABASE_URL,
   });

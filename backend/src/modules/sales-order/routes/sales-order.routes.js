@@ -17,6 +17,7 @@ import {
   requireCreateOrderPermission,
   requireUpdateOrderPermission,
   requireDeleteOrderPermission,
+  requireApproveOrderPermission,
   loadOrder,
   requireOrderAccess,
   requireEditableOrder,
@@ -152,7 +153,7 @@ router.patch('/:id/status',
  * POST /orders/:id/approve - Approve order
  */
 router.post('/:id/approve',
-  requireUpdateOrderPermission,
+  requireApproveOrderPermission,
   validate({ params: idParamSchema }),
   loadOrder,
   requireOrderAccess,
@@ -164,10 +165,11 @@ router.post('/:id/approve',
  * POST /orders/:id/reject - Reject order
  */
 router.post('/:id/reject',
-  requireUpdateOrderPermission,
+  requireApproveOrderPermission,
   validate({ params: idParamSchema }),
   loadOrder,
   requireOrderAccess,
+  checkApprovalRequirements,
   salesOrderController.rejectOrder
 );
 

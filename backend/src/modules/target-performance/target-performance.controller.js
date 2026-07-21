@@ -23,6 +23,15 @@ export class TargetPerformanceController {
     }
   };
 
+  planTargets = async (req, res, next) => {
+    try {
+      const result = await this.service.planTargets(req.user.organizationId, req.body);
+      return successResponse(res, result, 'Targets planned successfully.', 201);
+    } catch (err) {
+      next(err);
+    }
+  };
+
   getLeaderboard = async (req, res, next) => {
     try {
       const { metric } = req.query;

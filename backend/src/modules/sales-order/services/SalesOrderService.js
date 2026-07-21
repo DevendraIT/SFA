@@ -427,8 +427,16 @@ export class SalesOrderService {
    */
   async getCompanyCode(companyId) {
     if (!companyId) return 'SO';
-    // TODO: Implement company code lookup
-    return 'SO';
+    try {
+      const { prisma } = await import('../../../config/database.js');
+      const company = await prisma.company.findUnique({
+        where: { id: companyId },
+        select: { code: true }
+      });
+      return company?.code || 'SO';
+    } catch (error) {
+      return 'SO';
+    }
   }
 
   /**

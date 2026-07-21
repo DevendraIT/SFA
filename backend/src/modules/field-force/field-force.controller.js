@@ -104,6 +104,15 @@ export class FieldForceController {
     }
   };
 
+  assignBeatPlan = async (req, res, next) => {
+    try {
+      const result = await this.service.assignBeatPlan(req.user.organizationId, req.user.id, req.body);
+      return successResponse(res, result, 'Beat plan assigned to subordinate successfully.', 201);
+    } catch (err) {
+      next(err);
+    }
+  };
+
   approveBeatPlan = async (req, res, next) => {
     try {
       const result = await this.service.approveBeatPlan(req.params.id, req.user.organizationId, req.user.id);

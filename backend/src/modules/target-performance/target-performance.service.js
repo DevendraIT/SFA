@@ -1,41 +1,56 @@
-import EventBus from '../workflow-automation/events/EventBus.js';
-import { WORKFLOW_EVENTS } from '../workflow-automation/constants/workflow.events.js';
-
 export class TargetPerformanceService {
   constructor(targetPerformanceRepository) {
     this.repo = targetPerformanceRepository;
   }
 
   async getTargets(organizationId, query) {
-    return this.repo.getTargets(organizationId, query);
+    const targets = await this.repo.getTargets(organizationId, query);
+    // Dynamically calculate achievement %
+    return targets.map(t => {
+      const achievementPercent = t.targetValue > 0 ? (t.achievedValue / t.targetValue) * 100 : 0;
+      return {
+        ...t,
+        achievementPercent: Math.min(100, Math.round(achievementPercent * 100) / 100),
+        performanceScore: this.calculatePerformanceScore(t)
+      };
+    });
   }
 
   async createTarget(organizationId, data) {
     return this.repo.createTarget(organizationId, data);
   }
 
-  async getLeaderboard(organizationId, metric) {
-    return this.repo.getLeaderboard(organizationId, metric);
+  async planTargets(organizationId, data) {
+    if (Array.isArray(data.targets)) {
+      return Promise.all(data.targets.map(t => this.repo.createTarget(organizationId, t)));
+    }
+    return this.repo.createTarget(organizationId, data);
   }
 
-  /**
-   * Called by Event listeners to auto-increment KPIs.
-   */
+  async getLeaderboard(organizationId, metric) {
+    const leaders = await this.repo.getLeaderboard(organizationId, metric);
+    return leaders.map(l => ({
+      ...l,
+      achievementPercent: l.targetValue > 0 ? Math.min(100, Math.round((l.achievedValue / l.targetValue) * 10000) / 100) : 0
+    }));
+  }
+
   async recordAchievement(organizationId, userId, metric, value = 1) {
-    const updatedTargets = await this.repo.incrementTargetAchievement(organizationId, userId, metric, value);
+    await this.repo.incrementTargetAchievement(organizationId, userId, metric, value);
+  }
+
+  calculatePerformanceScore(target) {
+    // Basic performance score based on how close to target deadline vs achievement
+    if (!target.startDate || !target.endDate) return 0;
+    const now = new Date();
+    const totalDuration = new Date(target.endDate) - new Date(target.startDate);
+    const elapsed = now - new Date(target.startDate);
+    const timeRatio = elapsed / totalDuration;
+    const achievementRatio = target.targetValue > 0 ? (target.achievedValue / target.targetValue) : 0;
     
-    // Optionally check if target is met to trigger TARGET_ACHIEVED event
-    if (updatedTargets && updatedTargets.length > 0) {
-      for (const t of updatedTargets) {
-        if (t.achievedValue >= t.targetValue && (t.achievedValue - value) < t.targetValue) {
-          EventBus.emit(WORKFLOW_EVENTS.TARGET_ACHIEVED, {
-            organizationId,
-            userId,
-            targetId: t.id,
-            metric: t.metric,
-          });
-        }
-      }
-    }
+    // If they achieved 50% in 10% of the time, they are performing well.
+    if (timeRatio <= 0) return 100; // Just started
+    const score = (achievementRatio / timeRatio) * 100;
+    return Math.min(100, Math.round(score * 100) / 100);
   }
 }

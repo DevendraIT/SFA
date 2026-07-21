@@ -42,14 +42,8 @@ router.use("/roles", roleRouter);
 import usersRouter from "../modules/users/index.js";
 router.use("/users", usersRouter);
 
-// Lead Management (Phase 3 & 4)
-import leadManagementRouter from "../modules/lead-management/index.js";
-router.use("/leads", leadManagementRouter);
 
-// CRM Integration
-import crmIntegrationRouter from "../modules/crm-integration/index.js";
-router.use("/crm", crmIntegrationRouter);
-
+// CRM Integration removed
 // Sales Orders
 import salesOrderRouter from "../modules/sales-order/index.js";
 router.use("/orders", salesOrderRouter);
@@ -58,12 +52,7 @@ router.use("/orders", salesOrderRouter);
 import permissionRouter from "../modules/permissions/index.js";
 router.use("/permissions", permissionRouter);
 
-// AI Lead Engine
-import aiLeadEngineRouter from "../modules/ai-lead-engine/index.js";
-router.use("/ai-lead-engine", aiLeadEngineRouter);
-
-import workflowRouter from "../modules/workflow-automation/index.js";
-router.use("/workflows", workflowRouter);
+// AI Lead Engine removed
 
 // Field Force
 import fieldForceRouter from "../modules/field-force/index.js";
@@ -85,8 +74,6 @@ router.use("/reports", reportsRouter);
 import notificationsRouter from "../modules/notifications/index.js";
 router.use("/notifications", notificationsRouter);
 
-// Campaigns
-import campaignRouter from "../modules/campaign/index.js";
-router.use("/campaigns", campaignRouter);
+// Campaigns removed
 
 export default router;

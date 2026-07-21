@@ -25,6 +25,7 @@ export class BaseController {
    * Standardized success response handler
    */
   handleSuccess(res, data = null, message = 'Operation successful', statusCode = 200, meta = null) {
+    console.error("HANDLE SUCCESS DATA:", data ? Object.keys(data) : null);
     return res.status(statusCode).json(ApiResponse.success(message, data, meta));
   }
 

@@ -51,4 +51,21 @@ export class DashboardRepository {
       _count: { id: true },
     });
   }
+
+  async getOrderMetrics(organizationId, userId = null, startDate, endDate) {
+    const where = { organizationId, isDeleted: false };
+    if (userId) where.ownerId = userId;
+    if (startDate && endDate) {
+      where.createdAt = { gte: startDate, lte: endDate };
+    }
+
+    const orderStats = await prisma.order.groupBy({
+      by: ['status'],
+      where,
+      _count: { id: true },
+      _sum: { totalAmount: true },
+    });
+
+    return orderStats;
+  }
 }

@@ -33,4 +33,14 @@ export class ReportsController {
       next(err);
     }
   };
+
+  getForecast = async (req, res, next) => {
+    try {
+      const { timeframe } = req.query;
+      const forecast = await this.service.getSalesForecast(req.user.organizationId, timeframe);
+      return successResponse(res, forecast, 'Sales forecast generated successfully.');
+    } catch (err) {
+      next(err);
+    }
+  };
 }

@@ -40,6 +40,18 @@ export class ReportsService {
         Status: r.status,
       }));
       headers = ['Owner', 'Metric', 'Target', 'Achieved', 'Status'];
+    } else if (type === 'ORDERS') {
+      const records = await this.repo.getOrderData(organizationId, startDate, endDate);
+      data = records.map(r => ({
+        OrderNumber: r.orderNumber,
+        Owner: r.owner ? `${r.owner.firstName} ${r.owner.lastName}` : 'N/A',
+        Customer: r.customer ? r.customer.name : 'N/A',
+        TotalAmount: r.totalAmount,
+        Currency: r.currency,
+        Status: r.status,
+        CreatedAt: r.createdAt.toISOString(),
+      }));
+      headers = ['OrderNumber', 'Owner', 'Customer', 'TotalAmount', 'Currency', 'Status', 'CreatedAt'];
     } else {
       throw new Error('Unsupported report type');
     }
@@ -105,5 +117,29 @@ export class ReportsService {
 
       doc.end();
     });
+  }
+
+  async getSalesForecast(organizationId, timeframe = 'quarterly') {
+    // In a real application, this would query historical data and apply a forecasting algorithm.
+    // For this mock, we return a structured forecast based on recent target achievements.
+    const historicalTargets = await this.repo.getTargetData(organizationId, null);
+    
+    let totalRevenueAchieved = 0;
+    historicalTargets.forEach(t => {
+      if (t.metric === 'REVENUE') totalRevenueAchieved += t.achievedValue;
+    });
+
+    const projectedRevenue = totalRevenueAchieved * 1.15; // Simple 15% growth projection
+
+    return {
+      timeframe,
+      historicalRevenue: totalRevenueAchieved,
+      projectedRevenue,
+      confidenceInterval: '85%',
+      trends: [
+        { metric: 'REVENUE', trend: 'UPWARD', growthPercentage: 15 },
+        { metric: 'NEW_LEADS', trend: 'STABLE', growthPercentage: 5 }
+      ]
+    };
   }
 }

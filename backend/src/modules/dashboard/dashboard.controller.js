@@ -14,6 +14,15 @@ export class DashboardController {
     }
   };
 
+  getTeamDashboard = async (req, res, next) => {
+    try {
+      const data = await this.service.getTeamDashboard(req.user.organizationId, req.user.id);
+      return successResponse(res, data, 'Team dashboard data retrieved.');
+    } catch (err) {
+      next(err);
+    }
+  };
+
   getUserDashboard = async (req, res, next) => {
     try {
       const data = await this.service.getUserDashboard(req.user.organizationId, req.user.id);

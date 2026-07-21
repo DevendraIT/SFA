@@ -98,9 +98,9 @@ export class UserRepository {
     });
   }
 
-  async createUser(data, roleIds) {
+  async createUser(userData, authData, roleIds) {
     return prisma.$transaction(async (tx) => {
-      const user = await tx.user.create({ data });
+      const user = await tx.user.create({ data: { ...userData, ...authData } });
 
       if (roleIds?.length) {
         await tx.userRole.createMany({

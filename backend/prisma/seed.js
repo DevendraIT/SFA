@@ -1,15 +1,16 @@
 import 'dotenv/config';
-import { prisma } from './src/config/database.js';
+import { prisma } from '../src/config/database.js';
 import bcrypt from 'bcryptjs';
 import {
   ENTERPRISE_ROLES,
   ENTERPRISE_ROLE_LEVELS,
   ENTERPRISE_ROLE_HIERARCHY,
-} from './src/modules/roles/constants/role.constants.js';
+} from '../src/modules/roles/constants/role.constants.js';
 
 async function main() {
   console.log('🌱 Starting database seeding...');
 
+  // 1. Create Organization Super Admin
   const org = await prisma.organization.upsert({
     where: { slug: 'acme-corp' },
     update: {},
@@ -22,6 +23,20 @@ async function main() {
 
   console.log(`🏢 Organization created: ${org.name} (${org.slug})`);
 
+  // 1b. Create Company
+  const company = await prisma.company.upsert({
+    where: { organizationId_code: { organizationId: org.id, code: 'ACME-US' } },
+    update: {},
+    create: {
+      organizationId: org.id,
+      name: 'Acme US Operations',
+      code: 'ACME-US',
+    }
+  });
+
+  console.log(`🏢 Company created: ${company.name} (${company.code})`);
+
+  // 2. Roles
   const rolesMap = {};
 
   for (const [roleName, level] of Object.entries(ENTERPRISE_ROLE_LEVELS)) {
@@ -51,6 +66,7 @@ async function main() {
     console.log(`👑 Role created: ${name} (Level ${level})`);
   }
 
+  // 3. Permissions
   const permissionsData = [
     { name: 'Read Users', slug: 'read:users', moduleName: 'users' },
     { name: 'Create Users', slug: 'create:users', moduleName: 'users' },
@@ -97,7 +113,7 @@ async function main() {
   ];
 
   const createdPermissions = [];
-  const adminRole = rolesMap[ENTERPRISE_ROLES.ORGANIZATION_ADMINISTRATOR];
+  const adminRole = rolesMap[ENTERPRISE_ROLES.ORGANIZATION_SUPER_ADMIN];
 
   for (const permData of permissionsData) {
     const permission = await prisma.permission.upsert({
@@ -124,50 +140,95 @@ async function main() {
 
   console.log(`🔒 Seeded ${createdPermissions.length} permissions and mapped to Organization Administrator`);
 
-  const passwordHash = await bcrypt.hash('Password123!', 10);
-  const user = await prisma.user.upsert({
-    where: {
-      organizationId_email: {
+  // 4. Create Users (with embedded credentials)
+  const passwordHash = await bcrypt.hash('Admin@123', 10);
+
+  const usersToCreate = [
+    {
+      email: 'devendradangi9174@gmail.com',
+      firstName: 'Super',
+      lastName: 'Admin',
+      role: rolesMap[ENTERPRISE_ROLES.ORGANIZATION_SUPER_ADMIN],
+    },
+    {
+      email: 'admin@sfa.com',
+      firstName: 'Company',
+      lastName: 'Admin',
+      role: rolesMap[ENTERPRISE_ROLES.COMPANY_ADMIN],
+    },
+    {
+      email: 'headofsales@sfa.com',
+      firstName: 'Head of',
+      lastName: 'Sales',
+      role: rolesMap[ENTERPRISE_ROLES.HEAD_OF_SALES],
+    },
+    {
+      email: 'manager@sfa.com',
+      firstName: 'Sales',
+      lastName: 'Manager',
+      role: rolesMap[ENTERPRISE_ROLES.SALES_MANAGER],
+    },
+    {
+      email: 'executive@sfa.com',
+      firstName: 'Sales',
+      lastName: 'Executive',
+      role: rolesMap[ENTERPRISE_ROLES.SALES_EXECUTIVE],
+    }
+  ];
+
+  let managerId = null;
+
+  for (const u of usersToCreate) {
+    const user = await prisma.user.upsert({
+      where: {
+        organizationId_email: {
+          organizationId: org.id,
+          email: u.email,
+        },
+      },
+      update: {
+        passwordHash,
+        managerId,
+      },
+      create: {
         organizationId: org.id,
-        email: 'admin@acme-corp.com',
+        email: u.email,
+        firstName: u.firstName,
+        lastName: u.lastName,
+        isActive: true,
+        passwordHash,
+        emailVerifiedAt: new Date(),
+        managerId, // Create simple reporting hierarchy based on array order
       },
-    },
-    update: {},
-    create: {
-      organizationId: org.id,
-      email: 'admin@acme-corp.com',
-      passwordHash,
-      firstName: 'Admin',
-      lastName: 'User',
-      isActive: true,
-      emailVerifiedAt: new Date(),
-    },
-  });
+    });
 
-  console.log(`👤 Admin User created: ${user.email}`);
+    console.log(`👤 User created: ${user.email} with Role: ${u.role.name}`);
 
-  await prisma.userRole.upsert({
-    where: {
-      userId_roleId: {
+    await prisma.userRole.upsert({
+      where: {
+        userId_roleId: {
+          userId: user.id,
+          roleId: u.role.id,
+        },
+      },
+      update: {},
+      create: {
         userId: user.id,
-        roleId: adminRole.id,
+        roleId: u.role.id,
       },
-    },
-    update: {},
-    create: {
-      userId: user.id,
-      roleId: adminRole.id,
-    },
-  });
+    });
 
-  await prisma.passwordHistory.create({
-    data: {
-      userId: user.id,
-      passwordHash,
-    },
-  });
+    await prisma.passwordHistory.create({
+      data: {
+        userId: user.id,
+        passwordHash,
+      },
+    });
 
-  console.log('🔑 Password history seeded.');
+    managerId = user.id; // Next user reports to this user
+  }
+
+  console.log('🔑 Password history seeded for all users.');
   console.log('✅ Seeding completed successfully!');
 }
 

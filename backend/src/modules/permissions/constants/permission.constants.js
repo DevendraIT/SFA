@@ -3,7 +3,6 @@ export const PERMISSION_CATEGORIES = {
   ORGANIZATION: 'organization',
   USER_MANAGEMENT: 'user_management',
   ROLE_MANAGEMENT: 'role_management',
-  LEAD_MANAGEMENT: 'lead_management',
   SALES_ORDER: 'sales_order',
   REPORTING: 'reporting',
   SETTINGS: 'settings',
@@ -37,85 +36,82 @@ export const PERMISSION_STATUS = {
 };
 
 export const SYSTEM_PERMISSIONS = {
-  // System Administration
   MANAGE_SYSTEM: 'system:manage',
   VIEW_SYSTEM_LOGS: 'system:logs:read',
   MANAGE_SYSTEM_CONFIG: 'system:config:manage',
-  
-  // Organization Management
+  MANAGE_SUBSCRIPTION: 'subscription:manage',
+  VIEW_AUDIT_LOGS: 'audit:read',
   CREATE_ORGANIZATION: 'organization:create',
   READ_ORGANIZATION: 'organization:read',
   UPDATE_ORGANIZATION: 'organization:update',
   DELETE_ORGANIZATION: 'organization:delete',
-  
-  // User Management
+  MANAGE_COMPANY: 'company:manage',
+  MANAGE_BRANCH: 'branch:manage',
+  MANAGE_DEPARTMENT: 'dept:manage',
+  MANAGE_TERRITORY: 'territory:manage',
+  PLAN_TERRITORY: 'territory:plan',
+  MANAGE_TEAM: 'team:manage',
   CREATE_USER: 'users:create',
   READ_USER: 'users:read',
   UPDATE_USER: 'users:update',
   DELETE_USER: 'users:delete',
   MANAGE_USER_ROLES: 'users:roles:manage',
-  
-  // Role Management
   CREATE_ROLE: 'roles:create',
   READ_ROLE: 'roles:read',
   UPDATE_ROLE: 'roles:update',
   DELETE_ROLE: 'roles:delete',
   ASSIGN_PERMISSIONS: 'roles:permissions:assign',
-  
-  // Permission Management
   CREATE_PERMISSION: 'permissions:create',
   READ_PERMISSION: 'permissions:read',
   UPDATE_PERMISSION: 'permissions:update',
   DELETE_PERMISSION: 'permissions:delete',
-  
-  // Lead Management
-  CREATE_LEAD: 'leads:create',
-  READ_LEAD: 'leads:read',
-  UPDATE_LEAD: 'leads:update',
-  DELETE_LEAD: 'leads:delete',
-  CONVERT_LEAD: 'leads:convert',
-  ASSIGN_LEAD: 'leads:assign',
-  EXPORT_LEADS: 'leads:export',
-  
-  // Sales Order Management
+  MANAGE_WORKFLOW: 'workflow:manage',
+  MANAGE_INTEGRATION: 'integration:manage',
+  VIEW_ORG_DASHBOARD: 'dashboard:org',
+  VIEW_SALES_DASHBOARD: 'dashboard:sales',
+  VIEW_TEAM_ANALYTICS: 'analytics:team',
+  VIEW_FORECAST: 'forecast:read',
+  MANAGE_TARGETS: 'target:manage',
+  MANAGE_REVIEWS: 'reviews:manage',
+  MONITOR_USERS: 'users:monitor',
+  MANAGE_CAMPAIGNS: 'campaigns:manage',
+  RUN_CAMPAIGNS: 'campaigns:run',
+  MONITOR_CAMPAIGNS: 'campaigns:monitor',
+  SEND_EMAILS: 'emails:send',
+
   CREATE_ORDER: 'orders:create',
   READ_ORDER: 'orders:read',
   UPDATE_ORDER: 'orders:update',
   DELETE_ORDER: 'orders:delete',
   APPROVE_ORDER: 'orders:approve',
   CANCEL_ORDER: 'orders:cancel',
-  
-  // Reporting
+  GENERATE_QUOTATION: 'quotations:generate',
+  APPROVE_QUOTATION: 'quotations:approve',
   VIEW_REPORTS: 'reports:read',
   CREATE_REPORTS: 'reports:create',
   EXPORT_REPORTS: 'reports:export',
-  
-  // Settings
+  VIEW_PERFORMANCE_REPORTS: 'reports:performance',
+  SUBMIT_DAILY_REPORTS: 'reports:daily',
+  MANAGE_VISITS: 'visits:manage',
   MANAGE_SETTINGS: 'settings:manage',
   VIEW_SETTINGS: 'settings:read'
 };
 
 export const PERMISSION_GROUPS = {
-  SUPER_ADMIN: {
-    name: 'Super Administrator',
-    description: 'Full system access',
-    permissions: [
-      SYSTEM_PERMISSIONS.MANAGE_SYSTEM,
-      SYSTEM_PERMISSIONS.VIEW_SYSTEM_LOGS,
-      SYSTEM_PERMISSIONS.MANAGE_SYSTEM_CONFIG,
-      SYSTEM_PERMISSIONS.CREATE_ORGANIZATION,
-      SYSTEM_PERMISSIONS.READ_ORGANIZATION,
-      SYSTEM_PERMISSIONS.UPDATE_ORGANIZATION,
-      SYSTEM_PERMISSIONS.DELETE_ORGANIZATION
-    ]
+  ORGANIZATION_SUPER_ADMIN: {
+    name: 'Organization Super Admin',
+    description: 'Full system access and global configuration',
+    permissions: Object.values(SYSTEM_PERMISSIONS)
   },
-  
-  ADMIN: {
-    name: 'Administrator',
-    description: 'Organization administration',
+  COMPANY_ADMIN: {
+    name: 'Company Admin',
+    description: 'Company-level administration',
     permissions: [
-      SYSTEM_PERMISSIONS.READ_ORGANIZATION,
-      SYSTEM_PERMISSIONS.UPDATE_ORGANIZATION,
+      SYSTEM_PERMISSIONS.MANAGE_COMPANY,
+      SYSTEM_PERMISSIONS.MANAGE_BRANCH,
+      SYSTEM_PERMISSIONS.MANAGE_DEPARTMENT,
+      SYSTEM_PERMISSIONS.MANAGE_TERRITORY,
+      SYSTEM_PERMISSIONS.MANAGE_TEAM,
       SYSTEM_PERMISSIONS.CREATE_USER,
       SYSTEM_PERMISSIONS.READ_USER,
       SYSTEM_PERMISSIONS.UPDATE_USER,
@@ -125,53 +121,54 @@ export const PERMISSION_GROUPS = {
       SYSTEM_PERMISSIONS.READ_ROLE,
       SYSTEM_PERMISSIONS.UPDATE_ROLE,
       SYSTEM_PERMISSIONS.DELETE_ROLE,
-      SYSTEM_PERMISSIONS.ASSIGN_PERMISSIONS
+      SYSTEM_PERMISSIONS.ASSIGN_PERMISSIONS,
+      SYSTEM_PERMISSIONS.CREATE_PERMISSION,
+      SYSTEM_PERMISSIONS.READ_PERMISSION,
+      SYSTEM_PERMISSIONS.UPDATE_PERMISSION,
+      SYSTEM_PERMISSIONS.DELETE_PERMISSION,
+      SYSTEM_PERMISSIONS.MANAGE_WORKFLOW,
+      SYSTEM_PERMISSIONS.MANAGE_INTEGRATION
     ]
   },
-  
-  SALES_MANAGER: {
-    name: 'Sales Manager',
-    description: 'Sales team management and oversight',
+  HEAD_OF_SALES: {
+    name: 'Head of Sales',
+    description: 'Sales strategy and campaign oversight',
     permissions: [
-      SYSTEM_PERMISSIONS.READ_USER,
-      SYSTEM_PERMISSIONS.CREATE_LEAD,
-      SYSTEM_PERMISSIONS.READ_LEAD,
-      SYSTEM_PERMISSIONS.UPDATE_LEAD,
-      SYSTEM_PERMISSIONS.CONVERT_LEAD,
-      SYSTEM_PERMISSIONS.ASSIGN_LEAD,
-      SYSTEM_PERMISSIONS.EXPORT_LEADS,
-      SYSTEM_PERMISSIONS.CREATE_ORDER,
-      SYSTEM_PERMISSIONS.READ_ORDER,
-      SYSTEM_PERMISSIONS.UPDATE_ORDER,
-      SYSTEM_PERMISSIONS.APPROVE_ORDER,
+      SYSTEM_PERMISSIONS.MANAGE_TARGETS,
+      SYSTEM_PERMISSIONS.VIEW_SALES_DASHBOARD,
+      SYSTEM_PERMISSIONS.MONITOR_CAMPAIGNS,
+      SYSTEM_PERMISSIONS.MANAGE_CAMPAIGNS,
+      SYSTEM_PERMISSIONS.READ_PIPELINE,
+      SYSTEM_PERMISSIONS.VIEW_TEAM_ANALYTICS,
+      SYSTEM_PERMISSIONS.PLAN_TERRITORY,
+      SYSTEM_PERMISSIONS.VIEW_PERFORMANCE_REPORTS,
+      SYSTEM_PERMISSIONS.VIEW_FORECAST,
       SYSTEM_PERMISSIONS.VIEW_REPORTS,
       SYSTEM_PERMISSIONS.EXPORT_REPORTS
     ]
   },
-  
-  SALES_PERSON: {
-    name: 'Sales Person',
-    description: 'Individual sales activities',
+  SALES_MANAGER: {
+    name: 'Sales Manager',
+    description: 'Sales team management and campaign execution',
     permissions: [
-      SYSTEM_PERMISSIONS.CREATE_LEAD,
-      SYSTEM_PERMISSIONS.READ_LEAD,
-      SYSTEM_PERMISSIONS.UPDATE_LEAD,
-      SYSTEM_PERMISSIONS.CREATE_ORDER,
-      SYSTEM_PERMISSIONS.READ_ORDER,
-      SYSTEM_PERMISSIONS.UPDATE_ORDER,
-      SYSTEM_PERMISSIONS.VIEW_REPORTS
+      SYSTEM_PERMISSIONS.RUN_CAMPAIGNS,
+      SYSTEM_PERMISSIONS.MONITOR_USERS,
+      SYSTEM_PERMISSIONS.MANAGE_REVIEWS,
+      SYSTEM_PERMISSIONS.VIEW_REPORTS,
+      SYSTEM_PERMISSIONS.APPROVE_QUOTATION,
+      SYSTEM_PERMISSIONS.APPROVE_ORDER
     ]
   },
-  
-  VIEWER: {
-    name: 'Viewer',
-    description: 'Read-only access',
+  SALES_EXECUTIVE: {
+    name: 'Sales Executive',
+    description: 'Individual sales activities',
     permissions: [
-      SYSTEM_PERMISSIONS.READ_ORGANIZATION,
-      SYSTEM_PERMISSIONS.READ_USER,
-      SYSTEM_PERMISSIONS.READ_LEAD,
+      SYSTEM_PERMISSIONS.SEND_EMAILS,
+      SYSTEM_PERMISSIONS.GENERATE_QUOTATION,
+      SYSTEM_PERMISSIONS.CREATE_ORDER,
       SYSTEM_PERMISSIONS.READ_ORDER,
-      SYSTEM_PERMISSIONS.VIEW_REPORTS
+      SYSTEM_PERMISSIONS.SUBMIT_DAILY_REPORTS,
+      SYSTEM_PERMISSIONS.MANAGE_VISITS
     ]
   }
 };

@@ -1,0 +1,12 @@
+◇ injected env (7) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+Sales Order event listeners registered
+[2026-07-18 12:30:12] [33mwarn[39m: ⚠️  Cloudinary environment variables missing. File uploads to Cloudinary will fail. | Meta: {"service":"sfa-backend"}
+[2026-07-18 12:30:12] [32minfo[39m: [dashboard] Dashboard module initialized (Listeners registered). | Meta: {"service":"sfa-backend"}
+[2026-07-18 12:30:12] [32minfo[39m: 🚀 Server successfully started in development mode | Meta: {"service":"sfa-backend"}
+[2026-07-18 12:30:12] [32minfo[39m: 📡 Listening on http://localhost:5000/api/v1 | Meta: {"service":"sfa-backend"}
+[2026-07-18 12:30:12] [32minfo[39m: 📖 API Documentation available at http://localhost:5000/api/v1/docs | Meta: {"service":"sfa-backend"}
+[2026-07-18 12:30:12] [32minfo[39m: [WorkflowEngine] Started and listening for business events. | Meta: {"service":"sfa-backend"}
+[2026-07-18 12:30:12] [32minfo[39m: [workflow-automation] WorkflowEngine initialized. | Meta: {"service":"sfa-backend"}
+[2026-07-18 12:30:12] [32minfo[39m: [field-force] Field Force module initialized (Listeners registered). | Meta: {"service":"sfa-backend"}
+[2026-07-18 12:30:12] [32minfo[39m: [notifications] Notifications module initialized (Listeners registered). | Meta: {"service":"sfa-backend"}
+[2026-07-18 12:30:12] [32minfo[39m: [target-performance] Target & Performance module initialized (Listeners registered). | Meta: {"service":"sfa-backend"}

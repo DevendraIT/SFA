@@ -8,7 +8,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 // --------------------------------------------------
@@ -30,14 +29,6 @@ model Organization {
   users       User[]
   sessions    Session[]
   auditLogs   AuditLog[]
-  leads       Lead[]
-
-  prospects       Prospect[]
-  importJobs      ImportJob[]
-  emailCampaigns  EmailCampaign[]
-  emailActivities EmailActivity[]
-  aiAnalyses      AiAnalysis[]
-  emailTemplates  EmailTemplate[]
 
   attendances           Attendance[]
   visits                Visit[]
@@ -49,10 +40,11 @@ model Organization {
   tasks                 Task[]
   beatPlans             BeatPlan[]
   calendarEvents        CalendarEvent[]
-  workflowSettings      WorkflowSettings[]
   notificationPrefs     NotificationPreference[]
   businessRules         BusinessRuleConfig[]
-  campaigns             Campaign[]
+  customers             Customer[]
+  products              Product[]
+  orders                Order[]
 }
 
 // --------------------------------------------------
@@ -122,7 +114,6 @@ model Territory {
   company      Company?     @relation(fields: [companyId], references: [id], onDelete: SetNull)
   teams        Team[]
   users        User[]
-  leads        Lead[]
 }
 
 model Team {
@@ -220,6 +211,8 @@ model User {
   lockoutExpiresAt           DateTime?
   passwordResetOtp           String?
   passwordResetExpiresAt     DateTime?
+  lastLoginAt                DateTime?
+  lastPasswordChangedAt      DateTime?
   deletedAt                  DateTime?
 
   createdAt DateTime @default(now())
@@ -233,23 +226,11 @@ model User {
   manager      User?        @relation("UserReporting", fields: [managerId], references: [id], onDelete: SetNull)
   subordinates User[]       @relation("UserReporting")
 
-  roles              UserRole[]
-  sessions           Session[]
-  refreshTokens      RefreshToken[]
-  auditLogs          AuditLog[]
-  passwordHistories  PasswordHistory[]
-  assignedLeads      Lead[]                  @relation("LeadAssignee")
-  createdLeads       Lead[]                  @relation("LeadCreator")
-  leadActivities     LeadActivity[]
-  leadNotes          LeadNote[]
-  leadDocuments      LeadDocument[]
-  followUps          LeadFollowUp[]          @relation("FollowUpOwner")
-  meetingsOrganized  LeadMeeting[]           @relation("MeetingOrganizer")
-  assignmentHistory  LeadAssignmentHistory[]
-  leadConversions    LeadConversion[]
-  uploadedImportJobs ImportJob[]
-  createdCampaigns   EmailCampaign[]
-  createdTemplates   EmailTemplate[]         @relation("TemplateCreatedBy")
+  roles    UserRole[]
+  sessions Session[]
+
+  auditLogs         AuditLog[]
+  passwordHistories PasswordHistory[]
 
   attendances       Attendance[]
   visits            Visit[]
@@ -262,8 +243,7 @@ model User {
   beatPlans         BeatPlan[]
   calendarEvents    CalendarEvent[]
   notificationPrefs NotificationPreference[]
-  campaignsCreated  Campaign[]               @relation("CampaignCreatedBy")
-  campaignsUpdated  Campaign[]               @relation("CampaignUpdatedBy")
+  orders            Order[]
 
   @@unique([organizationId, email])
 }
@@ -288,29 +268,18 @@ model Session {
   organizationId String   @db.Uuid
   userId         String   @db.Uuid
   token          String   @unique
+  device         String?
+  browser        String?
   userAgent      String?
   ipAddress      String?
+  refreshToken   String?  @unique
+  loginAt        DateTime @default(now())
   expiresAt      DateTime
 
   createdAt DateTime @default(now())
 
-  organization  Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  refreshTokens RefreshToken[]
-}
-
-model RefreshToken {
-  id        String   @id @default(uuid()) @db.Uuid
-  userId    String   @db.Uuid
-  sessionId String   @db.Uuid
-  token     String   @unique
-  isRevoked Boolean  @default(false)
-  expiresAt DateTime
-
-  createdAt DateTime @default(now())
-
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 // --------------------------------------------------
@@ -344,662 +313,107 @@ model PasswordHistory {
 }
 
 // ==================================================
-// PHASE 3 & 4 — Lead Management
+// PHASE 3 & 4 — Sales & Order Management
 // ==================================================
 
-// --------------------------------------------------
-// 7. Lead — Core record
-// --------------------------------------------------
-
-model Lead {
+model Customer {
   id             String  @id @default(uuid()) @db.Uuid
   organizationId String  @db.Uuid
-  assignedToId   String? @db.Uuid
-  createdById    String  @db.Uuid
-  territoryId    String? @db.Uuid
-  branchId       String? @db.Uuid
-  teamId         String? @db.Uuid
-
-  // Contact identity
-  firstName String
-  lastName  String
-  email     String?
-  phone     String?
-  company   String?
-  jobTitle  String?
-  website   String?
-
-  // Classification
-  industry    String?
-  companySize String?
-  source      LeadSource @default(MANUAL)
-
-  // Address
-  addressLine1 String?
-  city         String?
-  state        String?
-  country      String?
-  postalCode   String?
-
-  // Lead state
-  status        LeadStatus        @default(NEW)
-  priority      LeadPriority      @default(MEDIUM)
-  qualification LeadQualification @default(UNQUALIFIED)
-  score         Float             @default(0)
-  notes         String?
-  tags          String[]          @default([])
-
-  // Conversion tracking
-  isConverted Boolean   @default(false)
-  convertedAt DateTime?
-
-  // Soft delete
-  deletedAt DateTime?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  organization      Organization            @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  assignedTo        User?                   @relation("LeadAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
-  createdBy         User                    @relation("LeadCreator", fields: [createdById], references: [id])
-  territory         Territory?              @relation(fields: [territoryId], references: [id], onDelete: SetNull)
-  activities        LeadActivity[]
-  notes_list        LeadNote[]
-  documents         LeadDocument[]
-  followUps         LeadFollowUp[]
-  meetings          LeadMeeting[]
-  assignmentHistory LeadAssignmentHistory[]
-  conversions       LeadConversion[]
-  visits            Visit[]
-  campaignLeads     CampaignLead[]
-
-  @@index([organizationId, status])
-  @@index([organizationId, assignedToId])
-  @@index([organizationId, qualification])
-  @@index([organizationId, score])
-  @@index([organizationId, deletedAt])
-  @@index([organizationId, source])
-  @@index([organizationId, isConverted])
-}
-
-// --------------------------------------------------
-// 8. Lead Activity Timeline
-// --------------------------------------------------
-
-model LeadActivity {
-  id             String       @id @default(uuid()) @db.Uuid
-  organizationId String       @db.Uuid
-  leadId         String       @db.Uuid
-  performedById  String?      @db.Uuid
-  activityType   ActivityType
-  title          String
-  description    String?
-  metadata       Json?
-
-  createdAt DateTime @default(now())
-
-  lead        Lead  @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  performedBy User? @relation(fields: [performedById], references: [id], onDelete: SetNull)
-
-  @@index([leadId])
-  @@index([organizationId, leadId])
-  @@index([organizationId, activityType])
-}
-
-// --------------------------------------------------
-// 9. Lead Notes
-// Dedicated notes with pin support, edit/delete, internal flag
-// --------------------------------------------------
-
-model LeadNote {
-  id             String    @id @default(uuid()) @db.Uuid
-  organizationId String    @db.Uuid
-  leadId         String    @db.Uuid
-  authorId       String    @db.Uuid
-  content        String
-  isPinned       Boolean   @default(false)
-  isInternal     Boolean   @default(false) // Internal notes hidden from external views
-  editedAt       DateTime?
-  deletedAt      DateTime?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  lead   Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  author User @relation(fields: [authorId], references: [id])
-
-  @@index([leadId, deletedAt])
-  @@index([leadId, isPinned])
-}
-
-// --------------------------------------------------
-// 10. Lead Documents
-// File upload with versioning and category support
-// --------------------------------------------------
-
-model LeadDocument {
-  id             String           @id @default(uuid()) @db.Uuid
-  organizationId String           @db.Uuid
-  leadId         String           @db.Uuid
-  uploadedById   String           @db.Uuid
-  parentId       String?          @db.Uuid // Non-null = this is a new version of parentId
-  category       DocumentCategory @default(GENERAL)
-  name           String // Display name
-  originalName   String // Original file name on upload
-  mimeType       String
-  sizeBytes      Int
-  filePath       String // Server-side storage path
-  version        Int              @default(1)
-  description    String?
-  deletedAt      DateTime?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  lead       Lead           @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  uploadedBy User           @relation(fields: [uploadedById], references: [id])
-  parent     LeadDocument?  @relation("DocumentVersions", fields: [parentId], references: [id])
-  versions   LeadDocument[] @relation("DocumentVersions")
-
-  @@index([leadId, deletedAt])
-  @@index([leadId, category])
-}
-
-// --------------------------------------------------
-// 11. Lead Follow-Up
-// --------------------------------------------------
-
-model LeadFollowUp {
-  id             String         @id @default(uuid()) @db.Uuid
-  organizationId String         @db.Uuid
-  leadId         String         @db.Uuid
-  ownerId        String         @db.Uuid // Responsible user
-  title          String
-  description    String?
-  dueAt          DateTime
-  completedAt    DateTime?
-  cancelledAt    DateTime?
-  status         FollowUpStatus @default(SCHEDULED)
-  reminderSentAt DateTime?
-  deletedAt      DateTime?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  lead  Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  owner User @relation("FollowUpOwner", fields: [ownerId], references: [id])
-
-  @@index([leadId])
-  @@index([organizationId, status])
-  @@index([organizationId, ownerId, dueAt])
-}
-
-// --------------------------------------------------
-// 12. Lead Meeting
-// --------------------------------------------------
-
-model LeadMeeting {
-  id              String        @id @default(uuid()) @db.Uuid
-  organizationId  String        @db.Uuid
-  leadId          String        @db.Uuid
-  organizerId     String        @db.Uuid
-  title           String
-  agenda          String?
-  location        String?
-  meetingUrl      String?
-  scheduledAt     DateTime
-  durationMinutes Int           @default(60)
-  status          MeetingStatus @default(SCHEDULED)
-  outcome         String?
-  meetingNotes    String?
-  cancelledAt     DateTime?
-  cancelReason    String?
-  participants    Json          @default("[]") // Array of { userId, name, email, role }
-  deletedAt       DateTime?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  lead      Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  organizer User @relation("MeetingOrganizer", fields: [organizerId], references: [id])
-
-  @@index([leadId])
-  @@index([organizationId, status])
-  @@index([organizationId, organizerId])
-}
-
-// --------------------------------------------------
-// 13. Lead Assignment History
-// --------------------------------------------------
-
-model LeadAssignmentHistory {
-  id             String         @id @default(uuid()) @db.Uuid
-  organizationId String         @db.Uuid
-  leadId         String         @db.Uuid
-  assignedToId   String?        @db.Uuid // Null = unassigned
-  assignedById   String         @db.Uuid
-  assignmentType AssignmentType
-  reason         String?
-  assignedAt     DateTime       @default(now())
-
-  lead       Lead  @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  assignedTo User? @relation(fields: [assignedToId], references: [id], onDelete: SetNull)
-
-  @@index([leadId])
-  @@index([organizationId, assignedToId])
-}
-
-// --------------------------------------------------
-// 14. Lead Conversion
-// Track conversion to Customer, Contact, or Opportunity
-// --------------------------------------------------
-
-model LeadConversion {
-  id               String         @id @default(uuid()) @db.Uuid
-  organizationId   String         @db.Uuid
-  leadId           String         @db.Uuid
-  convertedById    String         @db.Uuid
-  conversionType   ConversionType // CUSTOMER | CONTACT | OPPORTUNITY
-  targetEntityId   String?        @db.Uuid // ID in target module (once implemented)
-  targetEntityType String? // "Customer" | "Contact" | "Opportunity"
-  notes            String?
-  convertedAt      DateTime       @default(now())
-
-  lead        Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  convertedBy User @relation(fields: [convertedById], references: [id])
-
-  @@index([leadId])
-  @@index([organizationId, conversionType])
-}
-
-// --------------------------------------------------
-// 15. Lead Export Job
-// --------------------------------------------------
-
-model LeadExportJob {
-  id             String       @id @default(uuid()) @db.Uuid
-  organizationId String       @db.Uuid
-  requestedById  String       @db.Uuid
-  format         ExportFormat
-  filters        Json
-  totalRecords   Int          @default(0)
-  status         ExportStatus @default(PENDING)
-  filePath       String?
-  errorMessage   String?
-  expiresAt      DateTime?
-  completedAt    DateTime?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([organizationId, requestedById])
-  @@index([organizationId, status])
-}
-
-// --------------------------------------------------
-// 16. Enums
-// --------------------------------------------------
-
-enum LeadSource {
-  MANUAL
-  API
-  REFERRAL
-  WEBSITE
-  SOCIAL_MEDIA
-  EVENT
-  CAMPAIGN
-  OTHER
-}
-
-enum LeadStatus {
-  NEW
-  CONTACTED
-  QUALIFIED
-  PROPOSAL
-  NEGOTIATION
-  WON
-  LOST
-  ARCHIVED
-}
-
-enum LeadPriority {
-  LOW
-  MEDIUM
-  HIGH
-  URGENT
-}
-
-enum LeadQualification {
-  UNQUALIFIED
-  COLD
-  WARM
-  HOT
-}
-
-enum ActivityType {
-  CREATED
-  UPDATED
-  STATUS_CHANGED
-  PRIORITY_CHANGED
-  ASSIGNED
-  NOTE_ADDED
-  NOTE_EDITED
-  NOTE_DELETED
-  NOTE_PINNED
-  DOCUMENT_UPLOADED
-  DOCUMENT_DELETED
-  FOLLOW_UP_SCHEDULED
-  FOLLOW_UP_COMPLETED
-  FOLLOW_UP_CANCELLED
-  MEETING_SCHEDULED
-  MEETING_UPDATED
-  MEETING_COMPLETED
-  MEETING_CANCELLED
-  SCORE_UPDATED
-  QUALIFICATION_CHANGED
-  CONVERTED
-  EXPORTED
-  DELETED
-  RESTORED
-}
-
-enum DocumentCategory {
-  GENERAL
-  CONTRACT
-  PROPOSAL
-  PRESENTATION
-  INVOICE
-  IDENTITY
-  OTHER
-}
-
-enum FollowUpStatus {
-  SCHEDULED
-  COMPLETED
-  CANCELLED
-  OVERDUE
-}
-
-enum MeetingStatus {
-  SCHEDULED
-  IN_PROGRESS
-  COMPLETED
-  CANCELLED
-  NO_SHOW
-}
-
-enum AssignmentType {
-  MANUAL
-  AUTO
-  ROUND_ROBIN
-  TERRITORY_BASED
-  TEAM_BASED
-  REASSIGNED
-  UNASSIGNED
-}
-
-enum ConversionType {
-  CUSTOMER
-  CONTACT
-  OPPORTUNITY
-}
-
-enum ExportFormat {
-  CSV
-  EXCEL
-}
-
-enum ExportStatus {
-  PENDING
-  PROCESSING
-  COMPLETED
-  FAILED
-}
-
-// ==================================================
-// PHASE 5 — AI Lead Engine
-// ==================================================
-
-// --------------------------------------------------
-// 17. Prospect
-// Top of funnel raw contact
-// --------------------------------------------------
-
-model Prospect {
-  id             String  @id @default(uuid()) @db.Uuid
-  organizationId String  @db.Uuid
-  importJobId    String? @db.Uuid
-
-  email     String
-  firstName String?
-  lastName  String?
-  company   String?
-  jobTitle  String?
-  phone     String?
-  website   String?
-
-  // Cleaned / Enrichment data
-  industry    String?
-  companySize String?
-  country     String?
-  state       String?
-  city        String?
-
-  score               Float                 @default(0)
-  qualificationStatus ProspectQualification @default(UNQUALIFIED)
-
-  isConvertedToLead Boolean @default(false)
-  leadId            String? @db.Uuid
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  organization      Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  importJob         ImportJob?         @relation(fields: [importJobId], references: [id], onDelete: SetNull)
-  emailActivities   EmailActivity[]
-  campaignProspects CampaignProspect[]
-  aiAnalyses        AiAnalysis[]
-
-  @@unique([organizationId, email])
-  @@index([organizationId, qualificationStatus])
-  @@index([organizationId, isConvertedToLead])
-}
-
-// --------------------------------------------------
-// 18. Import Job
-// --------------------------------------------------
-
-model ImportJob {
-  id               String       @id @default(uuid()) @db.Uuid
-  organizationId   String       @db.Uuid
-  uploadedById     String       @db.Uuid
-  fileName         String
-  originalName     String
-  status           ImportStatus @default(PENDING)
-  totalRecords     Int          @default(0)
-  processedRecords Int          @default(0)
-  failedRecords    Int          @default(0)
-  errorMessage     String?
-  completedAt      DateTime?
+  name           String
+  email          String?
+  phone          String?
+  industry       String?
+  address        Json?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  uploadedBy   User         @relation(fields: [uploadedById], references: [id])
-  prospects    Prospect[]
-
-  @@index([organizationId, status])
+  orders       Order[]
 }
 
-// --------------------------------------------------
-// 19. Email Template
-// Reusable templates for campaigns
-// --------------------------------------------------
-
-model EmailTemplate {
-  id             String @id @default(uuid()) @db.Uuid
-  organizationId String @db.Uuid
-  createdById    String @db.Uuid
+model Product {
+  id             String  @id @default(uuid()) @db.Uuid
+  organizationId String  @db.Uuid
+  sku            String  @unique
   name           String
-  subject        String
-  body           String @db.Text
-  variables      Json? // e.g. ["firstName", "company"]
+  description    String?
+  price          Float
+  isActive       Boolean @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  organization Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  createdBy    User            @relation("TemplateCreatedBy", fields: [createdById], references: [id])
-  campaigns    EmailCampaign[]
-
-  @@index([organizationId])
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  orderItems   OrderItem[]
 }
 
-// --------------------------------------------------
-// 20. Email Campaign
-// --------------------------------------------------
+model Order {
+  id             String  @id @default(uuid()) @db.Uuid
+  organizationId String  @db.Uuid
+  orderNumber    String  @unique
+  customerId     String  @db.Uuid
+  ownerId        String  @db.Uuid
+  companyId      String? @db.Uuid
+  branchId       String? @db.Uuid
+  territoryId    String? @db.Uuid
+  status         String  @default("DRAFT")
+  totalAmount    Float   @default(0)
+  currency       String  @default("USD")
 
-model EmailCampaign {
-  id             String         @id @default(uuid()) @db.Uuid
-  organizationId String         @db.Uuid
-  createdById    String         @db.Uuid
-  templateId     String?        @db.Uuid
-  name           String
-  subject        String
-  templateBody   String
-  status         CampaignStatus @default(DRAFT)
-  scheduledAt    DateTime?
-  startedAt      DateTime?
-  completedAt    DateTime?
+  statusChangedAt    DateTime?
+  statusChangedBy    String?   @db.Uuid
+  statusChangeReason String?
+  isDeleted          Boolean   @default(false)
+  deletedAt          DateTime?
+  deletedBy          String?   @db.Uuid
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  organization      Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  createdBy         User               @relation(fields: [createdById], references: [id])
-  template          EmailTemplate?     @relation(fields: [templateId], references: [id], onDelete: SetNull)
-  campaignProspects CampaignProspect[]
-  emailActivities   EmailActivity[]
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  customer     Customer     @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  owner        User         @relation(fields: [ownerId], references: [id], onDelete: Cascade)
 
-  @@index([organizationId, status])
+  items      OrderItem[]
+  activities OrderActivity[]
+  notes      OrderNote[]
 }
 
-model CampaignProspect {
-  campaignId String   @db.Uuid
-  prospectId String   @db.Uuid
-  addedAt    DateTime @default(now())
+model OrderItem {
+  id             String  @id @default(uuid()) @db.Uuid
+  orderId        String  @db.Uuid
+  productId      String? @db.Uuid
+  description    String
+  quantity       Int
+  unitPrice      Float
+  discountAmount Float   @default(0)
+  taxAmount      Float   @default(0)
 
-  campaign EmailCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  prospect Prospect      @relation(fields: [prospectId], references: [id], onDelete: Cascade)
-
-  @@id([campaignId, prospectId])
+  order   Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
 }
 
-// --------------------------------------------------
-// 20. Email Activity & Tracking
-// --------------------------------------------------
+model OrderActivity {
+  id           String   @id @default(uuid()) @db.Uuid
+  orderId      String   @db.Uuid
+  activityType String
+  description  String
+  performedBy  String?  @db.Uuid
+  performedAt  DateTime @default(now())
+  metadata     Json?
 
-model EmailActivity {
-  id             String         @id @default(uuid()) @db.Uuid
-  organizationId String         @db.Uuid
-  campaignId     String?        @db.Uuid
-  prospectId     String         @db.Uuid
-  type           EmailEventType
-  providerMsgId  String?
-  metadata       Json?
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
 
+model OrderNote {
+  id        String   @id @default(uuid()) @db.Uuid
+  orderId   String   @db.Uuid
+  text      String
+  createdBy String?  @db.Uuid
   createdAt DateTime @default(now())
 
-  organization Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  campaign     EmailCampaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
-  prospect     Prospect       @relation(fields: [prospectId], references: [id], onDelete: Cascade)
-  aiAnalyses   AiAnalysis[]
-
-  @@index([prospectId, type])
-  @@index([organizationId, campaignId])
-}
-
-// --------------------------------------------------
-// 21. AI Analysis
-// --------------------------------------------------
-
-model AiAnalysis {
-  id              String      @id @default(uuid()) @db.Uuid
-  organizationId  String      @db.Uuid
-  prospectId      String      @db.Uuid
-  emailActivityId String?     @db.Uuid // Optional link to a specific reply
-  sentiment       AiSentiment @default(NEUTRAL)
-  intent          AiIntent    @default(NONE)
-  confidenceScore Float       @default(0)
-  summary         String?
-  rawResponse     Json?
-
-  createdAt DateTime @default(now())
-
-  organization  Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  prospect      Prospect       @relation(fields: [prospectId], references: [id], onDelete: Cascade)
-  emailActivity EmailActivity? @relation(fields: [emailActivityId], references: [id], onDelete: SetNull)
-
-  @@index([prospectId])
-}
-
-// --------------------------------------------------
-// 22. AI Lead Engine Enums
-// --------------------------------------------------
-
-enum ProspectQualification {
-  UNQUALIFIED
-  COLD
-  WARM
-  HOT
-  SPAM
-  DISQUALIFIED
-}
-
-enum ImportStatus {
-  PENDING
-  PROCESSING
-  COMPLETED
-  FAILED
-}
-
-enum CampaignStatus {
-  DRAFT
-  SCHEDULED
-  RUNNING
-  COMPLETED
-  CANCELLED
-  FAILED
-}
-
-enum EmailEventType {
-  SENT
-  DELIVERED
-  OPENED
-  CLICKED
-  REPLIED
-  BOUNCED
-  FAILED
-  UNSUBSCRIBED
-}
-
-enum AiSentiment {
-  POSITIVE
-  NEUTRAL
-  NEGATIVE
-}
-
-enum AiIntent {
-  NONE
-  MEETING_REQUEST
-  CALL_REQUEST
-  PRICING_REQUEST
-  DEMO_REQUEST
-  MORE_INFO
-  NOT_INTERESTED
-  OUT_OF_OFFICE
-  WRONG_PERSON
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
 }
 
 // ==================================================
@@ -1032,7 +446,6 @@ model Visit {
   id             String      @id @default(uuid()) @db.Uuid
   organizationId String      @db.Uuid
   userId         String      @db.Uuid
-  leadId         String?     @db.Uuid
   title          String
   type           VisitType   @default(MEETING)
   status         VisitStatus @default(PLANNED)
@@ -1047,10 +460,8 @@ model Visit {
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  lead         Lead?        @relation(fields: [leadId], references: [id], onDelete: SetNull)
 
   @@index([organizationId, userId])
-  @@index([leadId])
 }
 
 model Expense {
@@ -1297,21 +708,6 @@ model CalendarEvent {
 // PHASE 10 — Settings
 // ==================================================
 
-model WorkflowSettings {
-  id                String  @id @default(uuid()) @db.Uuid
-  organizationId    String  @db.Uuid
-  autoAssign        Boolean @default(true)
-  requireApproval   Boolean @default(true)
-  approvalHierarchy Json? // Configuration of who approves what
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-
-  @@index([organizationId])
-}
-
 model NotificationPreference {
   id             String  @id @default(uuid()) @db.Uuid
   organizationId String  @db.Uuid
@@ -1342,123 +738,4 @@ model BusinessRuleConfig {
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@unique([organizationId, ruleKey])
-}
-
-// ==================================================
-// PHASE 6 — Campaign Management
-// ==================================================
-
-model Campaign {
-  id              String            @id @default(uuid()) @db.Uuid
-  organizationId  String            @db.Uuid
-  name            String
-  description     String?
-  status          CampaignRunStatus @default(Draft)
-  campaignChannel CampaignChannel?
-  category        String?
-  serviceType     String?
-  templateId      String?           @db.Uuid
-  emailProvider   EmailProvider?
-  scheduledAt     DateTime?
-  startedAt       DateTime?
-  completedAt     DateTime?
-  createdById     String            @db.Uuid
-  updatedById     String            @db.Uuid
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  organization  Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  createdBy     User           @relation("CampaignCreatedBy", fields: [createdById], references: [id])
-  updatedBy     User           @relation("CampaignUpdatedBy", fields: [updatedById], references: [id])
-  campaignLeads CampaignLead[]
-  campaignLogs  CampaignLog[]
-
-  @@index([organizationId, status])
-}
-
-model CampaignLead {
-  id          String             @id @default(uuid()) @db.Uuid
-  campaignId  String             @db.Uuid
-  leadId      String             @db.Uuid
-  email       String
-  contactName String?
-  company     String?
-  status      CampaignLeadStatus @default(Pending)
-  replyType   ReplyType          @default(None)
-
-  sentAt       DateTime?
-  openedAt     DateTime?
-  clickedAt    DateTime?
-  repliedAt    DateTime?
-  errorMessage String?
-
-  campaign     Campaign      @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  lead         Lead          @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  campaignLogs CampaignLog[]
-
-  @@index([campaignId, status])
-  @@index([leadId])
-}
-
-model CampaignLog {
-  id               String  @id @default(uuid()) @db.Uuid
-  campaignId       String  @db.Uuid
-  leadId           String? @db.Uuid
-  event            String
-  status           String
-  message          String?
-  providerResponse Json?
-
-  createdAt DateTime @default(now())
-
-  campaign Campaign      @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  lead     CampaignLead? @relation(fields: [leadId], references: [id], onDelete: SetNull)
-
-  @@index([campaignId])
-  @@index([leadId])
-}
-
-enum CampaignRunStatus {
-  Draft
-  Scheduled
-  Running
-  Paused
-  Completed
-  Cancelled
-}
-
-enum CampaignChannel {
-  Email
-  SMS
-  WhatsApp
-}
-
-enum EmailProvider {
-  SMTP
-  Gmail
-}
-
-enum CampaignLeadStatus {
-  Pending
-  Queued
-  Sent
-  Delivered
-  Opened
-  Clicked
-  Replied
-  Interested
-  DemoScheduled
-  Qualified
-  Lost
-  Failed
-}
-
-enum ReplyType {
-  None
-  Interested
-  Demo
-  Pricing
-  NotInterested
-  Other
 }

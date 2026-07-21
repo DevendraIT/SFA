@@ -41,4 +41,19 @@ export class ReportsRepository {
       orderBy: { startDate: 'desc' },
     });
   }
+
+  async getOrderData(organizationId, startDate, endDate) {
+    return prisma.order.findMany({
+      where: {
+        organizationId,
+        isDeleted: false,
+        createdAt: { gte: new Date(startDate), lte: new Date(endDate) },
+      },
+      include: {
+        owner: { select: { firstName: true, lastName: true } },
+        customer: { select: { name: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
 }

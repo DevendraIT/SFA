@@ -81,6 +81,23 @@ export const requireDeleteOrderPermission = (req, res, next) => {
   }
 };
 
+/**
+ * Check if user has permission to approve orders
+ */
+export const requireApproveOrderPermission = (req, res, next) => {
+  try {
+    const user = req.user;
+    
+    if (!hasPermission(user, ORDERS_PERMISSIONS.APPROVE)) {
+      throw AppError.forbidden('Insufficient permissions to approve orders');
+    }
+    
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
+
 // --------------------------------------------------
 // Order Ownership & Context Middleware
 // --------------------------------------------------

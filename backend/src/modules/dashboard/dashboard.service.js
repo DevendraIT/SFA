@@ -7,11 +7,12 @@ export class DashboardService {
     const now = new Date();
     const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-    const [leadMetrics, visitMetrics, targetMetrics, attendanceMetrics] = await Promise.all([
+    const [leadMetrics, visitMetrics, targetMetrics, attendanceMetrics, orderMetrics] = await Promise.all([
       this.repo.getLeadMetrics(organizationId),
       this.repo.getVisitMetrics(organizationId, null, firstDayOfMonth, now),
       this.repo.getTargetMetrics(organizationId),
       this.repo.getAttendanceMetrics(organizationId, now),
+      this.repo.getOrderMetrics(organizationId, null, firstDayOfMonth, now),
     ]);
 
     return {
@@ -19,6 +20,26 @@ export class DashboardService {
       visitSummary: this._formatGroupBy(visitMetrics, 'status'),
       targets: targetMetrics,
       attendanceToday: this._formatGroupBy(attendanceMetrics, 'status'),
+      orders: this._formatOrderGroupBy(orderMetrics, 'status'),
+    };
+  }
+
+  async getTeamDashboard(organizationId, managerId) {
+    const now = new Date();
+    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    const [leadMetrics, visitMetrics, targetMetrics, orderMetrics] = await Promise.all([
+      this.repo.getLeadMetrics(organizationId),
+      this.repo.getVisitMetrics(organizationId, null, firstDayOfMonth, now),
+      this.repo.getTargetMetrics(organizationId),
+      this.repo.getOrderMetrics(organizationId, null, firstDayOfMonth, now),
+    ]);
+
+    return {
+      teamLeads: this._formatGroupBy(leadMetrics, 'status'),
+      teamVisits: this._formatGroupBy(visitMetrics, 'status'),
+      teamTargets: targetMetrics,
+      teamOrders: this._formatOrderGroupBy(orderMetrics, 'status'),
     };
   }
 
@@ -26,16 +47,18 @@ export class DashboardService {
     const now = new Date();
     const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-    const [leadMetrics, visitMetrics, targetMetrics] = await Promise.all([
+    const [leadMetrics, visitMetrics, targetMetrics, orderMetrics] = await Promise.all([
       this.repo.getLeadMetrics(organizationId, userId),
       this.repo.getVisitMetrics(organizationId, userId, firstDayOfMonth, now),
       this.repo.getTargetMetrics(organizationId, userId),
+      this.repo.getOrderMetrics(organizationId, userId, firstDayOfMonth, now),
     ]);
 
     return {
       myLeads: this._formatGroupBy(leadMetrics, 'status'),
       myVisits: this._formatGroupBy(visitMetrics, 'status'),
       myTargets: targetMetrics,
+      myOrders: this._formatOrderGroupBy(orderMetrics, 'status'),
     };
   }
 
@@ -43,6 +66,17 @@ export class DashboardService {
     const result = {};
     for (const row of data) {
       result[row[key]] = row._count.id;
+    }
+    return result;
+  }
+
+  _formatOrderGroupBy(data, key) {
+    const result = {};
+    for (const row of data) {
+      result[row[key]] = {
+        count: row._count.id,
+        revenue: row._sum.totalAmount || 0,
+      };
     }
     return result;
   }
