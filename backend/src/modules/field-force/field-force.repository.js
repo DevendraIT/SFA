@@ -51,7 +51,6 @@ export class FieldForceRepository {
       data: {
         organizationId,
         userId,
-        leadId: data.leadId,
         title: data.title,
         type: data.type,
         scheduledAt: new Date(data.scheduledAt),
@@ -215,7 +214,7 @@ export class FieldForceRepository {
   async getVisit(visitId, organizationId) {
     return prisma.visit.findFirst({
       where: { id: visitId, organizationId },
-      include: { user: true, lead: true },
+      include: { user: true},
     });
   }
 
@@ -232,7 +231,7 @@ export class FieldForceRepository {
         where,
         skip,
         take,
-        include: { user: true, lead: true },
+        include: { user: true},
         orderBy: { scheduledAt: 'desc' },
       }),
       prisma.visit.count({ where }),

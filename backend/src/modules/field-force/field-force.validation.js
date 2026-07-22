@@ -9,7 +9,6 @@ export const checkInSchema = z.object({
 });
 
 export const planVisitSchema = z.object({
-  leadId: z.string().uuid().optional(),
   title: z.string().min(1),
   type: z.enum(["COLD_CALL", "FOLLOW_UP", "MEETING", "DEMO"]).optional(),
   scheduledAt: z.string().datetime(),

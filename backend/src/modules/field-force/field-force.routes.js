@@ -25,12 +25,12 @@ router.post('/attendance/check-out', validate(checkInSchema), controller.checkOu
 router.get('/attendance', controller.listAttendance);
 router.get(
   '/attendance/list',
-  authMiddleware,
+  authenticate,
   controller.listAttendance
 );
+
 router.get(
   '/attendance/summary',
-  authMiddleware,
   controller.getAttendanceSummary
 );
 router.get('/attendance/today', controller.getAttendance);
