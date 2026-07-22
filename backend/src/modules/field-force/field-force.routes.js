@@ -23,6 +23,16 @@ router.use(authenticate, requireOrganization);
 router.post('/attendance/check-in', validate(checkInSchema), controller.checkIn);
 router.post('/attendance/check-out', validate(checkInSchema), controller.checkOut);
 router.get('/attendance', controller.listAttendance);
+router.get(
+  '/attendance/list',
+  authMiddleware,
+  controller.listAttendance
+);
+router.get(
+  '/attendance/summary',
+  authMiddleware,
+  controller.getAttendanceSummary
+);
 router.get('/attendance/today', controller.getAttendance);
 
 // ===== VISITS =====
@@ -68,6 +78,8 @@ router.get('/calendar/:id', controller.getCalendarEventDetail);
 
 // ===== ROUTE OPTIMIZATION =====
 router.post('/route/optimize', controller.optimizeRoute);
+
+// router.get("/tomtom-test", authenticate, controller.testTomTom);
 
 // ===== ANALYTICS & SUMMARIES =====
 router.get('/analytics/attendance', controller.getAttendanceSummary);

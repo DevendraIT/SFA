@@ -60,6 +60,9 @@ const envSchema = z.object({
   OPENAI_API_KEY: z.string().optional(),
   GEMINI_API_KEY: z.string().optional(),
   
+  // TomTom Maps
+TOMTOM_API_KEY: z.string().optional(),
+
   // N8n Integration
   N8N_WEBHOOK_URL: z.string().optional(),
 });
@@ -143,6 +146,7 @@ export const config = {
   MAX_CONCURRENT_SESSIONS: parseInt(parsed.data.MAX_CONCURRENT_SESSIONS, 10),
 
   N8N_WEBHOOK_URL: parsed.data.N8N_WEBHOOK_URL,
+ TOMTOM_API_KEY: parsed.data.TOMTOM_API_KEY,
 };
 
 export default config;

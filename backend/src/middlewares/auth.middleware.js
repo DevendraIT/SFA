@@ -37,6 +37,8 @@ export const authenticate = async (req, res, next) => {
       },
     });
 
+    console.dir(user, { depth: null });
+
     if (!user || !user.isActive) {
       throw AppError.unauthorized('User not found or inactive');
     }

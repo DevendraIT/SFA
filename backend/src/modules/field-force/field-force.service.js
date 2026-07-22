@@ -1,4 +1,8 @@
 import { AppError } from '../../shared/response.js';
+import config from "../../config/env.js";
+
+// const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${config.GOOGLE_MAPS_API_KEY}`;
+// console.log("Google Maps API Key:", config.GOOGLE_MAPS_API_KEY);
 
 export class FieldForceService {
   constructor(fieldForceRepository) {
@@ -130,6 +134,26 @@ export class FieldForceService {
       estimatedDuration: 'N/A (Maps Disabled)'
     };
   }
+
+//   async testTomTom() {
+
+//   const address = "Indore";
+
+//   const url =
+//     `https://api.tomtom.com/search/2/geocode/${encodeURIComponent(address)}.json?key=${config.TOMTOM_API_KEY}`;
+
+//   console.log("TomTom API Key:", config.TOMTOM_API_KEY);
+//   console.log("URL:", url);
+
+//   const response = await fetch(url);
+
+//   const data = await response.json();
+
+//   console.log(data);
+
+//   return data;
+// }
+
 
   // ===== GET/LIST SERVICE METHODS =====
 

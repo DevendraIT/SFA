@@ -36,14 +36,14 @@ export const validate = (schema, source = 'body') => {
           message: err.message,
           received: err.received
         }));
-        
+
         // Log detailed validation error for debugging
         console.error('❌ Validation Error Details:', {
           source,
           errors,
           originalData: data
         });
-        
+
         return next(AppError.badRequest('Validation failed', errors));
       }
       next(error);
