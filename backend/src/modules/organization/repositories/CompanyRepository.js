@@ -7,32 +7,71 @@ import { prisma } from '../../../config/database.js';
 export class CompanyRepository {
 
   // Standard includes for company queries
+  // #companyIncludes = {
+  //   branches: {
+  //     include: {
+  //       _count: { 
+  //         select: { 
+  //           departments: true, 
+  //           users: true 
+  //         } 
+  //       },
+  //     },
+  //     orderBy: { name: 'asc' },
+  //   },
+  //   territories: { 
+  //     orderBy: { name: 'asc' } 
+  //   },
+  //   _count: { 
+  //     select: { 
+  //       branches: true, 
+  //       territories: true 
+  //     } 
+  //   },
+  // };
+
   #companyIncludes = {
-    branches: {
-      include: {
-        _count: { 
-          select: { 
-            departments: true, 
-            users: true 
-          } 
+  branches: {
+    where: {
+      isDeleted: false,
+    },
+    include: {
+      _count: {
+        select: {
+          departments: true,
+          users: true,
         },
       },
-      orderBy: { name: 'asc' },
     },
-    territories: { 
-      orderBy: { name: 'asc' } 
+    orderBy: {
+      name: 'asc',
     },
-    _count: { 
-      select: { 
-        branches: true, 
-        territories: true 
-      } 
+  },
+
+  territories: {
+    where: {
+      isDeleted: false,
     },
-  };
+    orderBy: {
+      name: 'asc',
+    },
+  },
+
+  _count: {
+    select: {
+      branches: true,
+      territories: true,
+    },
+  },
+};
 
   // Build where clause for company queries
   #buildWhereClause(organizationId, { search } = {}) {
-    const where = { organizationId };
+    // const where = { organizationId };
+    const where = {
+  organizationId,
+  isDeleted: false,
+};
     
     if (search) {
       where.name = { 
@@ -80,22 +119,33 @@ export class CompanyRepository {
     return prisma.company.findFirst({
       where: { 
         id, 
-        organizationId 
+        organizationId,
+        isDeleted: false
       },
       include: this.#companyIncludes,
     });
   }
 
+  // async findByCode(organizationId, code) {
+  //   return prisma.company.findUnique({
+  //     where: { 
+  //       organizationId_code: { 
+  //         organizationId, 
+  //         code 
+  //       } 
+  //     },
+  //   });
+  // }
+
   async findByCode(organizationId, code) {
-    return prisma.company.findUnique({
-      where: { 
-        organizationId_code: { 
-          organizationId, 
-          code 
-        } 
-      },
-    });
-  }
+  return prisma.company.findFirst({
+    where: {
+      organizationId,
+      code,
+      isDeleted: false,
+    },
+  });
+}
 
   async create(data) {
     return prisma.company.create({ 
@@ -126,25 +176,45 @@ export class CompanyRepository {
     });
   }
 
-  async delete(id) {
-    return prisma.company.delete({
-      where: { id },
-    });
-  }
+  // async delete(id) {
+  //   return prisma.company.delete({
+  //     where: { id },
+  //   });
+  // }
 
-  async softDelete(id) {
-    return prisma.company.update({
-      where: { id },
-      data: { deletedAt: new Date() },
-    });
-  }
+  // async softDelete(id) {
+  //   return prisma.company.update({
+  //     where: { id },
+  //     data: { deletedAt: new Date() },
+  //   });
+  // }
+async softDelete(id, deletedBy) {
+  return prisma.company.update({
+    where: { id },
+    data: {
+      isDeleted: true,
+      deletedAt: new Date(),
+      deletedBy,
+    },
+  });
+}
+  // async restore(id) {
+  //   return prisma.company.update({
+  //     where: { id },
+  //     data: { deletedAt: null },
+  //   });
+  // }
 
   async restore(id) {
-    return prisma.company.update({
-      where: { id },
-      data: { deletedAt: null },
-    });
-  }
+  return prisma.company.update({
+    where: { id },
+    data: {
+      isDeleted: false,
+      deletedAt: null,
+      deletedBy: null,
+    },
+  });
+}
 
   async bulkCreate(data) {
     return prisma.company.createMany({ data, skipDuplicates: true });
@@ -156,25 +226,41 @@ export class CompanyRepository {
     );
   }
 
-  async existsByCode(organizationId, code, excludeId = null) {
-    const where = { 
-      organizationId, 
-      code 
-    };
+  // async existsByCode(organizationId, code, excludeId = null) {
+  //   const where = { 
+  //     organizationId, 
+  //     code 
+  //   };
     
-    if (excludeId) {
-      where.NOT = { id: excludeId };
-    }
+  //   if (excludeId) {
+  //     where.NOT = { id: excludeId };
+  //   }
 
-    const count = await prisma.company.count({ where });
-    return count > 0;
+  //   const count = await prisma.company.count({ where });
+  //   return count > 0;
+  // }
+
+  async existsByCode(organizationId, code, excludeId = null) {
+  const where = {
+    organizationId,
+    code,
+    isDeleted: false,
+  };
+
+  if (excludeId) {
+    where.NOT = { id: excludeId };
   }
+
+  const count = await prisma.company.count({ where });
+  return count > 0;
+}
 
   async belongsToOrganization(companyId, organizationId) {
     const company = await prisma.company.findFirst({
       where: { 
         id: companyId, 
-        organizationId 
+        organizationId,
+        isDeleted: false,
       },
       select: { id: true },
     });

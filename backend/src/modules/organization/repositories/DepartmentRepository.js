@@ -7,37 +7,79 @@ import { prisma } from '../../../config/database.js';
 export class DepartmentRepository {
 
   // Standard includes for department queries
+  // #departmentIncludes = {
+  //   branch: {
+  //     select: {
+  //       id: true,
+  //       name: true,
+  //       company: { 
+  //         select: { 
+  //           id: true, 
+  //           name: true 
+  //         } 
+  //       },
+  //     },
+  //   },
+  //   teams: { 
+  //     orderBy: { name: 'asc' } 
+  //   },
+  //   _count: { 
+  //     select: { 
+  //       users: true, 
+  //       teams: true 
+  //     } 
+  //   },
+  // };
+
   #departmentIncludes = {
-    branch: {
-      select: {
-        id: true,
-        name: true,
-        company: { 
-          select: { 
-            id: true, 
-            name: true 
-          } 
+  branch: {
+    select: {
+      id: true,
+      name: true,
+      company: {
+        select: {
+          id: true,
+          name: true,
         },
       },
     },
-    teams: { 
-      orderBy: { name: 'asc' } 
+  },
+
+  teams: {
+    where: {
+      isDeleted: false,
     },
-    _count: { 
-      select: { 
-        users: true, 
-        teams: true 
-      } 
+    orderBy: {
+      name: 'asc',
     },
-  };
+  },
+
+  _count: {
+    select: {
+      users: true,
+      teams: true,
+    },
+  },
+};
 
   // Build where clause for department queries
   #buildWhereClause(organizationId, { search, branchId } = {}) {
+    // const where = {
+    //   branch: { 
+    //     company: { organizationId } 
+    //   }
+    // };
+
     const where = {
-      branch: { 
-        company: { organizationId } 
-      }
-    };
+  isDeleted: false,
+  branch: {
+    isDeleted: false,
+    company: {
+      organizationId,
+      isDeleted: false,
+    },
+  },
+};
     
     if (branchId) {
       where.branchId = branchId;
@@ -98,28 +140,55 @@ export class DepartmentRepository {
     return { departments, total };
   }
 
+  // async findById(id, organizationId) {
+  //   return prisma.department.findFirst({
+  //     where: { 
+  //       id, 
+  //       branch: { 
+  //         company: { organizationId } 
+  //       } 
+  //     },
+  //     include: this.#departmentIncludes,
+  //   });
+  // }
+
   async findById(id, organizationId) {
-    return prisma.department.findFirst({
-      where: { 
-        id, 
-        branch: { 
-          company: { organizationId } 
-        } 
+  return prisma.department.findFirst({
+    where: {
+      id,
+      isDeleted: false,
+      branch: {
+        isDeleted: false,
+        company: {
+          organizationId,
+          isDeleted: false,
+        },
       },
-      include: this.#departmentIncludes,
-    });
-  }
+    },
+    include: this.#departmentIncludes,
+  });
+}
+
+  // async findByCode(branchId, code) {
+  //   return prisma.department.findUnique({
+  //     where: { 
+  //       branchId_code: { 
+  //         branchId, 
+  //         code 
+  //       } 
+  //     },
+  //   });
+  // }
 
   async findByCode(branchId, code) {
-    return prisma.department.findUnique({
-      where: { 
-        branchId_code: { 
-          branchId, 
-          code 
-        } 
-      },
-    });
-  }
+  return prisma.department.findFirst({
+    where: {
+      branchId,
+      code,
+      isDeleted: false,
+    },
+  });
+}
 
   async create(data) {
     return prisma.department.create({ 
@@ -174,26 +243,47 @@ export class DepartmentRepository {
     });
   }
 
-  async delete(id) {
-    return prisma.department.delete({
-      where: { id },
-    });
-  }
+  // async delete(id) {
+  //   return prisma.department.delete({
+  //     where: { id },
+  //   });
+  // }
 
-  async softDelete(id) {
-    return prisma.department.update({
-      where: { id },
-      data: { deletedAt: new Date() },
-    });
-  }
+  // async softDelete(id) {
+  //   return prisma.department.update({
+  //     where: { id },
+  //     data: { deletedAt: new Date() },
+  //   });
+  // }
+
+  async softDelete(id, deletedBy) {
+  return prisma.department.update({
+    where: { id },
+    data: {
+      isDeleted: true,
+      deletedAt: new Date(),
+      deletedBy,
+    },
+  });
+}
+
+  // async restore(id) {
+  //   return prisma.department.update({
+  //     where: { id },
+  //     data: { deletedAt: null },
+  //   });
+  // }
 
   async restore(id) {
-    return prisma.department.update({
-      where: { id },
-      data: { deletedAt: null },
-    });
-  }
-
+  return prisma.department.update({
+    where: { id },
+    data: {
+      isDeleted: false,
+      deletedAt: null,
+      deletedBy: null,
+    },
+  });
+}
   async bulkCreate(data) {
     return prisma.department.createMany({ data, skipDuplicates: true });
   }
@@ -204,17 +294,51 @@ export class DepartmentRepository {
     );
   }
 
-  async existsByCode(branchId, code, excludeId = null) {
-    const where = { 
-      branchId, 
-      code 
-    };
+  // async existsByCode(branchId, code, excludeId = null) {
+  //   const where = { 
+  //     branchId, 
+  //     code 
+  //   };
     
-    if (excludeId) {
-      where.NOT = { id: excludeId };
-    }
+  //   if (excludeId) {
+  //     where.NOT = { id: excludeId };
+  //   }
 
-    const count = await prisma.department.count({ where });
-    return count > 0;
+  //   const count = await prisma.department.count({ where });
+  //   return count > 0;
+  // }
+  async existsByCode(branchId, code, excludeId = null) {
+  const where = {
+    branchId,
+    code,
+    isDeleted: false,
+  };
+
+  if (excludeId) {
+    where.NOT = { id: excludeId };
   }
+
+  const count = await prisma.department.count({ where });
+  return count > 0;
+}
+async belongsToOrganization(departmentId, organizationId) {
+  const department = await prisma.department.findFirst({
+    where: {
+      id: departmentId,
+      isDeleted: false,
+      branch: {
+        isDeleted: false,
+        company: {
+          organizationId,
+          isDeleted: false,
+        },
+      },
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  return !!department;
+}
 }

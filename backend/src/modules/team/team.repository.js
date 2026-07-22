@@ -1,5 +1,6 @@
 import { prisma } from '../../config/database.js';
 
+
 /**
  * Team Repository
  * All Prisma queries for Team model
@@ -9,6 +10,7 @@ export class TeamRepository {
   async findTeams(organizationId, { skip, take, search, sortBy, sortOrder, branchId, departmentId, territoryId }) {
     const where = {
       organizationId,
+       isDeleted: false,
       ...(branchId && { branchId }),
       ...(departmentId && { departmentId }),
       ...(territoryId && { territoryId }),
@@ -42,7 +44,7 @@ export class TeamRepository {
 
   async findTeamById(id, organizationId) {
     return prisma.team.findFirst({
-      where: { id, organizationId },
+      where: { id, organizationId ,  isDeleted: false },
       include: {
         branch: {
           select: {
@@ -68,6 +70,41 @@ export class TeamRepository {
     });
   }
 
+  async findDeletedTeamById(id, organizationId) {
+  return prisma.team.findFirst({
+    where: {
+      id,
+      organizationId,
+      isDeleted: true
+    },
+    include: {
+      branch: {
+        select: {
+          id: true,
+          name: true
+        }
+      },
+      department: {
+        select: {
+          id: true,
+          name: true
+        }
+      },
+      territory: {
+        select: {
+          id: true,
+          name: true
+        }
+      },
+      _count: {
+        select: {
+          users: true
+        }
+      }
+    }
+  });
+}
+
   async createTeam(data) {
     return prisma.team.create({ data });
   }
@@ -76,6 +113,31 @@ export class TeamRepository {
     return prisma.team.update({ where: { id }, data });
   }
 
+  async softDeleteTeam(id, deletedBy) {
+  return prisma.team.update({
+    where: {
+      id
+    },
+    data: {
+      isDeleted: true,
+      deletedAt: new Date(),
+      deletedBy
+    }
+  });
+}
+
+async restoreTeam(id) {
+  return prisma.team.update({
+    where: {
+      id
+    },
+    data: {
+      isDeleted:false,
+      deletedAt:null,
+      deletedBy:null
+    }
+  });
+}
   // Existence checks
   async branchBelongsToOrg(branchId, organizationId) {
     const branch = await prisma.branch.findFirst({

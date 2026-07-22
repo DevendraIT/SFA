@@ -329,23 +329,60 @@ export class OrganizationService {
       throw AppError.conflict('Cannot delete company while branches exist.');
     }
 
-    await this._rejectSoftDelete('Company', id, organizationId, req);
+    // await this._rejectSoftDelete('Company', id, organizationId, req);
+
+const deleted = await this.companyRepo.softDelete(
+  id,
+  req.user.id
+);
+
+await logAudit({
+  organizationId,
+  userId: req.user.id,
+  action: 'company.delete',
+  moduleName: 'organization',
+  details: {
+    companyId: id,
+    name: company.name,
+  },
+  req,
+});
+
+return deleted;
+
   }
+  // async restoreCompany(id, organizationId, req) {
+  //   const company = await this.companyRepo.findById(id, organizationId);
+  //   if (!company) throw AppError.notFound('Company not found.');
+
+  //   await logAudit({
+  //     organizationId,
+  //     userId: req.user.id,
+  //     action: 'company.restore.rejected',
+  //     moduleName: 'organization',
+  //     details: { companyId: id, reason: 'Soft delete fields unavailable in Prisma schema.' },
+  //     req,
+  //   });
+
+  //   throw AppError.conflict('Company restore is unavailable because the current Prisma schema does not provide soft-delete fields.');
+  // }
+
   async restoreCompany(id, organizationId, req) {
-    const company = await this.companyRepo.findById(id, organizationId);
-    if (!company) throw AppError.notFound('Company not found.');
+  const company = await this.companyRepo.restore(id);
 
-    await logAudit({
-      organizationId,
-      userId: req.user.id,
-      action: 'company.restore.rejected',
-      moduleName: 'organization',
-      details: { companyId: id, reason: 'Soft delete fields unavailable in Prisma schema.' },
-      req,
-    });
+  await logAudit({
+    organizationId,
+    userId: req.user.id,
+    action: 'company.restore',
+    moduleName: 'organization',
+    details: {
+      companyId: id,
+    },
+    req,
+  });
 
-    throw AppError.conflict('Company restore is unavailable because the current Prisma schema does not provide soft-delete fields.');
-  }
+  return company;
+}
 
   // --------------------------------------------------
   // Branch
@@ -422,29 +459,67 @@ export class OrganizationService {
       throw AppError.conflict('Cannot delete branch while active users exist.');
     }
 
-    await this._rejectSoftDelete('Branch', id, organizationId, req);
+    // await this._rejectSoftDelete('Branch', id, organizationId, req);
+
+const deleted = await this.branchRepo.softDelete(
+  id,
+  req.user.id
+);
+
+await logAudit({
+  organizationId,
+  userId: req.user.id,
+  action: 'branch.delete',
+  moduleName: 'organization',
+  details: {
+    branchId: id,
+    name: branch.name,
+    companyId: branch.companyId,
+  },
+  req,
+});
+
+return deleted;
+
   }
 
-  async restoreBranch(id, organizationId, req) {
-    const branch = await this.branchRepo.findById(id, organizationId);
-    if (!branch) throw AppError.notFound('Branch not found.');
+  // async restoreBranch(id, organizationId, req) {
+  //   const branch = await this.branchRepo.findById(id, organizationId);
+  //   if (!branch) throw AppError.notFound('Branch not found.');
 
-    await logAudit({
-      organizationId,
-      userId: req.user.id,
-      action: 'branch.restore.rejected',
-      moduleName: 'organization',
-      details: { branchId: id, reason: 'Soft delete fields unavailable in Prisma schema.' },
-      req,
-    });
+  //   await logAudit({
+  //     organizationId,
+  //     userId: req.user.id,
+  //     action: 'branch.restore.rejected',
+  //     moduleName: 'organization',
+  //     details: { branchId: id, reason: 'Soft delete fields unavailable in Prisma schema.' },
+  //     req,
+  //   });
 
-    throw AppError.conflict('Branch restore is unavailable because the current Prisma schema does not provide soft-delete fields.');
-  }
+  //   throw AppError.conflict('Branch restore is unavailable because the current Prisma schema does not provide soft-delete fields.');
+  // }
 
   // --------------------------------------------------
   // Department
   // --------------------------------------------------
 
+
+  async restoreBranch(id, organizationId, req) {
+  const branch = await this.branchRepo.restore(id);
+
+  await logAudit({
+    organizationId,
+    userId: req.user.id,
+    action: 'branch.restore',
+    moduleName: 'organization',
+    details: {
+      branchId: id,
+    },
+    req,
+  });
+
+  return branch;
+}
   async listDepartments(organizationId, query) {
     const options = this._buildListOptions(query);
     const { departments, total } = await this.departmentRepo.findAll(organizationId, {
@@ -513,27 +588,66 @@ export class OrganizationService {
       throw AppError.conflict('Cannot delete department while users or teams are assigned.');
     }
 
-    await this._rejectSoftDelete('Department', id, organizationId, req);
+    // await this._rejectSoftDelete('Department', id, organizationId, req);
+
+    const deleted = await this.departmentRepo.softDelete(
+  id,
+  req.user.id
+);
+
+await logAudit({
+  organizationId,
+  userId: req.user.id,
+  action: 'department.delete',
+  moduleName: 'organization',
+  details: {
+    departmentId: id,
+    name: department.name,
+    branchId: department.branchId,
+  },
+  req,
+});
+
+return deleted;
   }
 
-  async restoreDepartment(id, organizationId, req) {
-    const department = await this.departmentRepo.findById(id, organizationId);
-    if (!department) throw AppError.notFound('Department not found.');
+  // async restoreDepartment(id, organizationId, req) {
+  //   const department = await this.departmentRepo.findById(id, organizationId);
+  //   if (!department) throw AppError.notFound('Department not found.');
 
-    await logAudit({
-      organizationId,
-      userId: req.user.id,
-      action: 'department.restore.rejected',
-      moduleName: 'organization',
-      details: { departmentId: id, reason: 'Soft delete fields unavailable in Prisma schema.' },
-      req,
-    });
+  //   await logAudit({
+  //     organizationId,
+  //     userId: req.user.id,
+  //     action: 'department.restore.rejected',
+  //     moduleName: 'organization',
+  //     details: { departmentId: id, reason: 'Soft delete fields unavailable in Prisma schema.' },
+  //     req,
+  //   });
 
-    throw AppError.conflict('Department restore is unavailable because the current Prisma schema does not provide soft-delete fields.');
-  }
+  //   throw AppError.conflict('Department restore is unavailable because the current Prisma schema does not provide soft-delete fields.');
+  // }
   // --------------------------------------------------
   // Territory
   // --------------------------------------------------
+
+
+  async restoreDepartment(id, organizationId, req) {
+  const department = await this.departmentRepo.restore(id);
+
+  await logAudit({
+    organizationId,
+    userId: req.user.id,
+    action: 'department.restore',
+    moduleName: 'organization',
+    details: {
+      departmentId: id,
+    },
+    req,
+  });
+
+  return department;
+}
+
 
   async listTerritories(organizationId, query) {
     const options = this._buildListOptions(query);
@@ -601,22 +715,58 @@ export class OrganizationService {
       throw AppError.conflict('Cannot delete territory while teams or users are assigned.');
     }
 
-    await this._rejectSoftDelete('Territory', id, organizationId, req);
+    // await this._rejectSoftDelete('Territory', id, organizationId, req);
+
+    const deleted = await this.territoryRepo.softDelete(
+  id,
+  req.user.id
+);
+
+await logAudit({
+  organizationId,
+  userId: req.user.id,
+  action: 'territory.delete',
+  moduleName: 'organization',
+  details: {
+    territoryId: id,
+    name: territory.name,
+    companyId: territory.companyId,
+  },
+  req,
+});
+
+return deleted;
   }
   
+  // async restoreTerritory(id, organizationId, req) {
+  //   const territory = await this.territoryRepo.findById(id, organizationId);
+  //   if (!territory) throw AppError.notFound('Territory not found.');
+
+  //   await logAudit({
+  //     organizationId,
+  //     userId: req.user.id,
+  //     action: 'territory.restore.rejected',
+  //     moduleName: 'organization',
+  //     details: { territoryId: id, reason: 'Soft delete fields unavailable in Prisma schema.' },
+  //     req,
+  //   });
+
+  //   throw AppError.conflict('Territory restore is unavailable because the current Prisma schema does not provide soft-delete fields.');
+  // }
   async restoreTerritory(id, organizationId, req) {
-    const territory = await this.territoryRepo.findById(id, organizationId);
-    if (!territory) throw AppError.notFound('Territory not found.');
+  const territory = await this.territoryRepo.restore(id);
 
-    await logAudit({
-      organizationId,
-      userId: req.user.id,
-      action: 'territory.restore.rejected',
-      moduleName: 'organization',
-      details: { territoryId: id, reason: 'Soft delete fields unavailable in Prisma schema.' },
-      req,
-    });
+  await logAudit({
+    organizationId,
+    userId: req.user.id,
+    action: 'territory.restore',
+    moduleName: 'organization',
+    details: {
+      territoryId: id,
+    },
+    req,
+  });
 
-    throw AppError.conflict('Territory restore is unavailable because the current Prisma schema does not provide soft-delete fields.');
-  }
+  return territory;
+}
 }

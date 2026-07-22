@@ -3,7 +3,7 @@ import { prisma } from '../../../config/database.js';
 export class OrganizationRepository {
   #buildWhereClause(options = {}) {
     const where = {};
-
+   
     if (options.search) {
       where.OR = [
         { name: { contains: options.search, mode: 'insensitive' } },
@@ -64,6 +64,7 @@ export class OrganizationRepository {
       },
     });
   }
+
 
   async findByName(name) {
     return prisma.organization.findFirst({
@@ -147,6 +148,18 @@ export class OrganizationRepository {
       select: { id: true },
     });
   }
+
+  async softDelete(id, deletedBy) {
+  return prisma.organization.update({
+    where: { id },
+    data: {
+      isDeleted: true,
+      deletedAt: new Date(),
+      deletedBy,
+    },
+    select: { id: true },
+  });
+}
 
   async getStatistics(organizationId) {
     const [

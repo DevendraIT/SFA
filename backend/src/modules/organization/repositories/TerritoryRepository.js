@@ -7,27 +7,57 @@ import { prisma } from '../../../config/database.js';
 export class TerritoryRepository {
 
   // Standard includes for territory queries
+  // #territoryIncludes = {
+  //   company: { 
+  //     select: { 
+  //       id: true, 
+  //       name: true 
+  //     } 
+  //   },
+  //   teams: { 
+  //     orderBy: { name: 'asc' } 
+  //   },
+  //   _count: { 
+  //     select: { 
+  //       teams: true, 
+  //       users: true 
+  //     } 
+  //   },
+  // };
+
   #territoryIncludes = {
-    company: { 
-      select: { 
-        id: true, 
-        name: true 
-      } 
+  company: {
+    select: {
+      id: true,
+      name: true,
     },
-    teams: { 
-      orderBy: { name: 'asc' } 
+  },
+
+  teams: {
+    where: {
+      isDeleted: false,
     },
-    _count: { 
-      select: { 
-        teams: true, 
-        users: true 
-      } 
+    orderBy: {
+      name: 'asc',
     },
-  };
+  },
+
+  _count: {
+    select: {
+      teams: true,
+      users: true,
+    },
+  },
+};
 
   // Build where clause for territory queries
   #buildWhereClause(organizationId, { search, companyId } = {}) {
-    const where = { organizationId };
+    // const where = { organizationId };
+
+    const where = {
+  organizationId,
+  isDeleted: false,
+};
     
     if (companyId) {
       where.companyId = companyId;
@@ -82,15 +112,26 @@ export class TerritoryRepository {
     return { territories, total };
   }
 
+  // async findById(id, organizationId) {
+  //   return prisma.territory.findFirst({
+  //     where: { 
+  //       id, 
+  //       organizationId 
+  //     },
+  //     include: this.#territoryIncludes,
+  //   });
+  // }
+
   async findById(id, organizationId) {
-    return prisma.territory.findFirst({
-      where: { 
-        id, 
-        organizationId 
-      },
-      include: this.#territoryIncludes,
-    });
-  }
+  return prisma.territory.findFirst({
+    where: {
+      id,
+      organizationId,
+      isDeleted: false,
+    },
+    include: this.#territoryIncludes,
+  });
+}
 
   async create(data) {
     return prisma.territory.create({ 
@@ -139,19 +180,41 @@ export class TerritoryRepository {
     });
   }
 
-  async softDelete(id) {
-    return prisma.territory.update({
-      where: { id },
-      data: { deletedAt: new Date() },
-    });
-  }
+  // async softDelete(id) {
+  //   return prisma.territory.update({
+  //     where: { id },
+  //     data: { deletedAt: new Date() },
+  //   });
+  // }
+
+  async softDelete(id, deletedBy) {
+  return prisma.territory.update({
+    where: { id },
+    data: {
+      isDeleted: true,
+      deletedAt: new Date(),
+      deletedBy,
+    },
+  });
+}
+
+  // async restore(id) {
+  //   return prisma.territory.update({
+  //     where: { id },
+  //     data: { deletedAt: null },
+  //   });
+  // }
 
   async restore(id) {
-    return prisma.territory.update({
-      where: { id },
-      data: { deletedAt: null },
-    });
-  }
+  return prisma.territory.update({
+    where: { id },
+    data: {
+      isDeleted: false,
+      deletedAt: null,
+      deletedBy: null,
+    },
+  });
+}
 
   async bulkCreate(data) {
     return prisma.territory.createMany({ data, skipDuplicates: true });
@@ -162,4 +225,18 @@ export class TerritoryRepository {
       updates.map(({ id, ...data }) => this.update(id, data))
     );
   }
+  async belongsToOrganization(territoryId, organizationId) {
+  const territory = await prisma.territory.findFirst({
+    where: {
+      id: territoryId,
+      organizationId,
+      isDeleted: false,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  return !!territory;
+}
 }
