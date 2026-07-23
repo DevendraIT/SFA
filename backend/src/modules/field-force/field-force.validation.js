@@ -14,6 +14,7 @@ export const planVisitSchema = z.object({
   scheduledAt: z.string().datetime(),
   location: z.record(z.any()).optional(),
   notes: z.string().optional(),
+  customerId: z.string().uuid().optional(),
 });
 
 export const completeVisitSchema = z.object({

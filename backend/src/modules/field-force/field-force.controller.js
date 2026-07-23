@@ -181,7 +181,7 @@ export class FieldForceController {
       const result = await this.service.listVisits(req.user.organizationId, {
         userId: req.query.userId,
         status: req.query.status,
-        leadId: req.query.leadId,
+        customerId: req.query.customerId,
         skip: parseInt(req.query.skip) || 0,
         take: parseInt(req.query.take) || 20,
       });

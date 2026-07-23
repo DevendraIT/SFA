@@ -9,10 +9,22 @@ import { AppError } from '../shared/response.js';
  */
 export const validate = (schema, source = 'body') => {
   return (req, res, next) => {
-    let data;
     try {
-      data = source === 'body' ? req.body : source === 'params' ? req.params : req.query;
+      // Support object format like validate({ body: schema1, params: schema2 })
+      if (schema && typeof schema.parse !== 'function') {
+        if (schema.body) req.body = schema.body.parse(req.body);
+        if (schema.params) req.params = schema.params.parse(req.params);
+        if (schema.query) {
+          Object.defineProperty(req, 'query', {
+            value: schema.query.parse(req.query),
+            writable: true, enumerable: true, configurable: true
+          });
+        }
+        return next();
+      }
 
+      // Single schema support (original logic)
+      const data = source === 'body' ? req.body : source === 'params' ? req.params : req.query;
       const validated = schema.parse(data);
 
       if (source === 'body') {
@@ -37,11 +49,9 @@ export const validate = (schema, source = 'body') => {
           received: err.received
         }));
 
-        // Log detailed validation error for debugging
         console.error('❌ Validation Error Details:', {
-          source,
+          source: (schema && typeof schema.parse !== 'function') ? 'multiple' : source,
           errors,
-          originalData: data
         });
 
         return next(AppError.badRequest('Validation failed', errors));

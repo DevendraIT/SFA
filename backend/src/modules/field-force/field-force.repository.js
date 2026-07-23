@@ -56,6 +56,7 @@ export class FieldForceRepository {
         scheduledAt: new Date(data.scheduledAt),
         location: data.location,
         notes: data.notes,
+        customerId: data.customerId,
       },
     });
   }
@@ -214,24 +215,24 @@ export class FieldForceRepository {
   async getVisit(visitId, organizationId) {
     return prisma.visit.findFirst({
       where: { id: visitId, organizationId },
-      include: { user: true},
+      include: { user: true },
     });
   }
 
   async listVisits(organizationId, filters = {}) {
-    const { userId, status, leadId, skip = 0, take = 20 } = filters;
+    const { userId, status, customerId, skip = 0, take = 20 } = filters;
 
     const where = { organizationId };
     if (userId) where.userId = userId;
     if (status) where.status = status;
-    if (leadId) where.leadId = leadId;
+    if (customerId) where.customerId = customerId;
 
     const [visits, total] = await Promise.all([
       prisma.visit.findMany({
         where,
         skip,
         take,
-        include: { user: true},
+        include: { user: true },
         orderBy: { scheduledAt: 'desc' },
       }),
       prisma.visit.count({ where }),

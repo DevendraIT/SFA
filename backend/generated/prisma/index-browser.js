@@ -368,6 +368,7 @@ exports.Prisma.VisitScalarFieldEnum = {
   id: 'id',
   organizationId: 'organizationId',
   userId: 'userId',
+  customerId: 'customerId',
   title: 'title',
   type: 'type',
   status: 'status',

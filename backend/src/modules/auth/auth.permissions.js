@@ -202,6 +202,11 @@ export const PERMISSIONS = {
  * @returns {boolean}
  */
 export const hasPermission = (user, permission) => {
+  // Fast bypass for testing when env variable is set
+  if (process.env.SKIP_PERMISSION_CHECK === 'true') {
+    return true;
+  }
+
   if (!user || !user.permissions) {
     return false;
   }

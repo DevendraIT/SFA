@@ -4526,10 +4526,12 @@ export namespace Prisma {
 
   export type CustomerCountOutputType = {
     orders: number
+    visits: number
   }
 
   export type CustomerCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     orders?: boolean | CustomerCountOutputTypeCountOrdersArgs
+    visits?: boolean | CustomerCountOutputTypeCountVisitsArgs
   }
 
   // Custom InputTypes
@@ -4548,6 +4550,13 @@ export namespace Prisma {
    */
   export type CustomerCountOutputTypeCountOrdersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: OrderWhereInput
+  }
+
+  /**
+   * CustomerCountOutputType without action
+   */
+  export type CustomerCountOutputTypeCountVisitsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: VisitWhereInput
   }
 
 
@@ -22136,6 +22145,7 @@ export namespace Prisma {
     updatedAt?: boolean
     organization?: boolean | OrganizationDefaultArgs<ExtArgs>
     orders?: boolean | Customer$ordersArgs<ExtArgs>
+    visits?: boolean | Customer$visitsArgs<ExtArgs>
     _count?: boolean | CustomerCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["customer"]>
 
@@ -22181,6 +22191,7 @@ export namespace Prisma {
   export type CustomerInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     organization?: boolean | OrganizationDefaultArgs<ExtArgs>
     orders?: boolean | Customer$ordersArgs<ExtArgs>
+    visits?: boolean | Customer$visitsArgs<ExtArgs>
     _count?: boolean | CustomerCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type CustomerIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -22195,6 +22206,7 @@ export namespace Prisma {
     objects: {
       organization: Prisma.$OrganizationPayload<ExtArgs>
       orders: Prisma.$OrderPayload<ExtArgs>[]
+      visits: Prisma.$VisitPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -22602,6 +22614,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     organization<T extends OrganizationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OrganizationDefaultArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     orders<T extends Customer$ordersArgs<ExtArgs> = {}>(args?: Subset<T, Customer$ordersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    visits<T extends Customer$visitsArgs<ExtArgs> = {}>(args?: Subset<T, Customer$visitsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VisitPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -23062,6 +23075,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: OrderScalarFieldEnum | OrderScalarFieldEnum[]
+  }
+
+  /**
+   * Customer.visits
+   */
+  export type Customer$visitsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Visit
+     */
+    select?: VisitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Visit
+     */
+    omit?: VisitOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VisitInclude<ExtArgs> | null
+    where?: VisitWhereInput
+    orderBy?: VisitOrderByWithRelationInput | VisitOrderByWithRelationInput[]
+    cursor?: VisitWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: VisitScalarFieldEnum | VisitScalarFieldEnum[]
   }
 
   /**
@@ -30168,6 +30205,7 @@ export namespace Prisma {
     id: string | null
     organizationId: string | null
     userId: string | null
+    customerId: string | null
     title: string | null
     type: $Enums.VisitType | null
     status: $Enums.VisitStatus | null
@@ -30183,6 +30221,7 @@ export namespace Prisma {
     id: string | null
     organizationId: string | null
     userId: string | null
+    customerId: string | null
     title: string | null
     type: $Enums.VisitType | null
     status: $Enums.VisitStatus | null
@@ -30198,6 +30237,7 @@ export namespace Prisma {
     id: number
     organizationId: number
     userId: number
+    customerId: number
     title: number
     type: number
     status: number
@@ -30216,6 +30256,7 @@ export namespace Prisma {
     id?: true
     organizationId?: true
     userId?: true
+    customerId?: true
     title?: true
     type?: true
     status?: true
@@ -30231,6 +30272,7 @@ export namespace Prisma {
     id?: true
     organizationId?: true
     userId?: true
+    customerId?: true
     title?: true
     type?: true
     status?: true
@@ -30246,6 +30288,7 @@ export namespace Prisma {
     id?: true
     organizationId?: true
     userId?: true
+    customerId?: true
     title?: true
     type?: true
     status?: true
@@ -30335,6 +30378,7 @@ export namespace Prisma {
     id: string
     organizationId: string
     userId: string
+    customerId: string | null
     title: string
     type: $Enums.VisitType
     status: $Enums.VisitStatus
@@ -30368,6 +30412,7 @@ export namespace Prisma {
     id?: boolean
     organizationId?: boolean
     userId?: boolean
+    customerId?: boolean
     title?: boolean
     type?: boolean
     status?: boolean
@@ -30380,12 +30425,14 @@ export namespace Prisma {
     updatedAt?: boolean
     organization?: boolean | OrganizationDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
+    customer?: boolean | Visit$customerArgs<ExtArgs>
   }, ExtArgs["result"]["visit"]>
 
   export type VisitSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     organizationId?: boolean
     userId?: boolean
+    customerId?: boolean
     title?: boolean
     type?: boolean
     status?: boolean
@@ -30398,12 +30445,14 @@ export namespace Prisma {
     updatedAt?: boolean
     organization?: boolean | OrganizationDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
+    customer?: boolean | Visit$customerArgs<ExtArgs>
   }, ExtArgs["result"]["visit"]>
 
   export type VisitSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     organizationId?: boolean
     userId?: boolean
+    customerId?: boolean
     title?: boolean
     type?: boolean
     status?: boolean
@@ -30416,12 +30465,14 @@ export namespace Prisma {
     updatedAt?: boolean
     organization?: boolean | OrganizationDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
+    customer?: boolean | Visit$customerArgs<ExtArgs>
   }, ExtArgs["result"]["visit"]>
 
   export type VisitSelectScalar = {
     id?: boolean
     organizationId?: boolean
     userId?: boolean
+    customerId?: boolean
     title?: boolean
     type?: boolean
     status?: boolean
@@ -30434,18 +30485,21 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type VisitOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "userId" | "title" | "type" | "status" | "scheduledAt" | "completedAt" | "location" | "notes" | "photoUrl" | "createdAt" | "updatedAt", ExtArgs["result"]["visit"]>
+  export type VisitOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "userId" | "customerId" | "title" | "type" | "status" | "scheduledAt" | "completedAt" | "location" | "notes" | "photoUrl" | "createdAt" | "updatedAt", ExtArgs["result"]["visit"]>
   export type VisitInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     organization?: boolean | OrganizationDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
+    customer?: boolean | Visit$customerArgs<ExtArgs>
   }
   export type VisitIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     organization?: boolean | OrganizationDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
+    customer?: boolean | Visit$customerArgs<ExtArgs>
   }
   export type VisitIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     organization?: boolean | OrganizationDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
+    customer?: boolean | Visit$customerArgs<ExtArgs>
   }
 
   export type $VisitPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -30453,11 +30507,13 @@ export namespace Prisma {
     objects: {
       organization: Prisma.$OrganizationPayload<ExtArgs>
       user: Prisma.$UserPayload<ExtArgs>
+      customer: Prisma.$CustomerPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       organizationId: string
       userId: string
+      customerId: string | null
       title: string
       type: $Enums.VisitType
       status: $Enums.VisitStatus
@@ -30864,6 +30920,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     organization<T extends OrganizationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OrganizationDefaultArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    customer<T extends Visit$customerArgs<ExtArgs> = {}>(args?: Subset<T, Visit$customerArgs<ExtArgs>>): Prisma__CustomerClient<$Result.GetResult<Prisma.$CustomerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -30896,6 +30953,7 @@ export namespace Prisma {
     readonly id: FieldRef<"Visit", 'String'>
     readonly organizationId: FieldRef<"Visit", 'String'>
     readonly userId: FieldRef<"Visit", 'String'>
+    readonly customerId: FieldRef<"Visit", 'String'>
     readonly title: FieldRef<"Visit", 'String'>
     readonly type: FieldRef<"Visit", 'VisitType'>
     readonly status: FieldRef<"Visit", 'VisitStatus'>
@@ -31304,6 +31362,25 @@ export namespace Prisma {
      * Limit how many Visits to delete.
      */
     limit?: number
+  }
+
+  /**
+   * Visit.customer
+   */
+  export type Visit$customerArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Customer
+     */
+    select?: CustomerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Customer
+     */
+    omit?: CustomerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerInclude<ExtArgs> | null
+    where?: CustomerWhereInput
   }
 
   /**
@@ -43173,6 +43250,7 @@ export namespace Prisma {
     id: 'id',
     organizationId: 'organizationId',
     userId: 'userId',
+    customerId: 'customerId',
     title: 'title',
     type: 'type',
     status: 'status',
@@ -44832,6 +44910,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Customer"> | Date | string
     organization?: XOR<OrganizationScalarRelationFilter, OrganizationWhereInput>
     orders?: OrderListRelationFilter
+    visits?: VisitListRelationFilter
   }
 
   export type CustomerOrderByWithRelationInput = {
@@ -44846,6 +44925,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
     organization?: OrganizationOrderByWithRelationInput
     orders?: OrderOrderByRelationAggregateInput
+    visits?: VisitOrderByRelationAggregateInput
   }
 
   export type CustomerWhereUniqueInput = Prisma.AtLeast<{
@@ -44863,6 +44943,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Customer"> | Date | string
     organization?: XOR<OrganizationScalarRelationFilter, OrganizationWhereInput>
     orders?: OrderListRelationFilter
+    visits?: VisitListRelationFilter
   }, "id">
 
   export type CustomerOrderByWithAggregationInput = {
@@ -45415,6 +45496,7 @@ export namespace Prisma {
     id?: UuidFilter<"Visit"> | string
     organizationId?: UuidFilter<"Visit"> | string
     userId?: UuidFilter<"Visit"> | string
+    customerId?: UuidNullableFilter<"Visit"> | string | null
     title?: StringFilter<"Visit"> | string
     type?: EnumVisitTypeFilter<"Visit"> | $Enums.VisitType
     status?: EnumVisitStatusFilter<"Visit"> | $Enums.VisitStatus
@@ -45427,12 +45509,14 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Visit"> | Date | string
     organization?: XOR<OrganizationScalarRelationFilter, OrganizationWhereInput>
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    customer?: XOR<CustomerNullableScalarRelationFilter, CustomerWhereInput> | null
   }
 
   export type VisitOrderByWithRelationInput = {
     id?: SortOrder
     organizationId?: SortOrder
     userId?: SortOrder
+    customerId?: SortOrderInput | SortOrder
     title?: SortOrder
     type?: SortOrder
     status?: SortOrder
@@ -45445,6 +45529,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
     organization?: OrganizationOrderByWithRelationInput
     user?: UserOrderByWithRelationInput
+    customer?: CustomerOrderByWithRelationInput
   }
 
   export type VisitWhereUniqueInput = Prisma.AtLeast<{
@@ -45454,6 +45539,7 @@ export namespace Prisma {
     NOT?: VisitWhereInput | VisitWhereInput[]
     organizationId?: UuidFilter<"Visit"> | string
     userId?: UuidFilter<"Visit"> | string
+    customerId?: UuidNullableFilter<"Visit"> | string | null
     title?: StringFilter<"Visit"> | string
     type?: EnumVisitTypeFilter<"Visit"> | $Enums.VisitType
     status?: EnumVisitStatusFilter<"Visit"> | $Enums.VisitStatus
@@ -45466,12 +45552,14 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Visit"> | Date | string
     organization?: XOR<OrganizationScalarRelationFilter, OrganizationWhereInput>
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    customer?: XOR<CustomerNullableScalarRelationFilter, CustomerWhereInput> | null
   }, "id">
 
   export type VisitOrderByWithAggregationInput = {
     id?: SortOrder
     organizationId?: SortOrder
     userId?: SortOrder
+    customerId?: SortOrderInput | SortOrder
     title?: SortOrder
     type?: SortOrder
     status?: SortOrder
@@ -45494,6 +45582,7 @@ export namespace Prisma {
     id?: UuidWithAggregatesFilter<"Visit"> | string
     organizationId?: UuidWithAggregatesFilter<"Visit"> | string
     userId?: UuidWithAggregatesFilter<"Visit"> | string
+    customerId?: UuidNullableWithAggregatesFilter<"Visit"> | string | null
     title?: StringWithAggregatesFilter<"Visit"> | string
     type?: EnumVisitTypeWithAggregatesFilter<"Visit"> | $Enums.VisitType
     status?: EnumVisitStatusWithAggregatesFilter<"Visit"> | $Enums.VisitStatus
@@ -47623,6 +47712,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     organization: OrganizationCreateNestedOneWithoutCustomersInput
     orders?: OrderCreateNestedManyWithoutCustomerInput
+    visits?: VisitCreateNestedManyWithoutCustomerInput
   }
 
   export type CustomerUncheckedCreateInput = {
@@ -47636,6 +47726,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     orders?: OrderUncheckedCreateNestedManyWithoutCustomerInput
+    visits?: VisitUncheckedCreateNestedManyWithoutCustomerInput
   }
 
   export type CustomerUpdateInput = {
@@ -47649,6 +47740,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneRequiredWithoutCustomersNestedInput
     orders?: OrderUpdateManyWithoutCustomerNestedInput
+    visits?: VisitUpdateManyWithoutCustomerNestedInput
   }
 
   export type CustomerUncheckedUpdateInput = {
@@ -47662,6 +47754,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     orders?: OrderUncheckedUpdateManyWithoutCustomerNestedInput
+    visits?: VisitUncheckedUpdateManyWithoutCustomerNestedInput
   }
 
   export type CustomerCreateManyInput = {
@@ -48265,12 +48358,14 @@ export namespace Prisma {
     updatedAt?: Date | string
     organization: OrganizationCreateNestedOneWithoutVisitsInput
     user: UserCreateNestedOneWithoutVisitsInput
+    customer?: CustomerCreateNestedOneWithoutVisitsInput
   }
 
   export type VisitUncheckedCreateInput = {
     id?: string
     organizationId: string
     userId: string
+    customerId?: string | null
     title: string
     type?: $Enums.VisitType
     status?: $Enums.VisitStatus
@@ -48297,12 +48392,14 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneRequiredWithoutVisitsNestedInput
     user?: UserUpdateOneRequiredWithoutVisitsNestedInput
+    customer?: CustomerUpdateOneWithoutVisitsNestedInput
   }
 
   export type VisitUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     organizationId?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
+    customerId?: NullableStringFieldUpdateOperationsInput | string | null
     title?: StringFieldUpdateOperationsInput | string
     type?: EnumVisitTypeFieldUpdateOperationsInput | $Enums.VisitType
     status?: EnumVisitStatusFieldUpdateOperationsInput | $Enums.VisitStatus
@@ -48319,6 +48416,7 @@ export namespace Prisma {
     id?: string
     organizationId: string
     userId: string
+    customerId?: string | null
     title: string
     type?: $Enums.VisitType
     status?: $Enums.VisitStatus
@@ -48349,6 +48447,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     organizationId?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
+    customerId?: NullableStringFieldUpdateOperationsInput | string | null
     title?: StringFieldUpdateOperationsInput | string
     type?: EnumVisitTypeFieldUpdateOperationsInput | $Enums.VisitType
     status?: EnumVisitStatusFieldUpdateOperationsInput | $Enums.VisitStatus
@@ -50801,10 +50900,16 @@ export namespace Prisma {
     not?: NestedEnumVisitStatusFilter<$PrismaModel> | $Enums.VisitStatus
   }
 
+  export type CustomerNullableScalarRelationFilter = {
+    is?: CustomerWhereInput | null
+    isNot?: CustomerWhereInput | null
+  }
+
   export type VisitCountOrderByAggregateInput = {
     id?: SortOrder
     organizationId?: SortOrder
     userId?: SortOrder
+    customerId?: SortOrder
     title?: SortOrder
     type?: SortOrder
     status?: SortOrder
@@ -50821,6 +50926,7 @@ export namespace Prisma {
     id?: SortOrder
     organizationId?: SortOrder
     userId?: SortOrder
+    customerId?: SortOrder
     title?: SortOrder
     type?: SortOrder
     status?: SortOrder
@@ -50836,6 +50942,7 @@ export namespace Prisma {
     id?: SortOrder
     organizationId?: SortOrder
     userId?: SortOrder
+    customerId?: SortOrder
     title?: SortOrder
     type?: SortOrder
     status?: SortOrder
@@ -54132,11 +54239,25 @@ export namespace Prisma {
     connect?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
   }
 
+  export type VisitCreateNestedManyWithoutCustomerInput = {
+    create?: XOR<VisitCreateWithoutCustomerInput, VisitUncheckedCreateWithoutCustomerInput> | VisitCreateWithoutCustomerInput[] | VisitUncheckedCreateWithoutCustomerInput[]
+    connectOrCreate?: VisitCreateOrConnectWithoutCustomerInput | VisitCreateOrConnectWithoutCustomerInput[]
+    createMany?: VisitCreateManyCustomerInputEnvelope
+    connect?: VisitWhereUniqueInput | VisitWhereUniqueInput[]
+  }
+
   export type OrderUncheckedCreateNestedManyWithoutCustomerInput = {
     create?: XOR<OrderCreateWithoutCustomerInput, OrderUncheckedCreateWithoutCustomerInput> | OrderCreateWithoutCustomerInput[] | OrderUncheckedCreateWithoutCustomerInput[]
     connectOrCreate?: OrderCreateOrConnectWithoutCustomerInput | OrderCreateOrConnectWithoutCustomerInput[]
     createMany?: OrderCreateManyCustomerInputEnvelope
     connect?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
+  }
+
+  export type VisitUncheckedCreateNestedManyWithoutCustomerInput = {
+    create?: XOR<VisitCreateWithoutCustomerInput, VisitUncheckedCreateWithoutCustomerInput> | VisitCreateWithoutCustomerInput[] | VisitUncheckedCreateWithoutCustomerInput[]
+    connectOrCreate?: VisitCreateOrConnectWithoutCustomerInput | VisitCreateOrConnectWithoutCustomerInput[]
+    createMany?: VisitCreateManyCustomerInputEnvelope
+    connect?: VisitWhereUniqueInput | VisitWhereUniqueInput[]
   }
 
   export type OrganizationUpdateOneRequiredWithoutCustomersNestedInput = {
@@ -54161,6 +54282,20 @@ export namespace Prisma {
     deleteMany?: OrderScalarWhereInput | OrderScalarWhereInput[]
   }
 
+  export type VisitUpdateManyWithoutCustomerNestedInput = {
+    create?: XOR<VisitCreateWithoutCustomerInput, VisitUncheckedCreateWithoutCustomerInput> | VisitCreateWithoutCustomerInput[] | VisitUncheckedCreateWithoutCustomerInput[]
+    connectOrCreate?: VisitCreateOrConnectWithoutCustomerInput | VisitCreateOrConnectWithoutCustomerInput[]
+    upsert?: VisitUpsertWithWhereUniqueWithoutCustomerInput | VisitUpsertWithWhereUniqueWithoutCustomerInput[]
+    createMany?: VisitCreateManyCustomerInputEnvelope
+    set?: VisitWhereUniqueInput | VisitWhereUniqueInput[]
+    disconnect?: VisitWhereUniqueInput | VisitWhereUniqueInput[]
+    delete?: VisitWhereUniqueInput | VisitWhereUniqueInput[]
+    connect?: VisitWhereUniqueInput | VisitWhereUniqueInput[]
+    update?: VisitUpdateWithWhereUniqueWithoutCustomerInput | VisitUpdateWithWhereUniqueWithoutCustomerInput[]
+    updateMany?: VisitUpdateManyWithWhereWithoutCustomerInput | VisitUpdateManyWithWhereWithoutCustomerInput[]
+    deleteMany?: VisitScalarWhereInput | VisitScalarWhereInput[]
+  }
+
   export type OrderUncheckedUpdateManyWithoutCustomerNestedInput = {
     create?: XOR<OrderCreateWithoutCustomerInput, OrderUncheckedCreateWithoutCustomerInput> | OrderCreateWithoutCustomerInput[] | OrderUncheckedCreateWithoutCustomerInput[]
     connectOrCreate?: OrderCreateOrConnectWithoutCustomerInput | OrderCreateOrConnectWithoutCustomerInput[]
@@ -54173,6 +54308,20 @@ export namespace Prisma {
     update?: OrderUpdateWithWhereUniqueWithoutCustomerInput | OrderUpdateWithWhereUniqueWithoutCustomerInput[]
     updateMany?: OrderUpdateManyWithWhereWithoutCustomerInput | OrderUpdateManyWithWhereWithoutCustomerInput[]
     deleteMany?: OrderScalarWhereInput | OrderScalarWhereInput[]
+  }
+
+  export type VisitUncheckedUpdateManyWithoutCustomerNestedInput = {
+    create?: XOR<VisitCreateWithoutCustomerInput, VisitUncheckedCreateWithoutCustomerInput> | VisitCreateWithoutCustomerInput[] | VisitUncheckedCreateWithoutCustomerInput[]
+    connectOrCreate?: VisitCreateOrConnectWithoutCustomerInput | VisitCreateOrConnectWithoutCustomerInput[]
+    upsert?: VisitUpsertWithWhereUniqueWithoutCustomerInput | VisitUpsertWithWhereUniqueWithoutCustomerInput[]
+    createMany?: VisitCreateManyCustomerInputEnvelope
+    set?: VisitWhereUniqueInput | VisitWhereUniqueInput[]
+    disconnect?: VisitWhereUniqueInput | VisitWhereUniqueInput[]
+    delete?: VisitWhereUniqueInput | VisitWhereUniqueInput[]
+    connect?: VisitWhereUniqueInput | VisitWhereUniqueInput[]
+    update?: VisitUpdateWithWhereUniqueWithoutCustomerInput | VisitUpdateWithWhereUniqueWithoutCustomerInput[]
+    updateMany?: VisitUpdateManyWithWhereWithoutCustomerInput | VisitUpdateManyWithWhereWithoutCustomerInput[]
+    deleteMany?: VisitScalarWhereInput | VisitScalarWhereInput[]
   }
 
   export type OrganizationCreateNestedOneWithoutProductsInput = {
@@ -54509,6 +54658,12 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput
   }
 
+  export type CustomerCreateNestedOneWithoutVisitsInput = {
+    create?: XOR<CustomerCreateWithoutVisitsInput, CustomerUncheckedCreateWithoutVisitsInput>
+    connectOrCreate?: CustomerCreateOrConnectWithoutVisitsInput
+    connect?: CustomerWhereUniqueInput
+  }
+
   export type EnumVisitTypeFieldUpdateOperationsInput = {
     set?: $Enums.VisitType
   }
@@ -54531,6 +54686,16 @@ export namespace Prisma {
     upsert?: UserUpsertWithoutVisitsInput
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutVisitsInput, UserUpdateWithoutVisitsInput>, UserUncheckedUpdateWithoutVisitsInput>
+  }
+
+  export type CustomerUpdateOneWithoutVisitsNestedInput = {
+    create?: XOR<CustomerCreateWithoutVisitsInput, CustomerUncheckedCreateWithoutVisitsInput>
+    connectOrCreate?: CustomerCreateOrConnectWithoutVisitsInput
+    upsert?: CustomerUpsertWithoutVisitsInput
+    disconnect?: CustomerWhereInput | boolean
+    delete?: CustomerWhereInput | boolean
+    connect?: CustomerWhereUniqueInput
+    update?: XOR<XOR<CustomerUpdateToOneWithWhereWithoutVisitsInput, CustomerUpdateWithoutVisitsInput>, CustomerUncheckedUpdateWithoutVisitsInput>
   }
 
   export type OrganizationCreateNestedOneWithoutExpensesInput = {
@@ -55683,11 +55848,13 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutVisitsInput
+    customer?: CustomerCreateNestedOneWithoutVisitsInput
   }
 
   export type VisitUncheckedCreateWithoutOrganizationInput = {
     id?: string
     userId: string
+    customerId?: string | null
     title: string
     type?: $Enums.VisitType
     status?: $Enums.VisitStatus
@@ -56060,6 +56227,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     orders?: OrderCreateNestedManyWithoutCustomerInput
+    visits?: VisitCreateNestedManyWithoutCustomerInput
   }
 
   export type CustomerUncheckedCreateWithoutOrganizationInput = {
@@ -56072,6 +56240,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     orders?: OrderUncheckedCreateNestedManyWithoutCustomerInput
+    visits?: VisitUncheckedCreateNestedManyWithoutCustomerInput
   }
 
   export type CustomerCreateOrConnectWithoutOrganizationInput = {
@@ -56464,6 +56633,7 @@ export namespace Prisma {
     id?: UuidFilter<"Visit"> | string
     organizationId?: UuidFilter<"Visit"> | string
     userId?: UuidFilter<"Visit"> | string
+    customerId?: UuidNullableFilter<"Visit"> | string | null
     title?: StringFilter<"Visit"> | string
     type?: EnumVisitTypeFilter<"Visit"> | $Enums.VisitType
     status?: EnumVisitStatusFilter<"Visit"> | $Enums.VisitStatus
@@ -59534,11 +59704,13 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     organization: OrganizationCreateNestedOneWithoutVisitsInput
+    customer?: CustomerCreateNestedOneWithoutVisitsInput
   }
 
   export type VisitUncheckedCreateWithoutUserInput = {
     id?: string
     organizationId: string
+    customerId?: string | null
     title: string
     type?: $Enums.VisitType
     status?: $Enums.VisitStatus
@@ -61758,6 +61930,48 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type VisitCreateWithoutCustomerInput = {
+    id?: string
+    title: string
+    type?: $Enums.VisitType
+    status?: $Enums.VisitStatus
+    scheduledAt: Date | string
+    completedAt?: Date | string | null
+    location?: NullableJsonNullValueInput | InputJsonValue
+    notes?: string | null
+    photoUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    organization: OrganizationCreateNestedOneWithoutVisitsInput
+    user: UserCreateNestedOneWithoutVisitsInput
+  }
+
+  export type VisitUncheckedCreateWithoutCustomerInput = {
+    id?: string
+    organizationId: string
+    userId: string
+    title: string
+    type?: $Enums.VisitType
+    status?: $Enums.VisitStatus
+    scheduledAt: Date | string
+    completedAt?: Date | string | null
+    location?: NullableJsonNullValueInput | InputJsonValue
+    notes?: string | null
+    photoUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type VisitCreateOrConnectWithoutCustomerInput = {
+    where: VisitWhereUniqueInput
+    create: XOR<VisitCreateWithoutCustomerInput, VisitUncheckedCreateWithoutCustomerInput>
+  }
+
+  export type VisitCreateManyCustomerInputEnvelope = {
+    data: VisitCreateManyCustomerInput | VisitCreateManyCustomerInput[]
+    skipDuplicates?: boolean
+  }
+
   export type OrganizationUpsertWithoutCustomersInput = {
     update: XOR<OrganizationUpdateWithoutCustomersInput, OrganizationUncheckedUpdateWithoutCustomersInput>
     create: XOR<OrganizationCreateWithoutCustomersInput, OrganizationUncheckedCreateWithoutCustomersInput>
@@ -61843,6 +62057,22 @@ export namespace Prisma {
   export type OrderUpdateManyWithWhereWithoutCustomerInput = {
     where: OrderScalarWhereInput
     data: XOR<OrderUpdateManyMutationInput, OrderUncheckedUpdateManyWithoutCustomerInput>
+  }
+
+  export type VisitUpsertWithWhereUniqueWithoutCustomerInput = {
+    where: VisitWhereUniqueInput
+    update: XOR<VisitUpdateWithoutCustomerInput, VisitUncheckedUpdateWithoutCustomerInput>
+    create: XOR<VisitCreateWithoutCustomerInput, VisitUncheckedCreateWithoutCustomerInput>
+  }
+
+  export type VisitUpdateWithWhereUniqueWithoutCustomerInput = {
+    where: VisitWhereUniqueInput
+    data: XOR<VisitUpdateWithoutCustomerInput, VisitUncheckedUpdateWithoutCustomerInput>
+  }
+
+  export type VisitUpdateManyWithWhereWithoutCustomerInput = {
+    where: VisitScalarWhereInput
+    data: XOR<VisitUpdateManyMutationInput, VisitUncheckedUpdateManyWithoutCustomerInput>
   }
 
   export type OrganizationCreateWithoutProductsInput = {
@@ -62116,6 +62346,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     organization: OrganizationCreateNestedOneWithoutCustomersInput
+    visits?: VisitCreateNestedManyWithoutCustomerInput
   }
 
   export type CustomerUncheckedCreateWithoutOrdersInput = {
@@ -62128,6 +62359,7 @@ export namespace Prisma {
     address?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    visits?: VisitUncheckedCreateNestedManyWithoutCustomerInput
   }
 
   export type CustomerCreateOrConnectWithoutOrdersInput = {
@@ -62402,6 +62634,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneRequiredWithoutCustomersNestedInput
+    visits?: VisitUpdateManyWithoutCustomerNestedInput
   }
 
   export type CustomerUncheckedUpdateWithoutOrdersInput = {
@@ -62414,6 +62647,7 @@ export namespace Prisma {
     address?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    visits?: VisitUncheckedUpdateManyWithoutCustomerNestedInput
   }
 
   export type UserUpsertWithoutOrdersInput = {
@@ -63473,6 +63707,37 @@ export namespace Prisma {
     create: XOR<UserCreateWithoutVisitsInput, UserUncheckedCreateWithoutVisitsInput>
   }
 
+  export type CustomerCreateWithoutVisitsInput = {
+    id?: string
+    name: string
+    email?: string | null
+    phone?: string | null
+    industry?: string | null
+    address?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    organization: OrganizationCreateNestedOneWithoutCustomersInput
+    orders?: OrderCreateNestedManyWithoutCustomerInput
+  }
+
+  export type CustomerUncheckedCreateWithoutVisitsInput = {
+    id?: string
+    organizationId: string
+    name: string
+    email?: string | null
+    phone?: string | null
+    industry?: string | null
+    address?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    orders?: OrderUncheckedCreateNestedManyWithoutCustomerInput
+  }
+
+  export type CustomerCreateOrConnectWithoutVisitsInput = {
+    where: CustomerWhereUniqueInput
+    create: XOR<CustomerCreateWithoutVisitsInput, CustomerUncheckedCreateWithoutVisitsInput>
+  }
+
   export type OrganizationUpsertWithoutVisitsInput = {
     update: XOR<OrganizationUpdateWithoutVisitsInput, OrganizationUncheckedUpdateWithoutVisitsInput>
     create: XOR<OrganizationCreateWithoutVisitsInput, OrganizationUncheckedCreateWithoutVisitsInput>
@@ -63641,6 +63906,43 @@ export namespace Prisma {
     calendarEvents?: CalendarEventUncheckedUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
     orders?: OrderUncheckedUpdateManyWithoutOwnerNestedInput
+  }
+
+  export type CustomerUpsertWithoutVisitsInput = {
+    update: XOR<CustomerUpdateWithoutVisitsInput, CustomerUncheckedUpdateWithoutVisitsInput>
+    create: XOR<CustomerCreateWithoutVisitsInput, CustomerUncheckedCreateWithoutVisitsInput>
+    where?: CustomerWhereInput
+  }
+
+  export type CustomerUpdateToOneWithWhereWithoutVisitsInput = {
+    where?: CustomerWhereInput
+    data: XOR<CustomerUpdateWithoutVisitsInput, CustomerUncheckedUpdateWithoutVisitsInput>
+  }
+
+  export type CustomerUpdateWithoutVisitsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    industry?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OrganizationUpdateOneRequiredWithoutCustomersNestedInput
+    orders?: OrderUpdateManyWithoutCustomerNestedInput
+  }
+
+  export type CustomerUncheckedUpdateWithoutVisitsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    industry?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    orders?: OrderUncheckedUpdateManyWithoutCustomerNestedInput
   }
 
   export type OrganizationCreateWithoutExpensesInput = {
@@ -66907,6 +67209,7 @@ export namespace Prisma {
   export type VisitCreateManyOrganizationInput = {
     id?: string
     userId: string
+    customerId?: string | null
     title: string
     type?: $Enums.VisitType
     status?: $Enums.VisitStatus
@@ -67462,11 +67765,13 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutVisitsNestedInput
+    customer?: CustomerUpdateOneWithoutVisitsNestedInput
   }
 
   export type VisitUncheckedUpdateWithoutOrganizationInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
+    customerId?: NullableStringFieldUpdateOperationsInput | string | null
     title?: StringFieldUpdateOperationsInput | string
     type?: EnumVisitTypeFieldUpdateOperationsInput | $Enums.VisitType
     status?: EnumVisitStatusFieldUpdateOperationsInput | $Enums.VisitStatus
@@ -67482,6 +67787,7 @@ export namespace Prisma {
   export type VisitUncheckedUpdateManyWithoutOrganizationInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
+    customerId?: NullableStringFieldUpdateOperationsInput | string | null
     title?: StringFieldUpdateOperationsInput | string
     type?: EnumVisitTypeFieldUpdateOperationsInput | $Enums.VisitType
     status?: EnumVisitStatusFieldUpdateOperationsInput | $Enums.VisitStatus
@@ -67864,6 +68170,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     orders?: OrderUpdateManyWithoutCustomerNestedInput
+    visits?: VisitUpdateManyWithoutCustomerNestedInput
   }
 
   export type CustomerUncheckedUpdateWithoutOrganizationInput = {
@@ -67876,6 +68183,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     orders?: OrderUncheckedUpdateManyWithoutCustomerNestedInput
+    visits?: VisitUncheckedUpdateManyWithoutCustomerNestedInput
   }
 
   export type CustomerUncheckedUpdateManyWithoutOrganizationInput = {
@@ -69069,6 +69377,7 @@ export namespace Prisma {
   export type VisitCreateManyUserInput = {
     id?: string
     organizationId: string
+    customerId?: string | null
     title: string
     type?: $Enums.VisitType
     status?: $Enums.VisitStatus
@@ -69494,11 +69803,13 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneRequiredWithoutVisitsNestedInput
+    customer?: CustomerUpdateOneWithoutVisitsNestedInput
   }
 
   export type VisitUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     organizationId?: StringFieldUpdateOperationsInput | string
+    customerId?: NullableStringFieldUpdateOperationsInput | string | null
     title?: StringFieldUpdateOperationsInput | string
     type?: EnumVisitTypeFieldUpdateOperationsInput | $Enums.VisitType
     status?: EnumVisitStatusFieldUpdateOperationsInput | $Enums.VisitStatus
@@ -69514,6 +69825,7 @@ export namespace Prisma {
   export type VisitUncheckedUpdateManyWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     organizationId?: StringFieldUpdateOperationsInput | string
+    customerId?: NullableStringFieldUpdateOperationsInput | string | null
     title?: StringFieldUpdateOperationsInput | string
     type?: EnumVisitTypeFieldUpdateOperationsInput | $Enums.VisitType
     status?: EnumVisitStatusFieldUpdateOperationsInput | $Enums.VisitStatus
@@ -69958,6 +70270,22 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type VisitCreateManyCustomerInput = {
+    id?: string
+    organizationId: string
+    userId: string
+    title: string
+    type?: $Enums.VisitType
+    status?: $Enums.VisitStatus
+    scheduledAt: Date | string
+    completedAt?: Date | string | null
+    location?: NullableJsonNullValueInput | InputJsonValue
+    notes?: string | null
+    photoUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type OrderUpdateWithoutCustomerInput = {
     id?: StringFieldUpdateOperationsInput | string
     orderNumber?: StringFieldUpdateOperationsInput | string
@@ -70023,6 +70351,54 @@ export namespace Prisma {
     isDeleted?: BoolFieldUpdateOperationsInput | boolean
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     deletedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type VisitUpdateWithoutCustomerInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    type?: EnumVisitTypeFieldUpdateOperationsInput | $Enums.VisitType
+    status?: EnumVisitStatusFieldUpdateOperationsInput | $Enums.VisitStatus
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    location?: NullableJsonNullValueInput | InputJsonValue
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OrganizationUpdateOneRequiredWithoutVisitsNestedInput
+    user?: UserUpdateOneRequiredWithoutVisitsNestedInput
+  }
+
+  export type VisitUncheckedUpdateWithoutCustomerInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    type?: EnumVisitTypeFieldUpdateOperationsInput | $Enums.VisitType
+    status?: EnumVisitStatusFieldUpdateOperationsInput | $Enums.VisitStatus
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    location?: NullableJsonNullValueInput | InputJsonValue
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type VisitUncheckedUpdateManyWithoutCustomerInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    type?: EnumVisitTypeFieldUpdateOperationsInput | $Enums.VisitType
+    status?: EnumVisitStatusFieldUpdateOperationsInput | $Enums.VisitStatus
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    location?: NullableJsonNullValueInput | InputJsonValue
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
