@@ -50,13 +50,22 @@ export const darSchema = z.object({
   status: z.enum(['DRAFT', 'SUBMITTED', 'APPROVED']).optional(),
 });
 
-export const taskSchema = z.object({
-  title: z.string().min(1),
-  description: z.string().optional(),
-  dueDate: z.string().datetime().optional(),
-  referenceType: z.enum(['LEAD', 'CUSTOMER', 'VISIT', 'OTHER']).optional(),
-  referenceId: z.string().uuid().optional(),
-});
+export const createTaskSchema = {
+  body: z.object({
+    assignedToId: z.string().uuid(),
+    title: z.string().min(3),
+    description: z.string().optional(),
+    priority: z.enum([
+      'LOW',
+      'MEDIUM',
+      'HIGH',
+      'URGENT'
+    ]).default('MEDIUM'),
+    dueDate: z.string().datetime().optional(),
+    referenceType: z.string().optional(),
+    referenceId: z.string().uuid().optional()
+  })
+};
 
 export const beatPlanSchema = z.object({
   title: z.string().min(1),

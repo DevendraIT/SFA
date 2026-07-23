@@ -289,7 +289,7 @@ export class FieldForceController {
   listTasksData = async (req, res, next) => {
     try {
       const result = await this.service.listTasks(req.user.organizationId, {
-        userId: req.query.userId,
+        assignedToId: req.user.id,
         status: req.query.status,
         skip: parseInt(req.query.skip) || 0,
         take: parseInt(req.query.take) || 20,
@@ -302,7 +302,7 @@ export class FieldForceController {
 
   completeTaskDetail = async (req, res, next) => {
     try {
-      const result = await this.service.completeTask(req.params.id, req.user.organizationId);
+      const result = await this.service.completeTask(req.params.id, req.user.organizationId, req.body);
       return successResponse(res, result, 'Task completed.');
     } catch (err) {
       next(err);

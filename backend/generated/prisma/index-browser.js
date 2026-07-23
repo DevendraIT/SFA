@@ -454,13 +454,17 @@ exports.Prisma.NotificationTemplateScalarFieldEnum = {
 exports.Prisma.TaskScalarFieldEnum = {
   id: 'id',
   organizationId: 'organizationId',
-  userId: 'userId',
+  assignedById: 'assignedById',
+  assignedToId: 'assignedToId',
   title: 'title',
   description: 'description',
   status: 'status',
+  priority: 'priority',
   dueDate: 'dueDate',
+  completedAt: 'completedAt',
   referenceType: 'referenceType',
   referenceId: 'referenceId',
+  completionNotes: 'completionNotes',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -606,6 +610,20 @@ exports.NotificationType = exports.$Enums.NotificationType = {
 exports.NotificationStatus = exports.$Enums.NotificationStatus = {
   UNREAD: 'UNREAD',
   READ: 'READ'
+};
+
+exports.TaskStatus = exports.$Enums.TaskStatus = {
+  PENDING: 'PENDING',
+  IN_PROGRESS: 'IN_PROGRESS',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED'
+};
+
+exports.TaskPriority = exports.$Enums.TaskPriority = {
+  LOW: 'LOW',
+  MEDIUM: 'MEDIUM',
+  HIGH: 'HIGH',
+  URGENT: 'URGENT'
 };
 
 exports.Prisma.ModelName = {

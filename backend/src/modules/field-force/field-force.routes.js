@@ -9,6 +9,7 @@ import {
   planVisitSchema,
   completeVisitSchema,
   logExpenseSchema,
+  createTaskSchema,
 } from './field-force.validation.js';
 
 const router = Router();
@@ -59,7 +60,12 @@ router.patch('/dar/:id/submit', controller.submitDailyActivityReport);
 router.patch('/dar/:id/approve', controller.approveDailyActivityReport);
 
 // ===== TASKS =====
-router.post('/tasks', controller.createTask);
+router.post(
+  '/tasks',
+  authenticate,
+  validate(createTaskSchema),
+  controller.createTask
+);
 router.get('/tasks', controller.listTasksData);
 router.get('/tasks/:id', controller.getTaskDetail);
 router.patch('/tasks/:id/complete', controller.completeTaskDetail);

@@ -118,16 +118,22 @@ export class FieldForceRepository {
     });
   }
 
-  async createTask(organizationId, userId, data) {
+  async createTask(organizationId, assignedById, data) {
     return prisma.task.create({
       data: {
         organizationId,
-        userId,
+        assignedById,
+        assignedToId: data.assignedToId,
         title: data.title,
         description: data.description,
+        priority: data.priority,
         dueDate: data.dueDate ? new Date(data.dueDate) : null,
         referenceType: data.referenceType,
         referenceId: data.referenceId,
+      },
+      include: {
+        assignedBy: true,
+        assignedTo: true,
       },
     });
   }
@@ -275,17 +281,43 @@ export class FieldForceRepository {
     return { expenses, total };
   }
 
-  async updateExpenseStatus(expenseId, organizationId, status, approvedById = null) {
-    const updateData = { status };
-    if (approvedById) updateData.approvedById = approvedById;
-    if (status === 'APPROVED') updateData.approvedAt = new Date();
+  // async updateExpenseStatus(expenseId, organizationId, status, approvedById = null) {
+  //   const updateData = { status };
+  //   if (approvedById) updateData.approvedById = approvedById;
+  //   if (status === 'APPROVED') updateData.approvedAt = new Date();
 
-    return prisma.expense.update({
-      where: { id: expenseId, organizationId },
-      data: updateData,
-      include: { user: true, approvedBy: true },
-    });
+  //   return prisma.expense.update({
+  //     where: { id: expenseId, organizationId },
+  //     data: updateData,
+  //     include: { user: true, approvedBy: true },
+  //   });
+  // }
+
+  async updateExpenseStatus(expenseId, organizationId, status, approvedById = null) {
+  const updateData = {
+    status,
+  };
+
+  if (approvedById) {
+    updateData.approvedBy = {
+      connect: {
+        id: approvedById,
+      },
+    };
   }
+
+  return prisma.expense.update({
+    where: {
+      id: expenseId,
+      organizationId,
+    },
+    data: updateData,
+    include: {
+      user: true,
+      approvedBy: true,
+    },
+  });
+}
 
   async getDailyActivityReport(darId, organizationId) {
     return prisma.dailyActivityReport.findFirst({
@@ -332,15 +364,15 @@ export class FieldForceRepository {
   async getTask(taskId, organizationId) {
     return prisma.task.findFirst({
       where: { id: taskId, organizationId },
-      include: { user: true },
+      include: { assignedTo: true, assignedBy: true },
     });
   }
 
   async listTasks(organizationId, filters = {}) {
-    const { userId, status, skip = 0, take = 20 } = filters;
+    const { assignedToId, status, skip = 0, take = 20 } = filters;
 
     const where = { organizationId };
-    if (userId) where.userId = userId;
+    if (assignedToId) where.assignedToId = assignedToId;
     if (status) where.status = status;
 
     const [tasks, total] = await Promise.all([
@@ -348,7 +380,7 @@ export class FieldForceRepository {
         where,
         skip,
         take,
-        include: { user: true },
+        include: { assignedTo: true, assignedBy: true },
         orderBy: { dueDate: 'asc' },
       }),
       prisma.task.count({ where }),
@@ -357,14 +389,27 @@ export class FieldForceRepository {
     return { tasks, total };
   }
 
-  async updateTaskStatus(taskId, organizationId, status) {
-    const updateData = { status };
-    if (status === 'COMPLETED') updateData.completedAt = new Date();
+  async getAssignedTasks(organizationId, managerId) {
+    return prisma.task.findMany({
+      where: {
+        organizationId,
+        assignedById: managerId,
+      },
+      include: {
+        assignedTo: true,
+      },
+    });
+  }
 
+  async completeTask(taskId, organizationId, data = {}) {
     return prisma.task.update({
       where: { id: taskId, organizationId },
-      data: updateData,
-      include: { user: true },
+      data: {
+        status: 'COMPLETED',
+        completedAt: new Date(),
+        completionNotes: data.completionNotes
+      },
+      include: { assignedTo: true, assignedBy: true },
     });
   }
 

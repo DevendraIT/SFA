@@ -69,23 +69,42 @@ export class FieldForceService {
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
 
-    const [visitsCount, ordersCount] = await Promise.all([
-      prisma.visit.count({
-        where: {
-          organizationId,
-          userId,
-          scheduledAt: { gte: today, lt: tomorrow },
-        }
-      }),
-      prisma.order.count({
-        where: {
-          organizationId,
-          ownerId: userId,
-          createdAt: { gte: today, lt: tomorrow },
-          isDeleted: false,
-        }
-      })
-    ]);
+    // const [visitsCount, ordersCount] = await Promise.all([
+    //   prisma.visit.count({
+    //     where: {
+    //       organizationId,
+    //       userId,
+    //       scheduledAt: { gte: today, lt: tomorrow },
+    //     }
+    //   }),
+    //   prisma.order.count({
+    //     where: {
+    //       organizationId,
+    //       ownerId: userId,
+    //       createdAt: { gte: today, lt: tomorrow },
+    //       isDeleted: false,
+    //     }
+    //   })
+    // ]);
+
+      const visitsCount = await prisma.visit.count({
+      where: {
+        organizationId,
+        userId,
+      },
+    });
+
+    const ordersCount = await prisma.order.count({
+      where: {
+        organizationId,
+        ownerId: userId,
+        createdAt: {
+          gte: today,
+          lt: tomorrow,
+        },
+        isDeleted: false,
+      },
+    });
 
     const darData = {
       ...data,
@@ -229,8 +248,12 @@ export class FieldForceService {
     return this.repo.listTasks(organizationId, filters);
   }
 
-  async completeTask(taskId, organizationId) {
-    return await this.repo.updateTaskStatus(taskId, organizationId, 'COMPLETED');
+  async completeTask(taskId, organizationId, data) {
+    return await this.repo.completeTask(taskId, organizationId, data);
+  }
+
+  async getAssignedTasks(organizationId, managerId) {
+    return await this.repo.getAssignedTasks(organizationId, managerId);
   }
 
   async getBeatPlan(beatPlanId, organizationId) {

@@ -282,6 +282,26 @@ export const NotificationStatus: {
 
 export type NotificationStatus = (typeof NotificationStatus)[keyof typeof NotificationStatus]
 
+
+export const TaskStatus: {
+  PENDING: 'PENDING',
+  IN_PROGRESS: 'IN_PROGRESS',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED'
+};
+
+export type TaskStatus = (typeof TaskStatus)[keyof typeof TaskStatus]
+
+
+export const TaskPriority: {
+  LOW: 'LOW',
+  MEDIUM: 'MEDIUM',
+  HIGH: 'HIGH',
+  URGENT: 'URGENT'
+};
+
+export type TaskPriority = (typeof TaskPriority)[keyof typeof TaskPriority]
+
 }
 
 export type AttendanceStatus = $Enums.AttendanceStatus
@@ -327,6 +347,14 @@ export const NotificationType: typeof $Enums.NotificationType
 export type NotificationStatus = $Enums.NotificationStatus
 
 export const NotificationStatus: typeof $Enums.NotificationStatus
+
+export type TaskStatus = $Enums.TaskStatus
+
+export const TaskStatus: typeof $Enums.TaskStatus
+
+export type TaskPriority = $Enums.TaskPriority
+
+export const TaskPriority: typeof $Enums.TaskPriority
 
 /**
  * ##  Prisma Client ʲˢ
@@ -4362,7 +4390,8 @@ export namespace Prisma {
     targets: number
     notifications: number
     expensesApproved: number
-    tasks: number
+    tasksAssigned: number
+    tasksReceived: number
     beatPlans: number
     calendarEvents: number
     notificationPrefs: number
@@ -4382,7 +4411,8 @@ export namespace Prisma {
     targets?: boolean | UserCountOutputTypeCountTargetsArgs
     notifications?: boolean | UserCountOutputTypeCountNotificationsArgs
     expensesApproved?: boolean | UserCountOutputTypeCountExpensesApprovedArgs
-    tasks?: boolean | UserCountOutputTypeCountTasksArgs
+    tasksAssigned?: boolean | UserCountOutputTypeCountTasksAssignedArgs
+    tasksReceived?: boolean | UserCountOutputTypeCountTasksReceivedArgs
     beatPlans?: boolean | UserCountOutputTypeCountBeatPlansArgs
     calendarEvents?: boolean | UserCountOutputTypeCountCalendarEventsArgs
     notificationPrefs?: boolean | UserCountOutputTypeCountNotificationPrefsArgs
@@ -4487,7 +4517,14 @@ export namespace Prisma {
   /**
    * UserCountOutputType without action
    */
-  export type UserCountOutputTypeCountTasksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type UserCountOutputTypeCountTasksAssignedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TaskWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountTasksReceivedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: TaskWhereInput
   }
 
@@ -15962,7 +15999,8 @@ export namespace Prisma {
     targets?: boolean | User$targetsArgs<ExtArgs>
     notifications?: boolean | User$notificationsArgs<ExtArgs>
     expensesApproved?: boolean | User$expensesApprovedArgs<ExtArgs>
-    tasks?: boolean | User$tasksArgs<ExtArgs>
+    tasksAssigned?: boolean | User$tasksAssignedArgs<ExtArgs>
+    tasksReceived?: boolean | User$tasksReceivedArgs<ExtArgs>
     beatPlans?: boolean | User$beatPlansArgs<ExtArgs>
     calendarEvents?: boolean | User$calendarEventsArgs<ExtArgs>
     notificationPrefs?: boolean | User$notificationPrefsArgs<ExtArgs>
@@ -16086,7 +16124,8 @@ export namespace Prisma {
     targets?: boolean | User$targetsArgs<ExtArgs>
     notifications?: boolean | User$notificationsArgs<ExtArgs>
     expensesApproved?: boolean | User$expensesApprovedArgs<ExtArgs>
-    tasks?: boolean | User$tasksArgs<ExtArgs>
+    tasksAssigned?: boolean | User$tasksAssignedArgs<ExtArgs>
+    tasksReceived?: boolean | User$tasksReceivedArgs<ExtArgs>
     beatPlans?: boolean | User$beatPlansArgs<ExtArgs>
     calendarEvents?: boolean | User$calendarEventsArgs<ExtArgs>
     notificationPrefs?: boolean | User$notificationPrefsArgs<ExtArgs>
@@ -16131,7 +16170,8 @@ export namespace Prisma {
       targets: Prisma.$TargetPayload<ExtArgs>[]
       notifications: Prisma.$NotificationPayload<ExtArgs>[]
       expensesApproved: Prisma.$ExpensePayload<ExtArgs>[]
-      tasks: Prisma.$TaskPayload<ExtArgs>[]
+      tasksAssigned: Prisma.$TaskPayload<ExtArgs>[]
+      tasksReceived: Prisma.$TaskPayload<ExtArgs>[]
       beatPlans: Prisma.$BeatPlanPayload<ExtArgs>[]
       calendarEvents: Prisma.$CalendarEventPayload<ExtArgs>[]
       notificationPrefs: Prisma.$NotificationPreferencePayload<ExtArgs>[]
@@ -16575,7 +16615,8 @@ export namespace Prisma {
     targets<T extends User$targetsArgs<ExtArgs> = {}>(args?: Subset<T, User$targetsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TargetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     notifications<T extends User$notificationsArgs<ExtArgs> = {}>(args?: Subset<T, User$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     expensesApproved<T extends User$expensesApprovedArgs<ExtArgs> = {}>(args?: Subset<T, User$expensesApprovedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExpensePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    tasks<T extends User$tasksArgs<ExtArgs> = {}>(args?: Subset<T, User$tasksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    tasksAssigned<T extends User$tasksAssignedArgs<ExtArgs> = {}>(args?: Subset<T, User$tasksAssignedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    tasksReceived<T extends User$tasksReceivedArgs<ExtArgs> = {}>(args?: Subset<T, User$tasksReceivedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     beatPlans<T extends User$beatPlansArgs<ExtArgs> = {}>(args?: Subset<T, User$beatPlansArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BeatPlanPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     calendarEvents<T extends User$calendarEventsArgs<ExtArgs> = {}>(args?: Subset<T, User$calendarEventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CalendarEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     notificationPrefs<T extends User$notificationPrefsArgs<ExtArgs> = {}>(args?: Subset<T, User$notificationPrefsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPreferencePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -17418,9 +17459,33 @@ export namespace Prisma {
   }
 
   /**
-   * User.tasks
+   * User.tasksAssigned
    */
-  export type User$tasksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type User$tasksAssignedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Task
+     */
+    select?: TaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Task
+     */
+    omit?: TaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TaskInclude<ExtArgs> | null
+    where?: TaskWhereInput
+    orderBy?: TaskOrderByWithRelationInput | TaskOrderByWithRelationInput[]
+    cursor?: TaskWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TaskScalarFieldEnum | TaskScalarFieldEnum[]
+  }
+
+  /**
+   * User.tasksReceived
+   */
+  export type User$tasksReceivedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the Task
      */
@@ -37331,13 +37396,17 @@ export namespace Prisma {
   export type TaskMinAggregateOutputType = {
     id: string | null
     organizationId: string | null
-    userId: string | null
+    assignedById: string | null
+    assignedToId: string | null
     title: string | null
     description: string | null
-    status: string | null
+    status: $Enums.TaskStatus | null
+    priority: $Enums.TaskPriority | null
     dueDate: Date | null
+    completedAt: Date | null
     referenceType: string | null
     referenceId: string | null
+    completionNotes: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -37345,13 +37414,17 @@ export namespace Prisma {
   export type TaskMaxAggregateOutputType = {
     id: string | null
     organizationId: string | null
-    userId: string | null
+    assignedById: string | null
+    assignedToId: string | null
     title: string | null
     description: string | null
-    status: string | null
+    status: $Enums.TaskStatus | null
+    priority: $Enums.TaskPriority | null
     dueDate: Date | null
+    completedAt: Date | null
     referenceType: string | null
     referenceId: string | null
+    completionNotes: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -37359,13 +37432,17 @@ export namespace Prisma {
   export type TaskCountAggregateOutputType = {
     id: number
     organizationId: number
-    userId: number
+    assignedById: number
+    assignedToId: number
     title: number
     description: number
     status: number
+    priority: number
     dueDate: number
+    completedAt: number
     referenceType: number
     referenceId: number
+    completionNotes: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -37375,13 +37452,17 @@ export namespace Prisma {
   export type TaskMinAggregateInputType = {
     id?: true
     organizationId?: true
-    userId?: true
+    assignedById?: true
+    assignedToId?: true
     title?: true
     description?: true
     status?: true
+    priority?: true
     dueDate?: true
+    completedAt?: true
     referenceType?: true
     referenceId?: true
+    completionNotes?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -37389,13 +37470,17 @@ export namespace Prisma {
   export type TaskMaxAggregateInputType = {
     id?: true
     organizationId?: true
-    userId?: true
+    assignedById?: true
+    assignedToId?: true
     title?: true
     description?: true
     status?: true
+    priority?: true
     dueDate?: true
+    completedAt?: true
     referenceType?: true
     referenceId?: true
+    completionNotes?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -37403,13 +37488,17 @@ export namespace Prisma {
   export type TaskCountAggregateInputType = {
     id?: true
     organizationId?: true
-    userId?: true
+    assignedById?: true
+    assignedToId?: true
     title?: true
     description?: true
     status?: true
+    priority?: true
     dueDate?: true
+    completedAt?: true
     referenceType?: true
     referenceId?: true
+    completionNotes?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -37490,13 +37579,17 @@ export namespace Prisma {
   export type TaskGroupByOutputType = {
     id: string
     organizationId: string
-    userId: string
+    assignedById: string
+    assignedToId: string
     title: string
     description: string | null
-    status: string
+    status: $Enums.TaskStatus
+    priority: $Enums.TaskPriority
     dueDate: Date | null
+    completedAt: Date | null
     referenceType: string | null
     referenceId: string | null
+    completionNotes: string | null
     createdAt: Date
     updatedAt: Date
     _count: TaskCountAggregateOutputType | null
@@ -37521,95 +37614,122 @@ export namespace Prisma {
   export type TaskSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     organizationId?: boolean
-    userId?: boolean
+    assignedById?: boolean
+    assignedToId?: boolean
     title?: boolean
     description?: boolean
     status?: boolean
+    priority?: boolean
     dueDate?: boolean
+    completedAt?: boolean
     referenceType?: boolean
     referenceId?: boolean
+    completionNotes?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     organization?: boolean | OrganizationDefaultArgs<ExtArgs>
-    user?: boolean | UserDefaultArgs<ExtArgs>
+    assignedBy?: boolean | UserDefaultArgs<ExtArgs>
+    assignedTo?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["task"]>
 
   export type TaskSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     organizationId?: boolean
-    userId?: boolean
+    assignedById?: boolean
+    assignedToId?: boolean
     title?: boolean
     description?: boolean
     status?: boolean
+    priority?: boolean
     dueDate?: boolean
+    completedAt?: boolean
     referenceType?: boolean
     referenceId?: boolean
+    completionNotes?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     organization?: boolean | OrganizationDefaultArgs<ExtArgs>
-    user?: boolean | UserDefaultArgs<ExtArgs>
+    assignedBy?: boolean | UserDefaultArgs<ExtArgs>
+    assignedTo?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["task"]>
 
   export type TaskSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     organizationId?: boolean
-    userId?: boolean
+    assignedById?: boolean
+    assignedToId?: boolean
     title?: boolean
     description?: boolean
     status?: boolean
+    priority?: boolean
     dueDate?: boolean
+    completedAt?: boolean
     referenceType?: boolean
     referenceId?: boolean
+    completionNotes?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     organization?: boolean | OrganizationDefaultArgs<ExtArgs>
-    user?: boolean | UserDefaultArgs<ExtArgs>
+    assignedBy?: boolean | UserDefaultArgs<ExtArgs>
+    assignedTo?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["task"]>
 
   export type TaskSelectScalar = {
     id?: boolean
     organizationId?: boolean
-    userId?: boolean
+    assignedById?: boolean
+    assignedToId?: boolean
     title?: boolean
     description?: boolean
     status?: boolean
+    priority?: boolean
     dueDate?: boolean
+    completedAt?: boolean
     referenceType?: boolean
     referenceId?: boolean
+    completionNotes?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type TaskOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "userId" | "title" | "description" | "status" | "dueDate" | "referenceType" | "referenceId" | "createdAt" | "updatedAt", ExtArgs["result"]["task"]>
+  export type TaskOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "assignedById" | "assignedToId" | "title" | "description" | "status" | "priority" | "dueDate" | "completedAt" | "referenceType" | "referenceId" | "completionNotes" | "createdAt" | "updatedAt", ExtArgs["result"]["task"]>
   export type TaskInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     organization?: boolean | OrganizationDefaultArgs<ExtArgs>
-    user?: boolean | UserDefaultArgs<ExtArgs>
+    assignedBy?: boolean | UserDefaultArgs<ExtArgs>
+    assignedTo?: boolean | UserDefaultArgs<ExtArgs>
   }
   export type TaskIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     organization?: boolean | OrganizationDefaultArgs<ExtArgs>
-    user?: boolean | UserDefaultArgs<ExtArgs>
+    assignedBy?: boolean | UserDefaultArgs<ExtArgs>
+    assignedTo?: boolean | UserDefaultArgs<ExtArgs>
   }
   export type TaskIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     organization?: boolean | OrganizationDefaultArgs<ExtArgs>
-    user?: boolean | UserDefaultArgs<ExtArgs>
+    assignedBy?: boolean | UserDefaultArgs<ExtArgs>
+    assignedTo?: boolean | UserDefaultArgs<ExtArgs>
   }
 
   export type $TaskPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Task"
     objects: {
       organization: Prisma.$OrganizationPayload<ExtArgs>
-      user: Prisma.$UserPayload<ExtArgs>
+      assignedBy: Prisma.$UserPayload<ExtArgs>
+      assignedTo: Prisma.$UserPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       organizationId: string
-      userId: string
+      assignedById: string
+      assignedToId: string
       title: string
       description: string | null
-      status: string
+      status: $Enums.TaskStatus
+      priority: $Enums.TaskPriority
       dueDate: Date | null
+      completedAt: Date | null
       referenceType: string | null
       referenceId: string | null
+      completionNotes: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["task"]>
@@ -38007,7 +38127,8 @@ export namespace Prisma {
   export interface Prisma__TaskClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     organization<T extends OrganizationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OrganizationDefaultArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    assignedBy<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    assignedTo<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -38039,13 +38160,17 @@ export namespace Prisma {
   interface TaskFieldRefs {
     readonly id: FieldRef<"Task", 'String'>
     readonly organizationId: FieldRef<"Task", 'String'>
-    readonly userId: FieldRef<"Task", 'String'>
+    readonly assignedById: FieldRef<"Task", 'String'>
+    readonly assignedToId: FieldRef<"Task", 'String'>
     readonly title: FieldRef<"Task", 'String'>
     readonly description: FieldRef<"Task", 'String'>
-    readonly status: FieldRef<"Task", 'String'>
+    readonly status: FieldRef<"Task", 'TaskStatus'>
+    readonly priority: FieldRef<"Task", 'TaskPriority'>
     readonly dueDate: FieldRef<"Task", 'DateTime'>
+    readonly completedAt: FieldRef<"Task", 'DateTime'>
     readonly referenceType: FieldRef<"Task", 'String'>
     readonly referenceId: FieldRef<"Task", 'String'>
+    readonly completionNotes: FieldRef<"Task", 'String'>
     readonly createdAt: FieldRef<"Task", 'DateTime'>
     readonly updatedAt: FieldRef<"Task", 'DateTime'>
   }
@@ -43354,13 +43479,17 @@ export namespace Prisma {
   export const TaskScalarFieldEnum: {
     id: 'id',
     organizationId: 'organizationId',
-    userId: 'userId',
+    assignedById: 'assignedById',
+    assignedToId: 'assignedToId',
     title: 'title',
     description: 'description',
     status: 'status',
+    priority: 'priority',
     dueDate: 'dueDate',
+    completedAt: 'completedAt',
     referenceType: 'referenceType',
     referenceId: 'referenceId',
+    completionNotes: 'completionNotes',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -43700,6 +43829,34 @@ export namespace Prisma {
    * Reference to a field of type 'NotificationStatus[]'
    */
   export type ListEnumNotificationStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NotificationStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'TaskStatus'
+   */
+  export type EnumTaskStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TaskStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'TaskStatus[]'
+   */
+  export type ListEnumTaskStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TaskStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'TaskPriority'
+   */
+  export type EnumTaskPriorityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TaskPriority'>
+    
+
+
+  /**
+   * Reference to a field of type 'TaskPriority[]'
+   */
+  export type ListEnumTaskPriorityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TaskPriority[]'>
     
   /**
    * Deep Input Types
@@ -44448,7 +44605,8 @@ export namespace Prisma {
     targets?: TargetListRelationFilter
     notifications?: NotificationListRelationFilter
     expensesApproved?: ExpenseListRelationFilter
-    tasks?: TaskListRelationFilter
+    tasksAssigned?: TaskListRelationFilter
+    tasksReceived?: TaskListRelationFilter
     beatPlans?: BeatPlanListRelationFilter
     calendarEvents?: CalendarEventListRelationFilter
     notificationPrefs?: NotificationPreferenceListRelationFilter
@@ -44499,7 +44657,8 @@ export namespace Prisma {
     targets?: TargetOrderByRelationAggregateInput
     notifications?: NotificationOrderByRelationAggregateInput
     expensesApproved?: ExpenseOrderByRelationAggregateInput
-    tasks?: TaskOrderByRelationAggregateInput
+    tasksAssigned?: TaskOrderByRelationAggregateInput
+    tasksReceived?: TaskOrderByRelationAggregateInput
     beatPlans?: BeatPlanOrderByRelationAggregateInput
     calendarEvents?: CalendarEventOrderByRelationAggregateInput
     notificationPrefs?: NotificationPreferenceOrderByRelationAggregateInput
@@ -44554,7 +44713,8 @@ export namespace Prisma {
     targets?: TargetListRelationFilter
     notifications?: NotificationListRelationFilter
     expensesApproved?: ExpenseListRelationFilter
-    tasks?: TaskListRelationFilter
+    tasksAssigned?: TaskListRelationFilter
+    tasksReceived?: TaskListRelationFilter
     beatPlans?: BeatPlanListRelationFilter
     calendarEvents?: CalendarEventListRelationFilter
     notificationPrefs?: NotificationPreferenceListRelationFilter
@@ -46051,33 +46211,43 @@ export namespace Prisma {
     NOT?: TaskWhereInput | TaskWhereInput[]
     id?: UuidFilter<"Task"> | string
     organizationId?: UuidFilter<"Task"> | string
-    userId?: UuidFilter<"Task"> | string
+    assignedById?: UuidFilter<"Task"> | string
+    assignedToId?: UuidFilter<"Task"> | string
     title?: StringFilter<"Task"> | string
     description?: StringNullableFilter<"Task"> | string | null
-    status?: StringFilter<"Task"> | string
+    status?: EnumTaskStatusFilter<"Task"> | $Enums.TaskStatus
+    priority?: EnumTaskPriorityFilter<"Task"> | $Enums.TaskPriority
     dueDate?: DateTimeNullableFilter<"Task"> | Date | string | null
+    completedAt?: DateTimeNullableFilter<"Task"> | Date | string | null
     referenceType?: StringNullableFilter<"Task"> | string | null
     referenceId?: UuidNullableFilter<"Task"> | string | null
+    completionNotes?: StringNullableFilter<"Task"> | string | null
     createdAt?: DateTimeFilter<"Task"> | Date | string
     updatedAt?: DateTimeFilter<"Task"> | Date | string
     organization?: XOR<OrganizationScalarRelationFilter, OrganizationWhereInput>
-    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    assignedBy?: XOR<UserScalarRelationFilter, UserWhereInput>
+    assignedTo?: XOR<UserScalarRelationFilter, UserWhereInput>
   }
 
   export type TaskOrderByWithRelationInput = {
     id?: SortOrder
     organizationId?: SortOrder
-    userId?: SortOrder
+    assignedById?: SortOrder
+    assignedToId?: SortOrder
     title?: SortOrder
     description?: SortOrderInput | SortOrder
     status?: SortOrder
+    priority?: SortOrder
     dueDate?: SortOrderInput | SortOrder
+    completedAt?: SortOrderInput | SortOrder
     referenceType?: SortOrderInput | SortOrder
     referenceId?: SortOrderInput | SortOrder
+    completionNotes?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     organization?: OrganizationOrderByWithRelationInput
-    user?: UserOrderByWithRelationInput
+    assignedBy?: UserOrderByWithRelationInput
+    assignedTo?: UserOrderByWithRelationInput
   }
 
   export type TaskWhereUniqueInput = Prisma.AtLeast<{
@@ -46086,29 +46256,38 @@ export namespace Prisma {
     OR?: TaskWhereInput[]
     NOT?: TaskWhereInput | TaskWhereInput[]
     organizationId?: UuidFilter<"Task"> | string
-    userId?: UuidFilter<"Task"> | string
+    assignedById?: UuidFilter<"Task"> | string
+    assignedToId?: UuidFilter<"Task"> | string
     title?: StringFilter<"Task"> | string
     description?: StringNullableFilter<"Task"> | string | null
-    status?: StringFilter<"Task"> | string
+    status?: EnumTaskStatusFilter<"Task"> | $Enums.TaskStatus
+    priority?: EnumTaskPriorityFilter<"Task"> | $Enums.TaskPriority
     dueDate?: DateTimeNullableFilter<"Task"> | Date | string | null
+    completedAt?: DateTimeNullableFilter<"Task"> | Date | string | null
     referenceType?: StringNullableFilter<"Task"> | string | null
     referenceId?: UuidNullableFilter<"Task"> | string | null
+    completionNotes?: StringNullableFilter<"Task"> | string | null
     createdAt?: DateTimeFilter<"Task"> | Date | string
     updatedAt?: DateTimeFilter<"Task"> | Date | string
     organization?: XOR<OrganizationScalarRelationFilter, OrganizationWhereInput>
-    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    assignedBy?: XOR<UserScalarRelationFilter, UserWhereInput>
+    assignedTo?: XOR<UserScalarRelationFilter, UserWhereInput>
   }, "id">
 
   export type TaskOrderByWithAggregationInput = {
     id?: SortOrder
     organizationId?: SortOrder
-    userId?: SortOrder
+    assignedById?: SortOrder
+    assignedToId?: SortOrder
     title?: SortOrder
     description?: SortOrderInput | SortOrder
     status?: SortOrder
+    priority?: SortOrder
     dueDate?: SortOrderInput | SortOrder
+    completedAt?: SortOrderInput | SortOrder
     referenceType?: SortOrderInput | SortOrder
     referenceId?: SortOrderInput | SortOrder
+    completionNotes?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: TaskCountOrderByAggregateInput
@@ -46122,13 +46301,17 @@ export namespace Prisma {
     NOT?: TaskScalarWhereWithAggregatesInput | TaskScalarWhereWithAggregatesInput[]
     id?: UuidWithAggregatesFilter<"Task"> | string
     organizationId?: UuidWithAggregatesFilter<"Task"> | string
-    userId?: UuidWithAggregatesFilter<"Task"> | string
+    assignedById?: UuidWithAggregatesFilter<"Task"> | string
+    assignedToId?: UuidWithAggregatesFilter<"Task"> | string
     title?: StringWithAggregatesFilter<"Task"> | string
     description?: StringNullableWithAggregatesFilter<"Task"> | string | null
-    status?: StringWithAggregatesFilter<"Task"> | string
+    status?: EnumTaskStatusWithAggregatesFilter<"Task"> | $Enums.TaskStatus
+    priority?: EnumTaskPriorityWithAggregatesFilter<"Task"> | $Enums.TaskPriority
     dueDate?: DateTimeNullableWithAggregatesFilter<"Task"> | Date | string | null
+    completedAt?: DateTimeNullableWithAggregatesFilter<"Task"> | Date | string | null
     referenceType?: StringNullableWithAggregatesFilter<"Task"> | string | null
     referenceId?: UuidNullableWithAggregatesFilter<"Task"> | string | null
+    completionNotes?: StringNullableWithAggregatesFilter<"Task"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Task"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Task"> | Date | string
   }
@@ -47208,7 +47391,8 @@ export namespace Prisma {
     targets?: TargetCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseCreateNestedManyWithoutApprovedByInput
-    tasks?: TaskCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceCreateNestedManyWithoutUserInput
@@ -47253,7 +47437,8 @@ export namespace Prisma {
     targets?: TargetUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseUncheckedCreateNestedManyWithoutApprovedByInput
-    tasks?: TaskUncheckedCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskUncheckedCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskUncheckedCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanUncheckedCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventUncheckedCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
@@ -47298,7 +47483,8 @@ export namespace Prisma {
     targets?: TargetUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUpdateManyWithoutApprovedByNestedInput
-    tasks?: TaskUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUpdateManyWithoutAssignedToNestedInput
     beatPlans?: BeatPlanUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUpdateManyWithoutUserNestedInput
@@ -47343,7 +47529,8 @@ export namespace Prisma {
     targets?: TargetUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUncheckedUpdateManyWithoutApprovedByNestedInput
-    tasks?: TaskUncheckedUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUncheckedUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUncheckedUpdateManyWithoutAssignedToNestedInput
     beatPlans?: BeatPlanUncheckedUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUncheckedUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
@@ -48943,26 +49130,34 @@ export namespace Prisma {
     id?: string
     title: string
     description?: string | null
-    status?: string
+    status?: $Enums.TaskStatus
+    priority?: $Enums.TaskPriority
     dueDate?: Date | string | null
+    completedAt?: Date | string | null
     referenceType?: string | null
     referenceId?: string | null
+    completionNotes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     organization: OrganizationCreateNestedOneWithoutTasksInput
-    user: UserCreateNestedOneWithoutTasksInput
+    assignedBy: UserCreateNestedOneWithoutTasksAssignedInput
+    assignedTo: UserCreateNestedOneWithoutTasksReceivedInput
   }
 
   export type TaskUncheckedCreateInput = {
     id?: string
     organizationId: string
-    userId: string
+    assignedById: string
+    assignedToId: string
     title: string
     description?: string | null
-    status?: string
+    status?: $Enums.TaskStatus
+    priority?: $Enums.TaskPriority
     dueDate?: Date | string | null
+    completedAt?: Date | string | null
     referenceType?: string | null
     referenceId?: string | null
+    completionNotes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -48971,26 +49166,34 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
+    status?: EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
+    priority?: EnumTaskPriorityFieldUpdateOperationsInput | $Enums.TaskPriority
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     referenceType?: NullableStringFieldUpdateOperationsInput | string | null
     referenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    completionNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneRequiredWithoutTasksNestedInput
-    user?: UserUpdateOneRequiredWithoutTasksNestedInput
+    assignedBy?: UserUpdateOneRequiredWithoutTasksAssignedNestedInput
+    assignedTo?: UserUpdateOneRequiredWithoutTasksReceivedNestedInput
   }
 
   export type TaskUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     organizationId?: StringFieldUpdateOperationsInput | string
-    userId?: StringFieldUpdateOperationsInput | string
+    assignedById?: StringFieldUpdateOperationsInput | string
+    assignedToId?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
+    status?: EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
+    priority?: EnumTaskPriorityFieldUpdateOperationsInput | $Enums.TaskPriority
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     referenceType?: NullableStringFieldUpdateOperationsInput | string | null
     referenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    completionNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -48998,13 +49201,17 @@ export namespace Prisma {
   export type TaskCreateManyInput = {
     id?: string
     organizationId: string
-    userId: string
+    assignedById: string
+    assignedToId: string
     title: string
     description?: string | null
-    status?: string
+    status?: $Enums.TaskStatus
+    priority?: $Enums.TaskPriority
     dueDate?: Date | string | null
+    completedAt?: Date | string | null
     referenceType?: string | null
     referenceId?: string | null
+    completionNotes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -49013,10 +49220,13 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
+    status?: EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
+    priority?: EnumTaskPriorityFieldUpdateOperationsInput | $Enums.TaskPriority
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     referenceType?: NullableStringFieldUpdateOperationsInput | string | null
     referenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    completionNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -49024,13 +49234,17 @@ export namespace Prisma {
   export type TaskUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     organizationId?: StringFieldUpdateOperationsInput | string
-    userId?: StringFieldUpdateOperationsInput | string
+    assignedById?: StringFieldUpdateOperationsInput | string
+    assignedToId?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
+    status?: EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
+    priority?: EnumTaskPriorityFieldUpdateOperationsInput | $Enums.TaskPriority
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     referenceType?: NullableStringFieldUpdateOperationsInput | string | null
     referenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    completionNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -51351,16 +51565,34 @@ export namespace Prisma {
     updatedAt?: SortOrder
   }
 
+  export type EnumTaskStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.TaskStatus | EnumTaskStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.TaskStatus[] | ListEnumTaskStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TaskStatus[] | ListEnumTaskStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumTaskStatusFilter<$PrismaModel> | $Enums.TaskStatus
+  }
+
+  export type EnumTaskPriorityFilter<$PrismaModel = never> = {
+    equals?: $Enums.TaskPriority | EnumTaskPriorityFieldRefInput<$PrismaModel>
+    in?: $Enums.TaskPriority[] | ListEnumTaskPriorityFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TaskPriority[] | ListEnumTaskPriorityFieldRefInput<$PrismaModel>
+    not?: NestedEnumTaskPriorityFilter<$PrismaModel> | $Enums.TaskPriority
+  }
+
   export type TaskCountOrderByAggregateInput = {
     id?: SortOrder
     organizationId?: SortOrder
-    userId?: SortOrder
+    assignedById?: SortOrder
+    assignedToId?: SortOrder
     title?: SortOrder
     description?: SortOrder
     status?: SortOrder
+    priority?: SortOrder
     dueDate?: SortOrder
+    completedAt?: SortOrder
     referenceType?: SortOrder
     referenceId?: SortOrder
+    completionNotes?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -51368,13 +51600,17 @@ export namespace Prisma {
   export type TaskMaxOrderByAggregateInput = {
     id?: SortOrder
     organizationId?: SortOrder
-    userId?: SortOrder
+    assignedById?: SortOrder
+    assignedToId?: SortOrder
     title?: SortOrder
     description?: SortOrder
     status?: SortOrder
+    priority?: SortOrder
     dueDate?: SortOrder
+    completedAt?: SortOrder
     referenceType?: SortOrder
     referenceId?: SortOrder
+    completionNotes?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -51382,15 +51618,39 @@ export namespace Prisma {
   export type TaskMinOrderByAggregateInput = {
     id?: SortOrder
     organizationId?: SortOrder
-    userId?: SortOrder
+    assignedById?: SortOrder
+    assignedToId?: SortOrder
     title?: SortOrder
     description?: SortOrder
     status?: SortOrder
+    priority?: SortOrder
     dueDate?: SortOrder
+    completedAt?: SortOrder
     referenceType?: SortOrder
     referenceId?: SortOrder
+    completionNotes?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+  }
+
+  export type EnumTaskStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TaskStatus | EnumTaskStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.TaskStatus[] | ListEnumTaskStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TaskStatus[] | ListEnumTaskStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumTaskStatusWithAggregatesFilter<$PrismaModel> | $Enums.TaskStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumTaskStatusFilter<$PrismaModel>
+    _max?: NestedEnumTaskStatusFilter<$PrismaModel>
+  }
+
+  export type EnumTaskPriorityWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TaskPriority | EnumTaskPriorityFieldRefInput<$PrismaModel>
+    in?: $Enums.TaskPriority[] | ListEnumTaskPriorityFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TaskPriority[] | ListEnumTaskPriorityFieldRefInput<$PrismaModel>
+    not?: NestedEnumTaskPriorityWithAggregatesFilter<$PrismaModel> | $Enums.TaskPriority
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumTaskPriorityFilter<$PrismaModel>
+    _max?: NestedEnumTaskPriorityFilter<$PrismaModel>
   }
 
   export type BeatPlanCountOrderByAggregateInput = {
@@ -53426,10 +53686,17 @@ export namespace Prisma {
     connect?: ExpenseWhereUniqueInput | ExpenseWhereUniqueInput[]
   }
 
-  export type TaskCreateNestedManyWithoutUserInput = {
-    create?: XOR<TaskCreateWithoutUserInput, TaskUncheckedCreateWithoutUserInput> | TaskCreateWithoutUserInput[] | TaskUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: TaskCreateOrConnectWithoutUserInput | TaskCreateOrConnectWithoutUserInput[]
-    createMany?: TaskCreateManyUserInputEnvelope
+  export type TaskCreateNestedManyWithoutAssignedByInput = {
+    create?: XOR<TaskCreateWithoutAssignedByInput, TaskUncheckedCreateWithoutAssignedByInput> | TaskCreateWithoutAssignedByInput[] | TaskUncheckedCreateWithoutAssignedByInput[]
+    connectOrCreate?: TaskCreateOrConnectWithoutAssignedByInput | TaskCreateOrConnectWithoutAssignedByInput[]
+    createMany?: TaskCreateManyAssignedByInputEnvelope
+    connect?: TaskWhereUniqueInput | TaskWhereUniqueInput[]
+  }
+
+  export type TaskCreateNestedManyWithoutAssignedToInput = {
+    create?: XOR<TaskCreateWithoutAssignedToInput, TaskUncheckedCreateWithoutAssignedToInput> | TaskCreateWithoutAssignedToInput[] | TaskUncheckedCreateWithoutAssignedToInput[]
+    connectOrCreate?: TaskCreateOrConnectWithoutAssignedToInput | TaskCreateOrConnectWithoutAssignedToInput[]
+    createMany?: TaskCreateManyAssignedToInputEnvelope
     connect?: TaskWhereUniqueInput | TaskWhereUniqueInput[]
   }
 
@@ -53545,10 +53812,17 @@ export namespace Prisma {
     connect?: ExpenseWhereUniqueInput | ExpenseWhereUniqueInput[]
   }
 
-  export type TaskUncheckedCreateNestedManyWithoutUserInput = {
-    create?: XOR<TaskCreateWithoutUserInput, TaskUncheckedCreateWithoutUserInput> | TaskCreateWithoutUserInput[] | TaskUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: TaskCreateOrConnectWithoutUserInput | TaskCreateOrConnectWithoutUserInput[]
-    createMany?: TaskCreateManyUserInputEnvelope
+  export type TaskUncheckedCreateNestedManyWithoutAssignedByInput = {
+    create?: XOR<TaskCreateWithoutAssignedByInput, TaskUncheckedCreateWithoutAssignedByInput> | TaskCreateWithoutAssignedByInput[] | TaskUncheckedCreateWithoutAssignedByInput[]
+    connectOrCreate?: TaskCreateOrConnectWithoutAssignedByInput | TaskCreateOrConnectWithoutAssignedByInput[]
+    createMany?: TaskCreateManyAssignedByInputEnvelope
+    connect?: TaskWhereUniqueInput | TaskWhereUniqueInput[]
+  }
+
+  export type TaskUncheckedCreateNestedManyWithoutAssignedToInput = {
+    create?: XOR<TaskCreateWithoutAssignedToInput, TaskUncheckedCreateWithoutAssignedToInput> | TaskCreateWithoutAssignedToInput[] | TaskUncheckedCreateWithoutAssignedToInput[]
+    connectOrCreate?: TaskCreateOrConnectWithoutAssignedToInput | TaskCreateOrConnectWithoutAssignedToInput[]
+    createMany?: TaskCreateManyAssignedToInputEnvelope
     connect?: TaskWhereUniqueInput | TaskWhereUniqueInput[]
   }
 
@@ -53818,17 +54092,31 @@ export namespace Prisma {
     deleteMany?: ExpenseScalarWhereInput | ExpenseScalarWhereInput[]
   }
 
-  export type TaskUpdateManyWithoutUserNestedInput = {
-    create?: XOR<TaskCreateWithoutUserInput, TaskUncheckedCreateWithoutUserInput> | TaskCreateWithoutUserInput[] | TaskUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: TaskCreateOrConnectWithoutUserInput | TaskCreateOrConnectWithoutUserInput[]
-    upsert?: TaskUpsertWithWhereUniqueWithoutUserInput | TaskUpsertWithWhereUniqueWithoutUserInput[]
-    createMany?: TaskCreateManyUserInputEnvelope
+  export type TaskUpdateManyWithoutAssignedByNestedInput = {
+    create?: XOR<TaskCreateWithoutAssignedByInput, TaskUncheckedCreateWithoutAssignedByInput> | TaskCreateWithoutAssignedByInput[] | TaskUncheckedCreateWithoutAssignedByInput[]
+    connectOrCreate?: TaskCreateOrConnectWithoutAssignedByInput | TaskCreateOrConnectWithoutAssignedByInput[]
+    upsert?: TaskUpsertWithWhereUniqueWithoutAssignedByInput | TaskUpsertWithWhereUniqueWithoutAssignedByInput[]
+    createMany?: TaskCreateManyAssignedByInputEnvelope
     set?: TaskWhereUniqueInput | TaskWhereUniqueInput[]
     disconnect?: TaskWhereUniqueInput | TaskWhereUniqueInput[]
     delete?: TaskWhereUniqueInput | TaskWhereUniqueInput[]
     connect?: TaskWhereUniqueInput | TaskWhereUniqueInput[]
-    update?: TaskUpdateWithWhereUniqueWithoutUserInput | TaskUpdateWithWhereUniqueWithoutUserInput[]
-    updateMany?: TaskUpdateManyWithWhereWithoutUserInput | TaskUpdateManyWithWhereWithoutUserInput[]
+    update?: TaskUpdateWithWhereUniqueWithoutAssignedByInput | TaskUpdateWithWhereUniqueWithoutAssignedByInput[]
+    updateMany?: TaskUpdateManyWithWhereWithoutAssignedByInput | TaskUpdateManyWithWhereWithoutAssignedByInput[]
+    deleteMany?: TaskScalarWhereInput | TaskScalarWhereInput[]
+  }
+
+  export type TaskUpdateManyWithoutAssignedToNestedInput = {
+    create?: XOR<TaskCreateWithoutAssignedToInput, TaskUncheckedCreateWithoutAssignedToInput> | TaskCreateWithoutAssignedToInput[] | TaskUncheckedCreateWithoutAssignedToInput[]
+    connectOrCreate?: TaskCreateOrConnectWithoutAssignedToInput | TaskCreateOrConnectWithoutAssignedToInput[]
+    upsert?: TaskUpsertWithWhereUniqueWithoutAssignedToInput | TaskUpsertWithWhereUniqueWithoutAssignedToInput[]
+    createMany?: TaskCreateManyAssignedToInputEnvelope
+    set?: TaskWhereUniqueInput | TaskWhereUniqueInput[]
+    disconnect?: TaskWhereUniqueInput | TaskWhereUniqueInput[]
+    delete?: TaskWhereUniqueInput | TaskWhereUniqueInput[]
+    connect?: TaskWhereUniqueInput | TaskWhereUniqueInput[]
+    update?: TaskUpdateWithWhereUniqueWithoutAssignedToInput | TaskUpdateWithWhereUniqueWithoutAssignedToInput[]
+    updateMany?: TaskUpdateManyWithWhereWithoutAssignedToInput | TaskUpdateManyWithWhereWithoutAssignedToInput[]
     deleteMany?: TaskScalarWhereInput | TaskScalarWhereInput[]
   }
 
@@ -54056,17 +54344,31 @@ export namespace Prisma {
     deleteMany?: ExpenseScalarWhereInput | ExpenseScalarWhereInput[]
   }
 
-  export type TaskUncheckedUpdateManyWithoutUserNestedInput = {
-    create?: XOR<TaskCreateWithoutUserInput, TaskUncheckedCreateWithoutUserInput> | TaskCreateWithoutUserInput[] | TaskUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: TaskCreateOrConnectWithoutUserInput | TaskCreateOrConnectWithoutUserInput[]
-    upsert?: TaskUpsertWithWhereUniqueWithoutUserInput | TaskUpsertWithWhereUniqueWithoutUserInput[]
-    createMany?: TaskCreateManyUserInputEnvelope
+  export type TaskUncheckedUpdateManyWithoutAssignedByNestedInput = {
+    create?: XOR<TaskCreateWithoutAssignedByInput, TaskUncheckedCreateWithoutAssignedByInput> | TaskCreateWithoutAssignedByInput[] | TaskUncheckedCreateWithoutAssignedByInput[]
+    connectOrCreate?: TaskCreateOrConnectWithoutAssignedByInput | TaskCreateOrConnectWithoutAssignedByInput[]
+    upsert?: TaskUpsertWithWhereUniqueWithoutAssignedByInput | TaskUpsertWithWhereUniqueWithoutAssignedByInput[]
+    createMany?: TaskCreateManyAssignedByInputEnvelope
     set?: TaskWhereUniqueInput | TaskWhereUniqueInput[]
     disconnect?: TaskWhereUniqueInput | TaskWhereUniqueInput[]
     delete?: TaskWhereUniqueInput | TaskWhereUniqueInput[]
     connect?: TaskWhereUniqueInput | TaskWhereUniqueInput[]
-    update?: TaskUpdateWithWhereUniqueWithoutUserInput | TaskUpdateWithWhereUniqueWithoutUserInput[]
-    updateMany?: TaskUpdateManyWithWhereWithoutUserInput | TaskUpdateManyWithWhereWithoutUserInput[]
+    update?: TaskUpdateWithWhereUniqueWithoutAssignedByInput | TaskUpdateWithWhereUniqueWithoutAssignedByInput[]
+    updateMany?: TaskUpdateManyWithWhereWithoutAssignedByInput | TaskUpdateManyWithWhereWithoutAssignedByInput[]
+    deleteMany?: TaskScalarWhereInput | TaskScalarWhereInput[]
+  }
+
+  export type TaskUncheckedUpdateManyWithoutAssignedToNestedInput = {
+    create?: XOR<TaskCreateWithoutAssignedToInput, TaskUncheckedCreateWithoutAssignedToInput> | TaskCreateWithoutAssignedToInput[] | TaskUncheckedCreateWithoutAssignedToInput[]
+    connectOrCreate?: TaskCreateOrConnectWithoutAssignedToInput | TaskCreateOrConnectWithoutAssignedToInput[]
+    upsert?: TaskUpsertWithWhereUniqueWithoutAssignedToInput | TaskUpsertWithWhereUniqueWithoutAssignedToInput[]
+    createMany?: TaskCreateManyAssignedToInputEnvelope
+    set?: TaskWhereUniqueInput | TaskWhereUniqueInput[]
+    disconnect?: TaskWhereUniqueInput | TaskWhereUniqueInput[]
+    delete?: TaskWhereUniqueInput | TaskWhereUniqueInput[]
+    connect?: TaskWhereUniqueInput | TaskWhereUniqueInput[]
+    update?: TaskUpdateWithWhereUniqueWithoutAssignedToInput | TaskUpdateWithWhereUniqueWithoutAssignedToInput[]
+    updateMany?: TaskUpdateManyWithWhereWithoutAssignedToInput | TaskUpdateManyWithWhereWithoutAssignedToInput[]
     deleteMany?: TaskScalarWhereInput | TaskScalarWhereInput[]
   }
 
@@ -54896,10 +55198,24 @@ export namespace Prisma {
     connect?: OrganizationWhereUniqueInput
   }
 
-  export type UserCreateNestedOneWithoutTasksInput = {
-    create?: XOR<UserCreateWithoutTasksInput, UserUncheckedCreateWithoutTasksInput>
-    connectOrCreate?: UserCreateOrConnectWithoutTasksInput
+  export type UserCreateNestedOneWithoutTasksAssignedInput = {
+    create?: XOR<UserCreateWithoutTasksAssignedInput, UserUncheckedCreateWithoutTasksAssignedInput>
+    connectOrCreate?: UserCreateOrConnectWithoutTasksAssignedInput
     connect?: UserWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutTasksReceivedInput = {
+    create?: XOR<UserCreateWithoutTasksReceivedInput, UserUncheckedCreateWithoutTasksReceivedInput>
+    connectOrCreate?: UserCreateOrConnectWithoutTasksReceivedInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type EnumTaskStatusFieldUpdateOperationsInput = {
+    set?: $Enums.TaskStatus
+  }
+
+  export type EnumTaskPriorityFieldUpdateOperationsInput = {
+    set?: $Enums.TaskPriority
   }
 
   export type OrganizationUpdateOneRequiredWithoutTasksNestedInput = {
@@ -54910,12 +55226,20 @@ export namespace Prisma {
     update?: XOR<XOR<OrganizationUpdateToOneWithWhereWithoutTasksInput, OrganizationUpdateWithoutTasksInput>, OrganizationUncheckedUpdateWithoutTasksInput>
   }
 
-  export type UserUpdateOneRequiredWithoutTasksNestedInput = {
-    create?: XOR<UserCreateWithoutTasksInput, UserUncheckedCreateWithoutTasksInput>
-    connectOrCreate?: UserCreateOrConnectWithoutTasksInput
-    upsert?: UserUpsertWithoutTasksInput
+  export type UserUpdateOneRequiredWithoutTasksAssignedNestedInput = {
+    create?: XOR<UserCreateWithoutTasksAssignedInput, UserUncheckedCreateWithoutTasksAssignedInput>
+    connectOrCreate?: UserCreateOrConnectWithoutTasksAssignedInput
+    upsert?: UserUpsertWithoutTasksAssignedInput
     connect?: UserWhereUniqueInput
-    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutTasksInput, UserUpdateWithoutTasksInput>, UserUncheckedUpdateWithoutTasksInput>
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutTasksAssignedInput, UserUpdateWithoutTasksAssignedInput>, UserUncheckedUpdateWithoutTasksAssignedInput>
+  }
+
+  export type UserUpdateOneRequiredWithoutTasksReceivedNestedInput = {
+    create?: XOR<UserCreateWithoutTasksReceivedInput, UserUncheckedCreateWithoutTasksReceivedInput>
+    connectOrCreate?: UserCreateOrConnectWithoutTasksReceivedInput
+    upsert?: UserUpsertWithoutTasksReceivedInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutTasksReceivedInput, UserUpdateWithoutTasksReceivedInput>, UserUncheckedUpdateWithoutTasksReceivedInput>
   }
 
   export type OrganizationCreateNestedOneWithoutBeatPlansInput = {
@@ -55493,6 +55817,40 @@ export namespace Prisma {
     _max?: NestedEnumNotificationStatusFilter<$PrismaModel>
   }
 
+  export type NestedEnumTaskStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.TaskStatus | EnumTaskStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.TaskStatus[] | ListEnumTaskStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TaskStatus[] | ListEnumTaskStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumTaskStatusFilter<$PrismaModel> | $Enums.TaskStatus
+  }
+
+  export type NestedEnumTaskPriorityFilter<$PrismaModel = never> = {
+    equals?: $Enums.TaskPriority | EnumTaskPriorityFieldRefInput<$PrismaModel>
+    in?: $Enums.TaskPriority[] | ListEnumTaskPriorityFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TaskPriority[] | ListEnumTaskPriorityFieldRefInput<$PrismaModel>
+    not?: NestedEnumTaskPriorityFilter<$PrismaModel> | $Enums.TaskPriority
+  }
+
+  export type NestedEnumTaskStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TaskStatus | EnumTaskStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.TaskStatus[] | ListEnumTaskStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TaskStatus[] | ListEnumTaskStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumTaskStatusWithAggregatesFilter<$PrismaModel> | $Enums.TaskStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumTaskStatusFilter<$PrismaModel>
+    _max?: NestedEnumTaskStatusFilter<$PrismaModel>
+  }
+
+  export type NestedEnumTaskPriorityWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TaskPriority | EnumTaskPriorityFieldRefInput<$PrismaModel>
+    in?: $Enums.TaskPriority[] | ListEnumTaskPriorityFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TaskPriority[] | ListEnumTaskPriorityFieldRefInput<$PrismaModel>
+    not?: NestedEnumTaskPriorityWithAggregatesFilter<$PrismaModel> | $Enums.TaskPriority
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumTaskPriorityFilter<$PrismaModel>
+    _max?: NestedEnumTaskPriorityFilter<$PrismaModel>
+  }
+
   export type CompanyCreateWithoutOrganizationInput = {
     id?: string
     name: string
@@ -55666,7 +56024,8 @@ export namespace Prisma {
     targets?: TargetCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseCreateNestedManyWithoutApprovedByInput
-    tasks?: TaskCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceCreateNestedManyWithoutUserInput
@@ -55710,7 +56069,8 @@ export namespace Prisma {
     targets?: TargetUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseUncheckedCreateNestedManyWithoutApprovedByInput
-    tasks?: TaskUncheckedCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskUncheckedCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskUncheckedCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanUncheckedCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventUncheckedCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
@@ -56061,24 +56421,32 @@ export namespace Prisma {
     id?: string
     title: string
     description?: string | null
-    status?: string
+    status?: $Enums.TaskStatus
+    priority?: $Enums.TaskPriority
     dueDate?: Date | string | null
+    completedAt?: Date | string | null
     referenceType?: string | null
     referenceId?: string | null
+    completionNotes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    user: UserCreateNestedOneWithoutTasksInput
+    assignedBy: UserCreateNestedOneWithoutTasksAssignedInput
+    assignedTo: UserCreateNestedOneWithoutTasksReceivedInput
   }
 
   export type TaskUncheckedCreateWithoutOrganizationInput = {
     id?: string
-    userId: string
+    assignedById: string
+    assignedToId: string
     title: string
     description?: string | null
-    status?: string
+    status?: $Enums.TaskStatus
+    priority?: $Enums.TaskPriority
     dueDate?: Date | string | null
+    completedAt?: Date | string | null
     referenceType?: string | null
     referenceId?: string | null
+    completionNotes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -56833,13 +57201,17 @@ export namespace Prisma {
     NOT?: TaskScalarWhereInput | TaskScalarWhereInput[]
     id?: UuidFilter<"Task"> | string
     organizationId?: UuidFilter<"Task"> | string
-    userId?: UuidFilter<"Task"> | string
+    assignedById?: UuidFilter<"Task"> | string
+    assignedToId?: UuidFilter<"Task"> | string
     title?: StringFilter<"Task"> | string
     description?: StringNullableFilter<"Task"> | string | null
-    status?: StringFilter<"Task"> | string
+    status?: EnumTaskStatusFilter<"Task"> | $Enums.TaskStatus
+    priority?: EnumTaskPriorityFilter<"Task"> | $Enums.TaskPriority
     dueDate?: DateTimeNullableFilter<"Task"> | Date | string | null
+    completedAt?: DateTimeNullableFilter<"Task"> | Date | string | null
     referenceType?: StringNullableFilter<"Task"> | string | null
     referenceId?: UuidNullableFilter<"Task"> | string | null
+    completionNotes?: StringNullableFilter<"Task"> | string | null
     createdAt?: DateTimeFilter<"Task"> | Date | string
     updatedAt?: DateTimeFilter<"Task"> | Date | string
   }
@@ -57441,7 +57813,8 @@ export namespace Prisma {
     targets?: TargetCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseCreateNestedManyWithoutApprovedByInput
-    tasks?: TaskCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceCreateNestedManyWithoutUserInput
@@ -57485,7 +57858,8 @@ export namespace Prisma {
     targets?: TargetUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseUncheckedCreateNestedManyWithoutApprovedByInput
-    tasks?: TaskUncheckedCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskUncheckedCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskUncheckedCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanUncheckedCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventUncheckedCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
@@ -57693,7 +58067,8 @@ export namespace Prisma {
     targets?: TargetCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseCreateNestedManyWithoutApprovedByInput
-    tasks?: TaskCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceCreateNestedManyWithoutUserInput
@@ -57737,7 +58112,8 @@ export namespace Prisma {
     targets?: TargetUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseUncheckedCreateNestedManyWithoutApprovedByInput
-    tasks?: TaskUncheckedCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskUncheckedCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskUncheckedCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanUncheckedCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventUncheckedCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
@@ -57982,7 +58358,8 @@ export namespace Prisma {
     targets?: TargetCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseCreateNestedManyWithoutApprovedByInput
-    tasks?: TaskCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceCreateNestedManyWithoutUserInput
@@ -58026,7 +58403,8 @@ export namespace Prisma {
     targets?: TargetUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseUncheckedCreateNestedManyWithoutApprovedByInput
-    tasks?: TaskUncheckedCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskUncheckedCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskUncheckedCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanUncheckedCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventUncheckedCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
@@ -58358,7 +58736,8 @@ export namespace Prisma {
     targets?: TargetCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseCreateNestedManyWithoutApprovedByInput
-    tasks?: TaskCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceCreateNestedManyWithoutUserInput
@@ -58402,7 +58781,8 @@ export namespace Prisma {
     targets?: TargetUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseUncheckedCreateNestedManyWithoutApprovedByInput
-    tasks?: TaskUncheckedCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskUncheckedCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskUncheckedCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanUncheckedCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventUncheckedCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
@@ -59387,7 +59767,8 @@ export namespace Prisma {
     targets?: TargetCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseCreateNestedManyWithoutApprovedByInput
-    tasks?: TaskCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceCreateNestedManyWithoutUserInput
@@ -59431,7 +59812,8 @@ export namespace Prisma {
     targets?: TargetUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseUncheckedCreateNestedManyWithoutApprovedByInput
-    tasks?: TaskUncheckedCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskUncheckedCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskUncheckedCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanUncheckedCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventUncheckedCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
@@ -59480,7 +59862,8 @@ export namespace Prisma {
     targets?: TargetCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseCreateNestedManyWithoutApprovedByInput
-    tasks?: TaskCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceCreateNestedManyWithoutUserInput
@@ -59524,7 +59907,8 @@ export namespace Prisma {
     targets?: TargetUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseUncheckedCreateNestedManyWithoutApprovedByInput
-    tasks?: TaskUncheckedCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskUncheckedCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskUncheckedCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanUncheckedCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventUncheckedCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
@@ -59919,39 +60303,91 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type TaskCreateWithoutUserInput = {
+  export type TaskCreateWithoutAssignedByInput = {
     id?: string
     title: string
     description?: string | null
-    status?: string
+    status?: $Enums.TaskStatus
+    priority?: $Enums.TaskPriority
     dueDate?: Date | string | null
+    completedAt?: Date | string | null
     referenceType?: string | null
     referenceId?: string | null
+    completionNotes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     organization: OrganizationCreateNestedOneWithoutTasksInput
+    assignedTo: UserCreateNestedOneWithoutTasksReceivedInput
   }
 
-  export type TaskUncheckedCreateWithoutUserInput = {
+  export type TaskUncheckedCreateWithoutAssignedByInput = {
     id?: string
     organizationId: string
+    assignedToId: string
     title: string
     description?: string | null
-    status?: string
+    status?: $Enums.TaskStatus
+    priority?: $Enums.TaskPriority
     dueDate?: Date | string | null
+    completedAt?: Date | string | null
     referenceType?: string | null
     referenceId?: string | null
+    completionNotes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
 
-  export type TaskCreateOrConnectWithoutUserInput = {
+  export type TaskCreateOrConnectWithoutAssignedByInput = {
     where: TaskWhereUniqueInput
-    create: XOR<TaskCreateWithoutUserInput, TaskUncheckedCreateWithoutUserInput>
+    create: XOR<TaskCreateWithoutAssignedByInput, TaskUncheckedCreateWithoutAssignedByInput>
   }
 
-  export type TaskCreateManyUserInputEnvelope = {
-    data: TaskCreateManyUserInput | TaskCreateManyUserInput[]
+  export type TaskCreateManyAssignedByInputEnvelope = {
+    data: TaskCreateManyAssignedByInput | TaskCreateManyAssignedByInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type TaskCreateWithoutAssignedToInput = {
+    id?: string
+    title: string
+    description?: string | null
+    status?: $Enums.TaskStatus
+    priority?: $Enums.TaskPriority
+    dueDate?: Date | string | null
+    completedAt?: Date | string | null
+    referenceType?: string | null
+    referenceId?: string | null
+    completionNotes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    organization: OrganizationCreateNestedOneWithoutTasksInput
+    assignedBy: UserCreateNestedOneWithoutTasksAssignedInput
+  }
+
+  export type TaskUncheckedCreateWithoutAssignedToInput = {
+    id?: string
+    organizationId: string
+    assignedById: string
+    title: string
+    description?: string | null
+    status?: $Enums.TaskStatus
+    priority?: $Enums.TaskPriority
+    dueDate?: Date | string | null
+    completedAt?: Date | string | null
+    referenceType?: string | null
+    referenceId?: string | null
+    completionNotes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TaskCreateOrConnectWithoutAssignedToInput = {
+    where: TaskWhereUniqueInput
+    create: XOR<TaskCreateWithoutAssignedToInput, TaskUncheckedCreateWithoutAssignedToInput>
+  }
+
+  export type TaskCreateManyAssignedToInputEnvelope = {
+    data: TaskCreateManyAssignedToInput | TaskCreateManyAssignedToInput[]
     skipDuplicates?: boolean
   }
 
@@ -60362,7 +60798,8 @@ export namespace Prisma {
     targets?: TargetUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUpdateManyWithoutApprovedByNestedInput
-    tasks?: TaskUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUpdateManyWithoutAssignedToNestedInput
     beatPlans?: BeatPlanUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUpdateManyWithoutUserNestedInput
@@ -60406,7 +60843,8 @@ export namespace Prisma {
     targets?: TargetUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUncheckedUpdateManyWithoutApprovedByNestedInput
-    tasks?: TaskUncheckedUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUncheckedUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUncheckedUpdateManyWithoutAssignedToNestedInput
     beatPlans?: BeatPlanUncheckedUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUncheckedUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
@@ -60615,20 +61053,36 @@ export namespace Prisma {
     data: XOR<ExpenseUpdateManyMutationInput, ExpenseUncheckedUpdateManyWithoutApprovedByInput>
   }
 
-  export type TaskUpsertWithWhereUniqueWithoutUserInput = {
+  export type TaskUpsertWithWhereUniqueWithoutAssignedByInput = {
     where: TaskWhereUniqueInput
-    update: XOR<TaskUpdateWithoutUserInput, TaskUncheckedUpdateWithoutUserInput>
-    create: XOR<TaskCreateWithoutUserInput, TaskUncheckedCreateWithoutUserInput>
+    update: XOR<TaskUpdateWithoutAssignedByInput, TaskUncheckedUpdateWithoutAssignedByInput>
+    create: XOR<TaskCreateWithoutAssignedByInput, TaskUncheckedCreateWithoutAssignedByInput>
   }
 
-  export type TaskUpdateWithWhereUniqueWithoutUserInput = {
+  export type TaskUpdateWithWhereUniqueWithoutAssignedByInput = {
     where: TaskWhereUniqueInput
-    data: XOR<TaskUpdateWithoutUserInput, TaskUncheckedUpdateWithoutUserInput>
+    data: XOR<TaskUpdateWithoutAssignedByInput, TaskUncheckedUpdateWithoutAssignedByInput>
   }
 
-  export type TaskUpdateManyWithWhereWithoutUserInput = {
+  export type TaskUpdateManyWithWhereWithoutAssignedByInput = {
     where: TaskScalarWhereInput
-    data: XOR<TaskUpdateManyMutationInput, TaskUncheckedUpdateManyWithoutUserInput>
+    data: XOR<TaskUpdateManyMutationInput, TaskUncheckedUpdateManyWithoutAssignedByInput>
+  }
+
+  export type TaskUpsertWithWhereUniqueWithoutAssignedToInput = {
+    where: TaskWhereUniqueInput
+    update: XOR<TaskUpdateWithoutAssignedToInput, TaskUncheckedUpdateWithoutAssignedToInput>
+    create: XOR<TaskCreateWithoutAssignedToInput, TaskUncheckedCreateWithoutAssignedToInput>
+  }
+
+  export type TaskUpdateWithWhereUniqueWithoutAssignedToInput = {
+    where: TaskWhereUniqueInput
+    data: XOR<TaskUpdateWithoutAssignedToInput, TaskUncheckedUpdateWithoutAssignedToInput>
+  }
+
+  export type TaskUpdateManyWithWhereWithoutAssignedToInput = {
+    where: TaskScalarWhereInput
+    data: XOR<TaskUpdateManyMutationInput, TaskUncheckedUpdateManyWithoutAssignedToInput>
   }
 
   export type BeatPlanUpsertWithWhereUniqueWithoutUserInput = {
@@ -60732,7 +61186,8 @@ export namespace Prisma {
     targets?: TargetCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseCreateNestedManyWithoutApprovedByInput
-    tasks?: TaskCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceCreateNestedManyWithoutUserInput
@@ -60776,7 +61231,8 @@ export namespace Prisma {
     targets?: TargetUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseUncheckedCreateNestedManyWithoutApprovedByInput
-    tasks?: TaskUncheckedCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskUncheckedCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskUncheckedCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanUncheckedCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventUncheckedCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
@@ -60869,7 +61325,8 @@ export namespace Prisma {
     targets?: TargetUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUpdateManyWithoutApprovedByNestedInput
-    tasks?: TaskUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUpdateManyWithoutAssignedToNestedInput
     beatPlans?: BeatPlanUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUpdateManyWithoutUserNestedInput
@@ -60913,7 +61370,8 @@ export namespace Prisma {
     targets?: TargetUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUncheckedUpdateManyWithoutApprovedByNestedInput
-    tasks?: TaskUncheckedUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUncheckedUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUncheckedUpdateManyWithoutAssignedToNestedInput
     beatPlans?: BeatPlanUncheckedUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUncheckedUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
@@ -61061,7 +61519,8 @@ export namespace Prisma {
     targets?: TargetCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseCreateNestedManyWithoutApprovedByInput
-    tasks?: TaskCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceCreateNestedManyWithoutUserInput
@@ -61105,7 +61564,8 @@ export namespace Prisma {
     targets?: TargetUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseUncheckedCreateNestedManyWithoutApprovedByInput
-    tasks?: TaskUncheckedCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskUncheckedCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskUncheckedCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanUncheckedCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventUncheckedCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
@@ -61236,7 +61696,8 @@ export namespace Prisma {
     targets?: TargetUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUpdateManyWithoutApprovedByNestedInput
-    tasks?: TaskUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUpdateManyWithoutAssignedToNestedInput
     beatPlans?: BeatPlanUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUpdateManyWithoutUserNestedInput
@@ -61280,7 +61741,8 @@ export namespace Prisma {
     targets?: TargetUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUncheckedUpdateManyWithoutApprovedByNestedInput
-    tasks?: TaskUncheckedUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUncheckedUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUncheckedUpdateManyWithoutAssignedToNestedInput
     beatPlans?: BeatPlanUncheckedUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUncheckedUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
@@ -61389,7 +61851,8 @@ export namespace Prisma {
     targets?: TargetCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseCreateNestedManyWithoutApprovedByInput
-    tasks?: TaskCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceCreateNestedManyWithoutUserInput
@@ -61433,7 +61896,8 @@ export namespace Prisma {
     targets?: TargetUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseUncheckedCreateNestedManyWithoutApprovedByInput
-    tasks?: TaskUncheckedCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskUncheckedCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskUncheckedCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanUncheckedCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventUncheckedCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
@@ -61564,7 +62028,8 @@ export namespace Prisma {
     targets?: TargetUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUpdateManyWithoutApprovedByNestedInput
-    tasks?: TaskUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUpdateManyWithoutAssignedToNestedInput
     beatPlans?: BeatPlanUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUpdateManyWithoutUserNestedInput
@@ -61608,7 +62073,8 @@ export namespace Prisma {
     targets?: TargetUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUncheckedUpdateManyWithoutApprovedByNestedInput
-    tasks?: TaskUncheckedUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUncheckedUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUncheckedUpdateManyWithoutAssignedToNestedInput
     beatPlans?: BeatPlanUncheckedUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUncheckedUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
@@ -61652,7 +62118,8 @@ export namespace Prisma {
     targets?: TargetCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseCreateNestedManyWithoutApprovedByInput
-    tasks?: TaskCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceCreateNestedManyWithoutUserInput
@@ -61696,7 +62163,8 @@ export namespace Prisma {
     targets?: TargetUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseUncheckedCreateNestedManyWithoutApprovedByInput
-    tasks?: TaskUncheckedCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskUncheckedCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskUncheckedCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanUncheckedCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventUncheckedCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
@@ -61756,7 +62224,8 @@ export namespace Prisma {
     targets?: TargetUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUpdateManyWithoutApprovedByNestedInput
-    tasks?: TaskUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUpdateManyWithoutAssignedToNestedInput
     beatPlans?: BeatPlanUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUpdateManyWithoutUserNestedInput
@@ -61800,7 +62269,8 @@ export namespace Prisma {
     targets?: TargetUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUncheckedUpdateManyWithoutApprovedByNestedInput
-    tasks?: TaskUncheckedUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUncheckedUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUncheckedUpdateManyWithoutAssignedToNestedInput
     beatPlans?: BeatPlanUncheckedUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUncheckedUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
@@ -62405,7 +62875,8 @@ export namespace Prisma {
     targets?: TargetCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseCreateNestedManyWithoutApprovedByInput
-    tasks?: TaskCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceCreateNestedManyWithoutUserInput
@@ -62449,7 +62920,8 @@ export namespace Prisma {
     targets?: TargetUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseUncheckedCreateNestedManyWithoutApprovedByInput
-    tasks?: TaskUncheckedCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskUncheckedCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskUncheckedCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanUncheckedCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventUncheckedCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
@@ -62699,7 +63171,8 @@ export namespace Prisma {
     targets?: TargetUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUpdateManyWithoutApprovedByNestedInput
-    tasks?: TaskUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUpdateManyWithoutAssignedToNestedInput
     beatPlans?: BeatPlanUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUpdateManyWithoutUserNestedInput
@@ -62743,7 +63216,8 @@ export namespace Prisma {
     targets?: TargetUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUncheckedUpdateManyWithoutApprovedByNestedInput
-    tasks?: TaskUncheckedUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUncheckedUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUncheckedUpdateManyWithoutAssignedToNestedInput
     beatPlans?: BeatPlanUncheckedUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUncheckedUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
@@ -63323,7 +63797,8 @@ export namespace Prisma {
     targets?: TargetCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseCreateNestedManyWithoutApprovedByInput
-    tasks?: TaskCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceCreateNestedManyWithoutUserInput
@@ -63367,7 +63842,8 @@ export namespace Prisma {
     targets?: TargetUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseUncheckedCreateNestedManyWithoutApprovedByInput
-    tasks?: TaskUncheckedCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskUncheckedCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskUncheckedCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanUncheckedCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventUncheckedCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
@@ -63498,7 +63974,8 @@ export namespace Prisma {
     targets?: TargetUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUpdateManyWithoutApprovedByNestedInput
-    tasks?: TaskUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUpdateManyWithoutAssignedToNestedInput
     beatPlans?: BeatPlanUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUpdateManyWithoutUserNestedInput
@@ -63542,7 +64019,8 @@ export namespace Prisma {
     targets?: TargetUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUncheckedUpdateManyWithoutApprovedByNestedInput
-    tasks?: TaskUncheckedUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUncheckedUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUncheckedUpdateManyWithoutAssignedToNestedInput
     beatPlans?: BeatPlanUncheckedUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUncheckedUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
@@ -63651,7 +64129,8 @@ export namespace Prisma {
     targets?: TargetCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseCreateNestedManyWithoutApprovedByInput
-    tasks?: TaskCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceCreateNestedManyWithoutUserInput
@@ -63695,7 +64174,8 @@ export namespace Prisma {
     targets?: TargetUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseUncheckedCreateNestedManyWithoutApprovedByInput
-    tasks?: TaskUncheckedCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskUncheckedCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskUncheckedCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanUncheckedCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventUncheckedCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
@@ -63857,7 +64337,8 @@ export namespace Prisma {
     targets?: TargetUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUpdateManyWithoutApprovedByNestedInput
-    tasks?: TaskUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUpdateManyWithoutAssignedToNestedInput
     beatPlans?: BeatPlanUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUpdateManyWithoutUserNestedInput
@@ -63901,7 +64382,8 @@ export namespace Prisma {
     targets?: TargetUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUncheckedUpdateManyWithoutApprovedByNestedInput
-    tasks?: TaskUncheckedUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUncheckedUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUncheckedUpdateManyWithoutAssignedToNestedInput
     beatPlans?: BeatPlanUncheckedUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUncheckedUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
@@ -64047,7 +64529,8 @@ export namespace Prisma {
     targets?: TargetCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseCreateNestedManyWithoutApprovedByInput
-    tasks?: TaskCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceCreateNestedManyWithoutUserInput
@@ -64091,7 +64574,8 @@ export namespace Prisma {
     targets?: TargetUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseUncheckedCreateNestedManyWithoutApprovedByInput
-    tasks?: TaskUncheckedCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskUncheckedCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskUncheckedCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanUncheckedCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventUncheckedCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
@@ -64140,7 +64624,8 @@ export namespace Prisma {
     dailyActivities?: DailyActivityReportCreateNestedManyWithoutUserInput
     targets?: TargetCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
-    tasks?: TaskCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceCreateNestedManyWithoutUserInput
@@ -64184,7 +64669,8 @@ export namespace Prisma {
     dailyActivities?: DailyActivityReportUncheckedCreateNestedManyWithoutUserInput
     targets?: TargetUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
-    tasks?: TaskUncheckedCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskUncheckedCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskUncheckedCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanUncheckedCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventUncheckedCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
@@ -64315,7 +64801,8 @@ export namespace Prisma {
     targets?: TargetUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUpdateManyWithoutApprovedByNestedInput
-    tasks?: TaskUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUpdateManyWithoutAssignedToNestedInput
     beatPlans?: BeatPlanUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUpdateManyWithoutUserNestedInput
@@ -64359,7 +64846,8 @@ export namespace Prisma {
     targets?: TargetUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUncheckedUpdateManyWithoutApprovedByNestedInput
-    tasks?: TaskUncheckedUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUncheckedUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUncheckedUpdateManyWithoutAssignedToNestedInput
     beatPlans?: BeatPlanUncheckedUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUncheckedUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
@@ -64414,7 +64902,8 @@ export namespace Prisma {
     dailyActivities?: DailyActivityReportUpdateManyWithoutUserNestedInput
     targets?: TargetUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
-    tasks?: TaskUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUpdateManyWithoutAssignedToNestedInput
     beatPlans?: BeatPlanUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUpdateManyWithoutUserNestedInput
@@ -64458,7 +64947,8 @@ export namespace Prisma {
     dailyActivities?: DailyActivityReportUncheckedUpdateManyWithoutUserNestedInput
     targets?: TargetUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
-    tasks?: TaskUncheckedUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUncheckedUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUncheckedUpdateManyWithoutAssignedToNestedInput
     beatPlans?: BeatPlanUncheckedUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUncheckedUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
@@ -64567,7 +65057,8 @@ export namespace Prisma {
     targets?: TargetCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseCreateNestedManyWithoutApprovedByInput
-    tasks?: TaskCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceCreateNestedManyWithoutUserInput
@@ -64611,7 +65102,8 @@ export namespace Prisma {
     targets?: TargetUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseUncheckedCreateNestedManyWithoutApprovedByInput
-    tasks?: TaskUncheckedCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskUncheckedCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskUncheckedCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanUncheckedCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventUncheckedCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
@@ -64742,7 +65234,8 @@ export namespace Prisma {
     targets?: TargetUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUpdateManyWithoutApprovedByNestedInput
-    tasks?: TaskUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUpdateManyWithoutAssignedToNestedInput
     beatPlans?: BeatPlanUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUpdateManyWithoutUserNestedInput
@@ -64786,7 +65279,8 @@ export namespace Prisma {
     targets?: TargetUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUncheckedUpdateManyWithoutApprovedByNestedInput
-    tasks?: TaskUncheckedUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUncheckedUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUncheckedUpdateManyWithoutAssignedToNestedInput
     beatPlans?: BeatPlanUncheckedUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUncheckedUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
@@ -64895,7 +65389,8 @@ export namespace Prisma {
     dailyActivities?: DailyActivityReportCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseCreateNestedManyWithoutApprovedByInput
-    tasks?: TaskCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceCreateNestedManyWithoutUserInput
@@ -64939,7 +65434,8 @@ export namespace Prisma {
     dailyActivities?: DailyActivityReportUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseUncheckedCreateNestedManyWithoutApprovedByInput
-    tasks?: TaskUncheckedCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskUncheckedCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskUncheckedCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanUncheckedCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventUncheckedCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
@@ -65101,7 +65597,8 @@ export namespace Prisma {
     dailyActivities?: DailyActivityReportUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUpdateManyWithoutApprovedByNestedInput
-    tasks?: TaskUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUpdateManyWithoutAssignedToNestedInput
     beatPlans?: BeatPlanUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUpdateManyWithoutUserNestedInput
@@ -65145,7 +65642,8 @@ export namespace Prisma {
     dailyActivities?: DailyActivityReportUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUncheckedUpdateManyWithoutApprovedByNestedInput
-    tasks?: TaskUncheckedUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUncheckedUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUncheckedUpdateManyWithoutAssignedToNestedInput
     beatPlans?: BeatPlanUncheckedUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUncheckedUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
@@ -65291,7 +65789,8 @@ export namespace Prisma {
     dailyActivities?: DailyActivityReportCreateNestedManyWithoutUserInput
     targets?: TargetCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseCreateNestedManyWithoutApprovedByInput
-    tasks?: TaskCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceCreateNestedManyWithoutUserInput
@@ -65335,7 +65834,8 @@ export namespace Prisma {
     dailyActivities?: DailyActivityReportUncheckedCreateNestedManyWithoutUserInput
     targets?: TargetUncheckedCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseUncheckedCreateNestedManyWithoutApprovedByInput
-    tasks?: TaskUncheckedCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskUncheckedCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskUncheckedCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanUncheckedCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventUncheckedCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
@@ -65466,7 +65966,8 @@ export namespace Prisma {
     dailyActivities?: DailyActivityReportUpdateManyWithoutUserNestedInput
     targets?: TargetUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUpdateManyWithoutApprovedByNestedInput
-    tasks?: TaskUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUpdateManyWithoutAssignedToNestedInput
     beatPlans?: BeatPlanUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUpdateManyWithoutUserNestedInput
@@ -65510,7 +66011,8 @@ export namespace Prisma {
     dailyActivities?: DailyActivityReportUncheckedUpdateManyWithoutUserNestedInput
     targets?: TargetUncheckedUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUncheckedUpdateManyWithoutApprovedByNestedInput
-    tasks?: TaskUncheckedUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUncheckedUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUncheckedUpdateManyWithoutAssignedToNestedInput
     beatPlans?: BeatPlanUncheckedUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUncheckedUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
@@ -65718,7 +66220,7 @@ export namespace Prisma {
     create: XOR<OrganizationCreateWithoutTasksInput, OrganizationUncheckedCreateWithoutTasksInput>
   }
 
-  export type UserCreateWithoutTasksInput = {
+  export type UserCreateWithoutTasksAssignedInput = {
     id?: string
     email: string
     passwordHash: string
@@ -65756,13 +66258,14 @@ export namespace Prisma {
     targets?: TargetCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseCreateNestedManyWithoutApprovedByInput
+    tasksReceived?: TaskCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceCreateNestedManyWithoutUserInput
     orders?: OrderCreateNestedManyWithoutOwnerInput
   }
 
-  export type UserUncheckedCreateWithoutTasksInput = {
+  export type UserUncheckedCreateWithoutTasksAssignedInput = {
     id?: string
     organizationId: string
     branchId?: string | null
@@ -65800,15 +66303,111 @@ export namespace Prisma {
     targets?: TargetUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseUncheckedCreateNestedManyWithoutApprovedByInput
+    tasksReceived?: TaskUncheckedCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanUncheckedCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventUncheckedCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
     orders?: OrderUncheckedCreateNestedManyWithoutOwnerInput
   }
 
-  export type UserCreateOrConnectWithoutTasksInput = {
+  export type UserCreateOrConnectWithoutTasksAssignedInput = {
     where: UserWhereUniqueInput
-    create: XOR<UserCreateWithoutTasksInput, UserUncheckedCreateWithoutTasksInput>
+    create: XOR<UserCreateWithoutTasksAssignedInput, UserUncheckedCreateWithoutTasksAssignedInput>
+  }
+
+  export type UserCreateWithoutTasksReceivedInput = {
+    id?: string
+    email: string
+    passwordHash: string
+    firstName: string
+    lastName: string
+    phoneNumber?: string | null
+    isActive?: boolean
+    emailVerifiedAt?: Date | string | null
+    emailVerificationOtp?: string | null
+    emailVerificationExpiresAt?: Date | string | null
+    failedLoginAttempts?: number
+    lockoutExpiresAt?: Date | string | null
+    passwordResetOtp?: string | null
+    passwordResetExpiresAt?: Date | string | null
+    lastLoginAt?: Date | string | null
+    lastPasswordChangedAt?: Date | string | null
+    deletedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    organization: OrganizationCreateNestedOneWithoutUsersInput
+    branch?: BranchCreateNestedOneWithoutUsersInput
+    department?: DepartmentCreateNestedOneWithoutUsersInput
+    team?: TeamCreateNestedOneWithoutUsersInput
+    territory?: TerritoryCreateNestedOneWithoutUsersInput
+    manager?: UserCreateNestedOneWithoutSubordinatesInput
+    subordinates?: UserCreateNestedManyWithoutManagerInput
+    roles?: UserRoleCreateNestedManyWithoutUserInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    passwordHistories?: PasswordHistoryCreateNestedManyWithoutUserInput
+    attendances?: AttendanceCreateNestedManyWithoutUserInput
+    visits?: VisitCreateNestedManyWithoutUserInput
+    expenses?: ExpenseCreateNestedManyWithoutUserInput
+    dailyActivities?: DailyActivityReportCreateNestedManyWithoutUserInput
+    targets?: TargetCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    expensesApproved?: ExpenseCreateNestedManyWithoutApprovedByInput
+    tasksAssigned?: TaskCreateNestedManyWithoutAssignedByInput
+    beatPlans?: BeatPlanCreateNestedManyWithoutUserInput
+    calendarEvents?: CalendarEventCreateNestedManyWithoutUserInput
+    notificationPrefs?: NotificationPreferenceCreateNestedManyWithoutUserInput
+    orders?: OrderCreateNestedManyWithoutOwnerInput
+  }
+
+  export type UserUncheckedCreateWithoutTasksReceivedInput = {
+    id?: string
+    organizationId: string
+    branchId?: string | null
+    departmentId?: string | null
+    teamId?: string | null
+    territoryId?: string | null
+    managerId?: string | null
+    email: string
+    passwordHash: string
+    firstName: string
+    lastName: string
+    phoneNumber?: string | null
+    isActive?: boolean
+    emailVerifiedAt?: Date | string | null
+    emailVerificationOtp?: string | null
+    emailVerificationExpiresAt?: Date | string | null
+    failedLoginAttempts?: number
+    lockoutExpiresAt?: Date | string | null
+    passwordResetOtp?: string | null
+    passwordResetExpiresAt?: Date | string | null
+    lastLoginAt?: Date | string | null
+    lastPasswordChangedAt?: Date | string | null
+    deletedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    subordinates?: UserUncheckedCreateNestedManyWithoutManagerInput
+    roles?: UserRoleUncheckedCreateNestedManyWithoutUserInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    passwordHistories?: PasswordHistoryUncheckedCreateNestedManyWithoutUserInput
+    attendances?: AttendanceUncheckedCreateNestedManyWithoutUserInput
+    visits?: VisitUncheckedCreateNestedManyWithoutUserInput
+    expenses?: ExpenseUncheckedCreateNestedManyWithoutUserInput
+    dailyActivities?: DailyActivityReportUncheckedCreateNestedManyWithoutUserInput
+    targets?: TargetUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    expensesApproved?: ExpenseUncheckedCreateNestedManyWithoutApprovedByInput
+    tasksAssigned?: TaskUncheckedCreateNestedManyWithoutAssignedByInput
+    beatPlans?: BeatPlanUncheckedCreateNestedManyWithoutUserInput
+    calendarEvents?: CalendarEventUncheckedCreateNestedManyWithoutUserInput
+    notificationPrefs?: NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
+    orders?: OrderUncheckedCreateNestedManyWithoutOwnerInput
+  }
+
+  export type UserCreateOrConnectWithoutTasksReceivedInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutTasksReceivedInput, UserUncheckedCreateWithoutTasksReceivedInput>
   }
 
   export type OrganizationUpsertWithoutTasksInput = {
@@ -65882,18 +66481,18 @@ export namespace Prisma {
     orders?: OrderUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
-  export type UserUpsertWithoutTasksInput = {
-    update: XOR<UserUpdateWithoutTasksInput, UserUncheckedUpdateWithoutTasksInput>
-    create: XOR<UserCreateWithoutTasksInput, UserUncheckedCreateWithoutTasksInput>
+  export type UserUpsertWithoutTasksAssignedInput = {
+    update: XOR<UserUpdateWithoutTasksAssignedInput, UserUncheckedUpdateWithoutTasksAssignedInput>
+    create: XOR<UserCreateWithoutTasksAssignedInput, UserUncheckedCreateWithoutTasksAssignedInput>
     where?: UserWhereInput
   }
 
-  export type UserUpdateToOneWithWhereWithoutTasksInput = {
+  export type UserUpdateToOneWithWhereWithoutTasksAssignedInput = {
     where?: UserWhereInput
-    data: XOR<UserUpdateWithoutTasksInput, UserUncheckedUpdateWithoutTasksInput>
+    data: XOR<UserUpdateWithoutTasksAssignedInput, UserUncheckedUpdateWithoutTasksAssignedInput>
   }
 
-  export type UserUpdateWithoutTasksInput = {
+  export type UserUpdateWithoutTasksAssignedInput = {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
@@ -65931,13 +66530,14 @@ export namespace Prisma {
     targets?: TargetUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUpdateManyWithoutApprovedByNestedInput
+    tasksReceived?: TaskUpdateManyWithoutAssignedToNestedInput
     beatPlans?: BeatPlanUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUpdateManyWithoutUserNestedInput
     orders?: OrderUpdateManyWithoutOwnerNestedInput
   }
 
-  export type UserUncheckedUpdateWithoutTasksInput = {
+  export type UserUncheckedUpdateWithoutTasksAssignedInput = {
     id?: StringFieldUpdateOperationsInput | string
     organizationId?: StringFieldUpdateOperationsInput | string
     branchId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -65975,6 +66575,108 @@ export namespace Prisma {
     targets?: TargetUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUncheckedUpdateManyWithoutApprovedByNestedInput
+    tasksReceived?: TaskUncheckedUpdateManyWithoutAssignedToNestedInput
+    beatPlans?: BeatPlanUncheckedUpdateManyWithoutUserNestedInput
+    calendarEvents?: CalendarEventUncheckedUpdateManyWithoutUserNestedInput
+    notificationPrefs?: NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutOwnerNestedInput
+  }
+
+  export type UserUpsertWithoutTasksReceivedInput = {
+    update: XOR<UserUpdateWithoutTasksReceivedInput, UserUncheckedUpdateWithoutTasksReceivedInput>
+    create: XOR<UserCreateWithoutTasksReceivedInput, UserUncheckedCreateWithoutTasksReceivedInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutTasksReceivedInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutTasksReceivedInput, UserUncheckedUpdateWithoutTasksReceivedInput>
+  }
+
+  export type UserUpdateWithoutTasksReceivedInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerificationOtp?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerificationExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedLoginAttempts?: IntFieldUpdateOperationsInput | number
+    lockoutExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    passwordResetOtp?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordResetExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastPasswordChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OrganizationUpdateOneRequiredWithoutUsersNestedInput
+    branch?: BranchUpdateOneWithoutUsersNestedInput
+    department?: DepartmentUpdateOneWithoutUsersNestedInput
+    team?: TeamUpdateOneWithoutUsersNestedInput
+    territory?: TerritoryUpdateOneWithoutUsersNestedInput
+    manager?: UserUpdateOneWithoutSubordinatesNestedInput
+    subordinates?: UserUpdateManyWithoutManagerNestedInput
+    roles?: UserRoleUpdateManyWithoutUserNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    passwordHistories?: PasswordHistoryUpdateManyWithoutUserNestedInput
+    attendances?: AttendanceUpdateManyWithoutUserNestedInput
+    visits?: VisitUpdateManyWithoutUserNestedInput
+    expenses?: ExpenseUpdateManyWithoutUserNestedInput
+    dailyActivities?: DailyActivityReportUpdateManyWithoutUserNestedInput
+    targets?: TargetUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    expensesApproved?: ExpenseUpdateManyWithoutApprovedByNestedInput
+    tasksAssigned?: TaskUpdateManyWithoutAssignedByNestedInput
+    beatPlans?: BeatPlanUpdateManyWithoutUserNestedInput
+    calendarEvents?: CalendarEventUpdateManyWithoutUserNestedInput
+    notificationPrefs?: NotificationPreferenceUpdateManyWithoutUserNestedInput
+    orders?: OrderUpdateManyWithoutOwnerNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutTasksReceivedInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    branchId?: NullableStringFieldUpdateOperationsInput | string | null
+    departmentId?: NullableStringFieldUpdateOperationsInput | string | null
+    teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    territoryId?: NullableStringFieldUpdateOperationsInput | string | null
+    managerId?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerificationOtp?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerificationExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedLoginAttempts?: IntFieldUpdateOperationsInput | number
+    lockoutExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    passwordResetOtp?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordResetExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastPasswordChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subordinates?: UserUncheckedUpdateManyWithoutManagerNestedInput
+    roles?: UserRoleUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    passwordHistories?: PasswordHistoryUncheckedUpdateManyWithoutUserNestedInput
+    attendances?: AttendanceUncheckedUpdateManyWithoutUserNestedInput
+    visits?: VisitUncheckedUpdateManyWithoutUserNestedInput
+    expenses?: ExpenseUncheckedUpdateManyWithoutUserNestedInput
+    dailyActivities?: DailyActivityReportUncheckedUpdateManyWithoutUserNestedInput
+    targets?: TargetUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    expensesApproved?: ExpenseUncheckedUpdateManyWithoutApprovedByNestedInput
+    tasksAssigned?: TaskUncheckedUpdateManyWithoutAssignedByNestedInput
     beatPlans?: BeatPlanUncheckedUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUncheckedUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
@@ -66084,7 +66786,8 @@ export namespace Prisma {
     targets?: TargetCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseCreateNestedManyWithoutApprovedByInput
-    tasks?: TaskCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskCreateNestedManyWithoutAssignedToInput
     calendarEvents?: CalendarEventCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceCreateNestedManyWithoutUserInput
     orders?: OrderCreateNestedManyWithoutOwnerInput
@@ -66128,7 +66831,8 @@ export namespace Prisma {
     targets?: TargetUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseUncheckedCreateNestedManyWithoutApprovedByInput
-    tasks?: TaskUncheckedCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskUncheckedCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskUncheckedCreateNestedManyWithoutAssignedToInput
     calendarEvents?: CalendarEventUncheckedCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
     orders?: OrderUncheckedCreateNestedManyWithoutOwnerInput
@@ -66259,7 +66963,8 @@ export namespace Prisma {
     targets?: TargetUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUpdateManyWithoutApprovedByNestedInput
-    tasks?: TaskUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUpdateManyWithoutAssignedToNestedInput
     calendarEvents?: CalendarEventUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUpdateManyWithoutUserNestedInput
     orders?: OrderUpdateManyWithoutOwnerNestedInput
@@ -66303,7 +67008,8 @@ export namespace Prisma {
     targets?: TargetUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUncheckedUpdateManyWithoutApprovedByNestedInput
-    tasks?: TaskUncheckedUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUncheckedUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUncheckedUpdateManyWithoutAssignedToNestedInput
     calendarEvents?: CalendarEventUncheckedUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
     orders?: OrderUncheckedUpdateManyWithoutOwnerNestedInput
@@ -66412,7 +67118,8 @@ export namespace Prisma {
     targets?: TargetCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseCreateNestedManyWithoutApprovedByInput
-    tasks?: TaskCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceCreateNestedManyWithoutUserInput
     orders?: OrderCreateNestedManyWithoutOwnerInput
@@ -66456,7 +67163,8 @@ export namespace Prisma {
     targets?: TargetUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseUncheckedCreateNestedManyWithoutApprovedByInput
-    tasks?: TaskUncheckedCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskUncheckedCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskUncheckedCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanUncheckedCreateNestedManyWithoutUserInput
     notificationPrefs?: NotificationPreferenceUncheckedCreateNestedManyWithoutUserInput
     orders?: OrderUncheckedCreateNestedManyWithoutOwnerInput
@@ -66587,7 +67295,8 @@ export namespace Prisma {
     targets?: TargetUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUpdateManyWithoutApprovedByNestedInput
-    tasks?: TaskUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUpdateManyWithoutAssignedToNestedInput
     beatPlans?: BeatPlanUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUpdateManyWithoutUserNestedInput
     orders?: OrderUpdateManyWithoutOwnerNestedInput
@@ -66631,7 +67340,8 @@ export namespace Prisma {
     targets?: TargetUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUncheckedUpdateManyWithoutApprovedByNestedInput
-    tasks?: TaskUncheckedUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUncheckedUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUncheckedUpdateManyWithoutAssignedToNestedInput
     beatPlans?: BeatPlanUncheckedUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
     orders?: OrderUncheckedUpdateManyWithoutOwnerNestedInput
@@ -66740,7 +67450,8 @@ export namespace Prisma {
     targets?: TargetCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseCreateNestedManyWithoutApprovedByInput
-    tasks?: TaskCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventCreateNestedManyWithoutUserInput
     orders?: OrderCreateNestedManyWithoutOwnerInput
@@ -66784,7 +67495,8 @@ export namespace Prisma {
     targets?: TargetUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     expensesApproved?: ExpenseUncheckedCreateNestedManyWithoutApprovedByInput
-    tasks?: TaskUncheckedCreateNestedManyWithoutUserInput
+    tasksAssigned?: TaskUncheckedCreateNestedManyWithoutAssignedByInput
+    tasksReceived?: TaskUncheckedCreateNestedManyWithoutAssignedToInput
     beatPlans?: BeatPlanUncheckedCreateNestedManyWithoutUserInput
     calendarEvents?: CalendarEventUncheckedCreateNestedManyWithoutUserInput
     orders?: OrderUncheckedCreateNestedManyWithoutOwnerInput
@@ -66915,7 +67627,8 @@ export namespace Prisma {
     targets?: TargetUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUpdateManyWithoutApprovedByNestedInput
-    tasks?: TaskUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUpdateManyWithoutAssignedToNestedInput
     beatPlans?: BeatPlanUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUpdateManyWithoutUserNestedInput
     orders?: OrderUpdateManyWithoutOwnerNestedInput
@@ -66959,7 +67672,8 @@ export namespace Prisma {
     targets?: TargetUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUncheckedUpdateManyWithoutApprovedByNestedInput
-    tasks?: TaskUncheckedUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUncheckedUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUncheckedUpdateManyWithoutAssignedToNestedInput
     beatPlans?: BeatPlanUncheckedUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUncheckedUpdateManyWithoutUserNestedInput
     orders?: OrderUncheckedUpdateManyWithoutOwnerNestedInput
@@ -67289,13 +68003,17 @@ export namespace Prisma {
 
   export type TaskCreateManyOrganizationInput = {
     id?: string
-    userId: string
+    assignedById: string
+    assignedToId: string
     title: string
     description?: string | null
-    status?: string
+    status?: $Enums.TaskStatus
+    priority?: $Enums.TaskPriority
     dueDate?: Date | string | null
+    completedAt?: Date | string | null
     referenceType?: string | null
     referenceId?: string | null
+    completionNotes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -67557,7 +68275,8 @@ export namespace Prisma {
     targets?: TargetUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUpdateManyWithoutApprovedByNestedInput
-    tasks?: TaskUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUpdateManyWithoutAssignedToNestedInput
     beatPlans?: BeatPlanUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUpdateManyWithoutUserNestedInput
@@ -67601,7 +68320,8 @@ export namespace Prisma {
     targets?: TargetUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUncheckedUpdateManyWithoutApprovedByNestedInput
-    tasks?: TaskUncheckedUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUncheckedUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUncheckedUpdateManyWithoutAssignedToNestedInput
     beatPlans?: BeatPlanUncheckedUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUncheckedUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
@@ -67999,37 +68719,49 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
+    status?: EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
+    priority?: EnumTaskPriorityFieldUpdateOperationsInput | $Enums.TaskPriority
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     referenceType?: NullableStringFieldUpdateOperationsInput | string | null
     referenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    completionNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    user?: UserUpdateOneRequiredWithoutTasksNestedInput
+    assignedBy?: UserUpdateOneRequiredWithoutTasksAssignedNestedInput
+    assignedTo?: UserUpdateOneRequiredWithoutTasksReceivedNestedInput
   }
 
   export type TaskUncheckedUpdateWithoutOrganizationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    userId?: StringFieldUpdateOperationsInput | string
+    assignedById?: StringFieldUpdateOperationsInput | string
+    assignedToId?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
+    status?: EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
+    priority?: EnumTaskPriorityFieldUpdateOperationsInput | $Enums.TaskPriority
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     referenceType?: NullableStringFieldUpdateOperationsInput | string | null
     referenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    completionNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type TaskUncheckedUpdateManyWithoutOrganizationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    userId?: StringFieldUpdateOperationsInput | string
+    assignedById?: StringFieldUpdateOperationsInput | string
+    assignedToId?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
+    status?: EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
+    priority?: EnumTaskPriorityFieldUpdateOperationsInput | $Enums.TaskPriority
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     referenceType?: NullableStringFieldUpdateOperationsInput | string | null
     referenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    completionNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -68527,7 +69259,8 @@ export namespace Prisma {
     targets?: TargetUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUpdateManyWithoutApprovedByNestedInput
-    tasks?: TaskUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUpdateManyWithoutAssignedToNestedInput
     beatPlans?: BeatPlanUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUpdateManyWithoutUserNestedInput
@@ -68571,7 +69304,8 @@ export namespace Prisma {
     targets?: TargetUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUncheckedUpdateManyWithoutApprovedByNestedInput
-    tasks?: TaskUncheckedUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUncheckedUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUncheckedUpdateManyWithoutAssignedToNestedInput
     beatPlans?: BeatPlanUncheckedUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUncheckedUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
@@ -68717,7 +69451,8 @@ export namespace Prisma {
     targets?: TargetUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUpdateManyWithoutApprovedByNestedInput
-    tasks?: TaskUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUpdateManyWithoutAssignedToNestedInput
     beatPlans?: BeatPlanUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUpdateManyWithoutUserNestedInput
@@ -68761,7 +69496,8 @@ export namespace Prisma {
     targets?: TargetUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUncheckedUpdateManyWithoutApprovedByNestedInput
-    tasks?: TaskUncheckedUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUncheckedUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUncheckedUpdateManyWithoutAssignedToNestedInput
     beatPlans?: BeatPlanUncheckedUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUncheckedUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
@@ -68907,7 +69643,8 @@ export namespace Prisma {
     targets?: TargetUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUpdateManyWithoutApprovedByNestedInput
-    tasks?: TaskUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUpdateManyWithoutAssignedToNestedInput
     beatPlans?: BeatPlanUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUpdateManyWithoutUserNestedInput
@@ -68951,7 +69688,8 @@ export namespace Prisma {
     targets?: TargetUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUncheckedUpdateManyWithoutApprovedByNestedInput
-    tasks?: TaskUncheckedUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUncheckedUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUncheckedUpdateManyWithoutAssignedToNestedInput
     beatPlans?: BeatPlanUncheckedUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUncheckedUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
@@ -69064,7 +69802,8 @@ export namespace Prisma {
     targets?: TargetUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUpdateManyWithoutApprovedByNestedInput
-    tasks?: TaskUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUpdateManyWithoutAssignedToNestedInput
     beatPlans?: BeatPlanUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUpdateManyWithoutUserNestedInput
@@ -69108,7 +69847,8 @@ export namespace Prisma {
     targets?: TargetUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUncheckedUpdateManyWithoutApprovedByNestedInput
-    tasks?: TaskUncheckedUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUncheckedUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUncheckedUpdateManyWithoutAssignedToNestedInput
     beatPlans?: BeatPlanUncheckedUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUncheckedUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
@@ -69458,15 +70198,36 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
-  export type TaskCreateManyUserInput = {
+  export type TaskCreateManyAssignedByInput = {
     id?: string
     organizationId: string
+    assignedToId: string
     title: string
     description?: string | null
-    status?: string
+    status?: $Enums.TaskStatus
+    priority?: $Enums.TaskPriority
     dueDate?: Date | string | null
+    completedAt?: Date | string | null
     referenceType?: string | null
     referenceId?: string | null
+    completionNotes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TaskCreateManyAssignedToInput = {
+    id?: string
+    organizationId: string
+    assignedById: string
+    title: string
+    description?: string | null
+    status?: $Enums.TaskStatus
+    priority?: $Enums.TaskPriority
+    dueDate?: Date | string | null
+    completedAt?: Date | string | null
+    referenceType?: string | null
+    referenceId?: string | null
+    completionNotes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -69562,7 +70323,8 @@ export namespace Prisma {
     targets?: TargetUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUpdateManyWithoutApprovedByNestedInput
-    tasks?: TaskUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUpdateManyWithoutAssignedToNestedInput
     beatPlans?: BeatPlanUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUpdateManyWithoutUserNestedInput
@@ -69606,7 +70368,8 @@ export namespace Prisma {
     targets?: TargetUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     expensesApproved?: ExpenseUncheckedUpdateManyWithoutApprovedByNestedInput
-    tasks?: TaskUncheckedUpdateManyWithoutUserNestedInput
+    tasksAssigned?: TaskUncheckedUpdateManyWithoutAssignedByNestedInput
+    tasksReceived?: TaskUncheckedUpdateManyWithoutAssignedToNestedInput
     beatPlans?: BeatPlanUncheckedUpdateManyWithoutUserNestedInput
     calendarEvents?: CalendarEventUncheckedUpdateManyWithoutUserNestedInput
     notificationPrefs?: NotificationPreferenceUncheckedUpdateManyWithoutUserNestedInput
@@ -70042,41 +70805,104 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type TaskUpdateWithoutUserInput = {
+  export type TaskUpdateWithoutAssignedByInput = {
     id?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
+    status?: EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
+    priority?: EnumTaskPriorityFieldUpdateOperationsInput | $Enums.TaskPriority
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     referenceType?: NullableStringFieldUpdateOperationsInput | string | null
     referenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    completionNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneRequiredWithoutTasksNestedInput
+    assignedTo?: UserUpdateOneRequiredWithoutTasksReceivedNestedInput
   }
 
-  export type TaskUncheckedUpdateWithoutUserInput = {
+  export type TaskUncheckedUpdateWithoutAssignedByInput = {
     id?: StringFieldUpdateOperationsInput | string
     organizationId?: StringFieldUpdateOperationsInput | string
+    assignedToId?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
+    status?: EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
+    priority?: EnumTaskPriorityFieldUpdateOperationsInput | $Enums.TaskPriority
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     referenceType?: NullableStringFieldUpdateOperationsInput | string | null
     referenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    completionNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type TaskUncheckedUpdateManyWithoutUserInput = {
+  export type TaskUncheckedUpdateManyWithoutAssignedByInput = {
     id?: StringFieldUpdateOperationsInput | string
     organizationId?: StringFieldUpdateOperationsInput | string
+    assignedToId?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
+    status?: EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
+    priority?: EnumTaskPriorityFieldUpdateOperationsInput | $Enums.TaskPriority
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     referenceType?: NullableStringFieldUpdateOperationsInput | string | null
     referenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    completionNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TaskUpdateWithoutAssignedToInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
+    priority?: EnumTaskPriorityFieldUpdateOperationsInput | $Enums.TaskPriority
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    referenceType?: NullableStringFieldUpdateOperationsInput | string | null
+    referenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    completionNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OrganizationUpdateOneRequiredWithoutTasksNestedInput
+    assignedBy?: UserUpdateOneRequiredWithoutTasksAssignedNestedInput
+  }
+
+  export type TaskUncheckedUpdateWithoutAssignedToInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    assignedById?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
+    priority?: EnumTaskPriorityFieldUpdateOperationsInput | $Enums.TaskPriority
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    referenceType?: NullableStringFieldUpdateOperationsInput | string | null
+    referenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    completionNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TaskUncheckedUpdateManyWithoutAssignedToInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    assignedById?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
+    priority?: EnumTaskPriorityFieldUpdateOperationsInput | $Enums.TaskPriority
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    referenceType?: NullableStringFieldUpdateOperationsInput | string | null
+    referenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    completionNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
