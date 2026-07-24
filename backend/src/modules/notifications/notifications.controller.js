@@ -22,4 +22,17 @@ export class NotificationsController {
       next(err);
     }
   };
+
+  createTestNotification = async (req, res, next) => {
+    try {
+      const result = await this.service.sendNotification(req.user.organizationId, req.user.id, {
+        title: "Test Notification",
+        message: "This is a test notification so you can test the read API.",
+        type: "IN_APP"
+      });
+      return successResponse(res, result, 'Test Notification created successfully.', 201);
+    } catch (err) {
+      next(err);
+    }
+  };
 }

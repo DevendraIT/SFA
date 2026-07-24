@@ -136,19 +136,62 @@ export class FieldForceService {
 
   async optimizeRoute(organizationId, userId, visitIds) {
     const { prisma } = await import('../../config/database.js');
+    const { config } = await import('../../config/env.js');
     
-    // Sort visits chronologically based on database records instead of faking a map route
     const visits = await prisma.visit.findMany({
       where: {
         organizationId,
         id: { in: visitIds }
       },
-      orderBy: { scheduledAt: 'asc' },
-      select: { id: true, scheduledAt: true }
+      select: { id: true, scheduledAt: true, location: true }
     });
 
+    // Ensure we keep the order of visitIds as requested, or at least process them.
+    // If not all visits have location, fallback to chronological
+    const visitsWithLocation = visits.filter(v => v.location && v.location.lat && v.location.lng);
+    
+    if (config.TOMTOM_API_KEY && visitsWithLocation.length > 1 && visitsWithLocation.length === visits.length) {
+      try {
+        // TomTom format: lat,lon:lat,lon...
+        const points = visits.map(v => `${v.location.lat},${v.location.lng}`).join(':');
+        
+        // computeBestOrder=true only optimizes the intermediate waypoints. 
+        // If we want a fully optimal route we can use it, but start and end are kept fixed by TomTom.
+        const url = `https://api.tomtom.com/routing/1/calculateRoute/${points}/json?key=${config.TOMTOM_API_KEY}&computeBestOrder=true`;
+        
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        if (data && data.routes && data.routes.length > 0) {
+          const route = data.routes[0];
+          const summary = route.summary;
+          
+          // data.optimizedWaypoints returns the optimized indices for intermediate waypoints
+          // Index 0 is the start point, the last is the end point.
+          let optimizedOrder = [...visits];
+          if (data.optimizedWaypoints) {
+            // optimizedWaypoints gives the new order of the intermediate points.
+            // Example: original 0, 1, 2, 3. optimizedWaypoints might say index 0 is mapped to provided index 2.
+            const intermediate = data.optimizedWaypoints.map(wp => visits[wp.providedIndex + 1]);
+            optimizedOrder = [visits[0], ...intermediate, visits[visits.length - 1]];
+          }
+          
+          return {
+            optimizedOrder: optimizedOrder.map(v => v.id),
+            estimatedDistance: `${(summary.lengthInMeters / 1000).toFixed(2)} km`,
+            estimatedDuration: `${Math.ceil(summary.travelTimeInSeconds / 60)} mins`
+          };
+        }
+      } catch (err) {
+        console.error("TomTom Routing error:", err);
+      }
+    }
+
+    // Fallback: Sort visits chronologically based on database records
+    const sortedVisits = [...visits].sort((a, b) => new Date(a.scheduledAt) - new Date(b.scheduledAt));
+
     return {
-      optimizedOrder: visits.map(v => v.id),
+      optimizedOrder: sortedVisits.map(v => v.id),
       estimatedDistance: 'N/A (Maps Disabled)',
       estimatedDuration: 'N/A (Maps Disabled)'
     };

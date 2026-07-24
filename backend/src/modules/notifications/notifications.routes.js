@@ -13,5 +13,6 @@ router.use(authenticate, requireOrganization);
 
 router.get('/me', controller.getMyNotifications);
 router.patch('/:id/read', controller.markAsRead);
+router.post('/test', controller.createTestNotification);
 
 export default router;

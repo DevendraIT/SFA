@@ -10,6 +10,7 @@ import {
   completeVisitSchema,
   logExpenseSchema,
   createTaskSchema,
+  calendarEventSchema,
 } from './field-force.validation.js';
 
 const router = Router();
@@ -78,7 +79,7 @@ router.get('/beat-plans/:id', controller.getBeatPlanDetail);
 router.post('/beat-plans/:id/approve', controller.approveBeatPlan);
 
 // ===== CALENDAR =====
-router.post('/calendar', controller.createCalendarEvent);
+router.post('/calendar', validate(calendarEventSchema), controller.createCalendarEvent);
 router.get('/calendar', controller.listCalendarEventsData);
 router.get('/calendar/:id', controller.getCalendarEventDetail);
 
