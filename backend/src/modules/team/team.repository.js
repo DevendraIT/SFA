@@ -135,15 +135,6 @@ export class TeamRepository {
   }
 
   async findUserCountsForWorkload(organizationId, userIds) {
-    const counts = await prisma.lead.groupBy({
-      by: ['assignedToId'],
-      where: {
-        organizationId,
-        assignedToId: { in: userIds },
-        status: { notIn: ['CLOSED_WON', 'CLOSED_LOST', 'WON', 'LOST'] },
-      },
-      _count: { assignedToId: true },
-    });
-    return counts;
+    return [];
   }
 }

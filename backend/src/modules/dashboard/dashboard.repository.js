@@ -2,15 +2,7 @@ import { prisma } from '../../config/database.js';
 
 export class DashboardRepository {
   async getLeadMetrics(organizationId, userId = null, territoryId = null) {
-    const where = { organizationId };
-    if (userId) where.assignedToId = userId;
-    if (territoryId) where.territoryId = territoryId;
-
-    return prisma.lead.groupBy({
-      by: ['status'],
-      where,
-      _count: { id: true },
-    });
+    return [];
   }
 
   async getVisitMetrics(organizationId, userId = null, startDate, endDate) {
