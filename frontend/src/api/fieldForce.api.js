@@ -1,0 +1,144 @@
+import api from "./axios";
+
+const BASE_URL = "/field-force";
+
+const fieldForceApi = {
+  // ---- Attendance ----
+  checkIn(data) {
+    return api.post(`${BASE_URL}/attendance/check-in`, data);
+  },
+  checkOut(data) {
+    return api.post(`${BASE_URL}/attendance/check-out`, data);
+  },
+  getAttendance(params = {}) {
+    return api.get(`${BASE_URL}/attendance`, { params });
+  },
+  listAttendance(params = {}) {
+    return api.get(`${BASE_URL}/attendance/list`, { params });
+  },
+  getAttendanceSummary(params = {}) {
+    return api.get(`${BASE_URL}/attendance/summary`, { params });
+  },
+  getTodayAttendance() {
+    const today = new Date().toISOString().split('T')[0];
+    return api.get(`${BASE_URL}/attendance/today`, { params: { date: today } });
+  },
+
+  // ---- Visits ----
+  planVisit(data) {
+    return api.post(`${BASE_URL}/visits`, data);
+  },
+  listVisits(params = {}) {
+    return api.get(`${BASE_URL}/visits`, { params });
+  },
+  getVisit(id) {
+    return api.get(`${BASE_URL}/visits/${id}`);
+  },
+  startVisit(id) {
+    return api.post(`${BASE_URL}/visits/${id}/start`);
+  },
+  completeVisit(id, data) {
+    return api.post(`${BASE_URL}/visits/${id}/complete`, data);
+  },
+  addVisitNotes(id, data) {
+    return api.post(`${BASE_URL}/visits/${id}/notes`, data);
+  },
+  uploadVisitPhoto(id, data) {
+    return api.post(`${BASE_URL}/visits/${id}/photo`, data);
+  },
+
+  // ---- Expenses ----
+  logExpense(data) {
+    return api.post(`${BASE_URL}/expenses`, data);
+  },
+  listExpenses(params = {}) {
+    return api.get(`${BASE_URL}/expenses`, { params });
+  },
+  getExpense(id) {
+    return api.get(`${BASE_URL}/expenses/${id}`);
+  },
+  approveExpense(id) {
+    return api.patch(`${BASE_URL}/expenses/${id}/approve`);
+  },
+  rejectExpense(id) {
+    return api.patch(`${BASE_URL}/expenses/${id}/reject`);
+  },
+
+  // ---- Daily Activity Reports ----
+  generateDar(data) {
+    return api.post(`${BASE_URL}/dar`, data);
+  },
+  listDars(params = {}) {
+    return api.get(`${BASE_URL}/dar`, { params });
+  },
+  getDar(id) {
+    return api.get(`${BASE_URL}/dar/${id}`);
+  },
+  submitDar(id) {
+    return api.patch(`${BASE_URL}/dar/${id}/submit`);
+  },
+  approveDar(id) {
+    return api.patch(`${BASE_URL}/dar/${id}/approve`);
+  },
+
+  // ---- Tasks ----
+  createTask(data) {
+    return api.post(`${BASE_URL}/tasks`, data);
+  },
+  listTasks(params = {}) {
+    return api.get(`${BASE_URL}/tasks`, { params });
+  },
+  getTask(id) {
+    return api.get(`${BASE_URL}/tasks/${id}`);
+  },
+  completeTask(id, data = {}) {
+    return api.patch(`${BASE_URL}/tasks/${id}/complete`, data);
+  },
+
+  // ---- Beat Plans ----
+  createBeatPlan(data) {
+    return api.post(`${BASE_URL}/beat-plans`, data);
+  },
+  assignBeatPlan(data) {
+    return api.post(`${BASE_URL}/beat-plans/assign`, data);
+  },
+  listBeatPlans(params = {}) {
+    return api.get(`${BASE_URL}/beat-plans`, { params });
+  },
+  getBeatPlan(id) {
+    return api.get(`${BASE_URL}/beat-plans/${id}`);
+  },
+  approveBeatPlan(id) {
+    return api.post(`${BASE_URL}/beat-plans/${id}/approve`);
+  },
+
+  // ---- Calendar ----
+  createCalendarEvent(data) {
+    return api.post(`${BASE_URL}/calendar`, data);
+  },
+  listCalendarEvents(params = {}) {
+    return api.get(`${BASE_URL}/calendar`, { params });
+  },
+  getCalendarEvent(id) {
+    return api.get(`${BASE_URL}/calendar/${id}`);
+  },
+
+  // ---- Route ----
+  optimizeRoute(data) {
+    return api.post(`${BASE_URL}/route/optimize`, data);
+  },
+
+  // ---- Analytics ----
+  getAnalyticsAttendance(params = {}) {
+    return api.get(`${BASE_URL}/analytics/attendance`, { params });
+  },
+  getAnalyticsVisits(params = {}) {
+    return api.get(`${BASE_URL}/analytics/visits`, { params });
+  },
+  getAnalyticsExpenses(params = {}) {
+    return api.get(`${BASE_URL}/analytics/expenses`, { params });
+  },
+};
+
+export default fieldForceApi;
+
