@@ -29,9 +29,13 @@ const server = app.listen(PORT, "0.0.0.0", async () => {
 
   // Initialize modules after database connection is ready
   try {
-        initFieldForce();
+    initFieldForce();
     initNotifications();
     initTargetPerformance();
+    
+    // Initialize Workflow Automation
+    const { registerWorkflowListeners } = await import("./modules/workflow-automation/index.js");
+    registerWorkflowListeners();
   } catch (error) {
     logger.error("Error initializing modules:", error);
   }

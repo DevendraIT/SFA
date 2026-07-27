@@ -58,8 +58,13 @@ export class FieldForceService {
   }
 
   async createTask(organizationId, userId, data) {
+    if (data.assignmentMode === 'AUTOMATIC') {
+      const { workflowService } = await import('../workflow-automation/index.js');
+      const bestEmployeeId = await workflowService.handleAutomaticAssignment(organizationId, data);
+      data.assignedToId = bestEmployeeId;
+    }
     const task = await this.repo.createTask(organizationId, userId, data);
-        return task;
+    return task;
   }
 
   async generateDar(organizationId, userId, data) {

@@ -22,7 +22,6 @@ export const completeVisitSchema = z.object({
   photoUrl: z.string().url().optional(),
 });
 
-
 export const logExpenseSchema = z.object({
   amount: z.number().positive(),
   category: z.enum(['TRAVEL', 'MEALS', 'ACCOMMODATION', 'OTHER']),
@@ -52,7 +51,8 @@ export const darSchema = z.object({
 
 export const createTaskSchema = {
   body: z.object({
-    assignedToId: z.string().uuid(),
+    assignmentMode: z.enum(['MANUAL', 'AUTOMATIC']).optional().default('MANUAL'),
+    assignedToId: z.string().uuid().optional(),
     title: z.string().min(3),
     description: z.string().optional(),
     priority: z.enum([
@@ -63,7 +63,16 @@ export const createTaskSchema = {
     ]).default('MEDIUM'),
     dueDate: z.string().datetime().optional(),
     referenceType: z.string().optional(),
-    referenceId: z.string().uuid().optional()
+    referenceId: z.string().uuid().optional(),
+    territoryId: z.string().uuid().optional() // useful for AUTOMATIC mode
+  }).refine((data) => {
+    if (data.assignmentMode === 'MANUAL' && !data.assignedToId) {
+      return false;
+    }
+    return true;
+  }, {
+    message: "assignedToId is required when assignmentMode is MANUAL",
+    path: ["assignedToId"]
   })
 };
 
