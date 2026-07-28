@@ -89,6 +89,21 @@ export default function RouteMap({
             </div>
           </div>
         </div>
+
+        {/* Dynamic Task Target Interactive Map Iframe */}
+        {destination?.lat && destination?.lng && (
+          <div className="mt-4 rounded-xl overflow-hidden border border-slate-800 h-48 w-full bg-slate-900">
+            <iframe
+              title="Task Navigation Map"
+              width="100%"
+              height="100%"
+              frameBorder="0"
+              src={`https://www.openstreetmap.org/export/embed.html?bbox=${destination.lng - 0.01},${destination.lat - 0.01},${Number(destination.lng) + 0.01},${Number(destination.lat) + 0.01}&layer=mapnik&marker=${destination.lat},${destination.lng}`}
+              style={{ border: 0, filter: "invert(90%) hue-rotate(180deg)" }}
+              allowFullScreen
+            />
+          </div>
+        )}
       </div>
 
       {/* Footer Info Row */}

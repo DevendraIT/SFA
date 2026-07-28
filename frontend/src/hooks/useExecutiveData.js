@@ -20,9 +20,13 @@ export default function useExecutiveData(executiveId) {
         fieldForceApi.listTasks({ assignedToId: executiveId, take: 50 }),
       ]);
 
-      setVisits(visitsRes.data?.data?.visits || visitsRes.data?.visits || []);
-      setAttendance(attendanceRes.data?.data?.attendance || attendanceRes.data?.attendance || []);
-      setTasks(tasksRes.data?.data?.tasks || tasksRes.data?.tasks || []);
+      const vData = visitsRes.data?.data || visitsRes.data;
+      const aData = attendanceRes.data?.data || attendanceRes.data;
+      const tData = tasksRes.data?.data || tasksRes.data;
+
+      setVisits(Array.isArray(vData?.visits) ? vData.visits : Array.isArray(vData) ? vData : []);
+      setAttendance(Array.isArray(aData?.attendance) ? aData.attendance : Array.isArray(aData) ? aData : []);
+      setTasks(Array.isArray(tData?.tasks) ? tData.tasks : Array.isArray(tData) ? tData : []);
     } catch (err) {
       console.error("Executive Data Error:", err);
       setError(err?.response?.data || err);

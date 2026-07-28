@@ -21,12 +21,11 @@ return [];
 
 function safeExtract(res) {
   if (!res?.value) return null;
-  const { data } = res.value;
-  if (!data) return null;
-  // successResponse(res, dataObj, messageStr) => res.json(ApiResponse.success(message=dataObj, data=messageStr))
-  // => { success: true, message: { tasks, total }, data: 'Tasks retrieved.' }
-  // So the actual data is in data.message, not data.data
-  return data.message ?? data.data ?? data;
+  const body = res.value.data;
+  if (!body) return null;
+  if (body.data !== undefined && body.data !== null) return body.data;
+  if (body.message && typeof body.message === "object") return body.message;
+  return body;
 }
 
 export default function useFieldForce(userId) {

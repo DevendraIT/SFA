@@ -1159,15 +1159,29 @@ export default function AssignTaskModal({
 
       const metadata = {
         category: formData.category,
-        customer: formData.customerId
+        customer: (formData.customerId || formData.customerAddress || formData.latitude)
           ? {
-              id: formData.customerId,
-              name: formData.customerName,
-              email: formData.customerEmail,
-              phone: formData.customerPhone,
-              address: formData.customerAddress,
+              id: formData.customerId || undefined,
+              name: formData.customerName || (formData.customerAddress ? "Customer Location" : "Field Customer"),
+              email: formData.customerEmail || undefined,
+              phone: formData.customerPhone || undefined,
+              address: formData.customerAddress || undefined,
               lat: formData.latitude ? parseFloat(formData.latitude) : undefined,
               lng: formData.longitude ? parseFloat(formData.longitude) : undefined,
+            }
+          : undefined,
+        location: (formData.latitude && formData.longitude)
+          ? {
+              address: formData.customerAddress || undefined,
+              lat: parseFloat(formData.latitude),
+              lng: parseFloat(formData.longitude),
+            }
+          : undefined,
+        destination: (formData.latitude && formData.longitude)
+          ? {
+              address: formData.customerAddress || undefined,
+              lat: parseFloat(formData.latitude),
+              lng: parseFloat(formData.longitude),
             }
           : undefined,
         order: formData.orderId

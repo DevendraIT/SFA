@@ -25,76 +25,19 @@ import TaskDetail from "../pages/team/TaskDetail";
 // Field Force Pages
 import FieldForceDashboard from "../pages/field-force/FieldForceDashboard";
 import AttendancePage from "../pages/field-force/AttendancePage";
-import BeatPlanningPage from "../pages/field-force/BeatPlanningPage";
-import RouteOptimizationPage from "../pages/field-force/RouteOptimizationPage";
 import TasksPage from "../pages/field-force/TasksPage";
 import VisitsPage from "../pages/field-force/VisitsPage";
-import PhotoUploadPage from "../pages/field-force/PhotoUploadPage";
-import MeetingNotesPage from "../pages/field-force/MeetingNotesPage";
-import ExpensesPage from "../pages/field-force/ExpensesPage";
-import CalendarPage from "../pages/field-force/CalendarPage";
 import ActivitiesPage from "../pages/field-force/ActivitiesPage";
 import DARPage from "../pages/field-force/DARPage";
 import ProfilePage from "../pages/field-force/ProfilePage";
 import TaskExecutionPage from "../pages/field-force/TaskExecutionPage";
 
-import { useMemo } from "react";
-import { useAuth } from "../context/AuthContext";
-
-function SalesManagerRestrictedRoute({ children }) {
-  const { user } = useAuth();
-  const isSalesManager = useMemo(() => {
-    if (!user) return false;
-    const roleNames = Array.isArray(user.roles)
-      ? user.roles.map((r) => (typeof r === "string" ? r : r.role?.name || r.name))
-      : [user.role?.name || ""];
-    return roleNames.some((r) => r && r.toLowerCase().includes("sales manager"));
-  }, [user]);
-
-  if (isSalesManager) {
-    return <Navigate to="/dashboard" replace />;
-  }
-
-  return children;
-}
-
-function SalesExecutiveRestrictedRoute({ children }) {
-
-  const { user } = useAuth();
-  const isSalesExecutive = useMemo(() => {
-    if (!user) return false;
-    const roleNames = Array.isArray(user.roles)
-      ? user.roles.map((r) => (typeof r === "string" ? r : r.role?.name || r.name))
-      : [user.role?.name || ""];
-    return roleNames.some(
-      (r) => r && (r.toLowerCase().includes("sales executive") || r.toLowerCase().includes("sales person"))
-    );
-  }, [user]);
-
-  if (isSalesExecutive) {
-    return <Navigate to="/dashboard" replace />;
-  }
-
-  return children;
-}
-
-function SuperAdminRestrictedRoute({ children }) {
-
-  const { user } = useAuth();
-  const isSuperAdmin = useMemo(() => {
-    if (!user) return false;
-    const roleNames = Array.isArray(user.roles)
-      ? user.roles.map((r) => (typeof r === "string" ? r : r.role?.name || r.name))
-      : [user.role?.name || ""];
-    return roleNames.some((r) => r && r.toLowerCase().includes("super admin"));
-  }, [user]);
-
-  if (isSuperAdmin) {
-    return <Navigate to="/dashboard" replace />;
-  }
-
-  return children;
-}
+// Additional Pages
+import OrdersPage from "../pages/sales-order/OrdersPage";
+import VisitDetailPage from "../pages/field-force/VisitDetailPage";
+import ReportsPage from "../pages/reports/ReportsPage";
+import NotificationsPage from "../pages/notifications/NotificationsPage";
+import SettingsPage from "../pages/settings/SettingsPage";
 
 export default function AppRoutes() {
   return (
@@ -226,21 +169,23 @@ export default function AppRoutes() {
     }
   />
 
+  {/* ===== SALES ORDERS ===== */}
+  <Route path="/orders" element={<OrdersPage />} />
+
+  {/* ===== PERFORMANCE & REPORTS & SETTINGS ===== */}
+  <Route path="/performance" element={<ExecutivePerformance />} />
+  <Route path="/reports" element={<ReportsPage />} />
+  <Route path="/notifications" element={<NotificationsPage />} />
+  <Route path="/settings" element={<SettingsPage />} />
 
   {/* ===== FIELD FORCE AUTOMATION ROUTES ===== */}
   <Route path="/field-force" element={<Navigate to="/field-force/dashboard" replace />} />
   <Route path="/field-force/dashboard" element={<FieldForceDashboard />} />
-
-  <Route path="/field-force/attendance" element={<SuperAdminRestrictedRoute><AttendancePage /></SuperAdminRestrictedRoute>} />
-  <Route path="/field-force/beat-plans" element={<SuperAdminRestrictedRoute><BeatPlanningPage /></SuperAdminRestrictedRoute>} />
-  <Route path="/field-force/route" element={<SuperAdminRestrictedRoute><RouteOptimizationPage /></SuperAdminRestrictedRoute>} />
-  <Route path="/field-force/tasks" element={<SuperAdminRestrictedRoute><TasksPage /></SuperAdminRestrictedRoute>} />
-  <Route path="/field-force/tasks/:id/execute" element={<SuperAdminRestrictedRoute><TaskExecutionPage /></SuperAdminRestrictedRoute>} />
+  <Route path="/field-force/attendance" element={<AttendancePage />} />
+  <Route path="/field-force/tasks" element={<TasksPage />} />
+  <Route path="/field-force/tasks/:id/execute" element={<TaskExecutionPage />} />
   <Route path="/field-force/visits" element={<VisitsPage />} />
-  <Route path="/field-force/photo-upload" element={<SuperAdminRestrictedRoute><PhotoUploadPage /></SuperAdminRestrictedRoute>} />
-  <Route path="/field-force/meeting-notes" element={<SuperAdminRestrictedRoute><MeetingNotesPage /></SuperAdminRestrictedRoute>} />
-  <Route path="/field-force/expenses" element={<SuperAdminRestrictedRoute><ExpensesPage /></SuperAdminRestrictedRoute>} />
-  <Route path="/field-force/calendar" element={<SuperAdminRestrictedRoute><CalendarPage /></SuperAdminRestrictedRoute>} />
+  <Route path="/field-force/visits/:id" element={<VisitDetailPage />} />
   <Route path="/field-force/activities" element={<ActivitiesPage />} />
   <Route path="/field-force/dar" element={<DARPage />} />
   <Route path="/field-force/profile" element={<SuperAdminRestrictedRoute><ProfilePage /></SuperAdminRestrictedRoute>} />

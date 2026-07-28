@@ -33,6 +33,7 @@ app.use(compressionMiddleware);
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieMiddleware);
+app.use('/uploads', express.static('uploads'));
 
 // 7. Base API Route Registration
 app.use(`/api/${config.API_VERSION}`, router);

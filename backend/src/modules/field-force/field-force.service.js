@@ -71,7 +71,21 @@ export class FieldForceService {
 
   async createTask(organizationId, userId, data) {
     const task = await this.repo.createTask(organizationId, userId, data);
-        return task;
+    try {
+      const { notificationsService } = await import('../notifications/notifications.routes.js');
+      if (task?.assignedToId) {
+        await notificationsService.sendNotification(organizationId, task.assignedToId, {
+          title: 'New Field Mission Assigned 🎯',
+          message: `You have been assigned a new mission: "${task.title}".`,
+          type: 'IN_APP',
+          referenceType: 'TASK',
+          referenceId: task.id,
+        });
+      }
+    } catch (e) {
+      console.warn('Failed to send task assignment notification:', e);
+    }
+    return task;
   }
 
   async generateDar(organizationId, userId, data) {
@@ -250,6 +264,66 @@ export class FieldForceService {
     return await this.repo.updateDarStatus(darId, organizationId, 'APPROVED');
   }
 
+  async generateDar(organizationId, userId, payload = {}) {
+    const { prisma } = await import('../../config/database.js');
+    const today = payload.date ? new Date(payload.date) : new Date();
+    const startOfDay = new Date(new Date(today).setHours(0, 0, 0, 0));
+    const endOfDay = new Date(new Date(today).setHours(23, 59, 59, 999));
+
+    // Fetch attendance, tasks, and visits for today
+    const [attendance, tasks, visits] = await Promise.all([
+      prisma.attendance.findFirst({
+        where: { organizationId, userId, date: { gte: startOfDay, lte: endOfDay } }
+      }),
+      prisma.task.findMany({
+        where: {
+          organizationId,
+          assignedToId: userId,
+          updatedAt: { gte: startOfDay, lte: endOfDay }
+        }
+      }),
+      prisma.visit.findMany({
+        where: {
+          organizationId,
+          userId,
+          scheduledAt: { gte: startOfDay, lte: endOfDay }
+        }
+      })
+    ]);
+
+    const completedTasks = tasks.filter(t => t.status === 'COMPLETED' || t.status === 'CHECKED_OUT');
+    const totalPayments = tasks.reduce((sum, t) => sum + (t.paymentAmount || 0), 0);
+    const totalPhotos = tasks.reduce((sum, t) => sum + (Array.isArray(t.photos) ? t.photos.length : (t.photos ? 1 : 0)), 0);
+
+    const notesList = tasks.filter(t => t.visitNotes).map(t => `${t.title}: ${t.visitNotes}`).join('; ');
+    const productsDeliveredList = tasks.flatMap(t => {
+      const metadata = t.metadata || {};
+      const prods = metadata.products || [];
+      return prods.map(p => `${p.name} (x${p.quantity || 1})`);
+    }).join(', ');
+
+    const checkInTime = attendance?.checkInAt ? new Date(attendance.checkInAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A';
+    const checkOutTime = attendance?.checkOutAt ? new Date(attendance.checkOutAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A';
+
+    const dynamicSummary = payload.summary || [
+      `Tasks: ${tasks.length} Assigned, ${completedTasks.length} Completed`,
+      `Attendance: Check-In: ${checkInTime}, Check-Out: ${checkOutTime}`,
+      `Visits: ${visits.length} Scheduled`,
+      totalPayments > 0 ? `Payments Collected: ₹${totalPayments}` : null,
+      totalPhotos > 0 ? `Photos Captured: ${totalPhotos}` : null,
+      productsDeliveredList ? `Products Delivered: ${productsDeliveredList}` : null,
+      notesList ? `Visit Notes: ${notesList}` : null
+    ].filter(Boolean).join(' | ');
+
+    return this.repo.upsertDailyActivityReport(organizationId, userId, startOfDay, {
+      totalVisits: visits.length,
+      totalOrders: completedTasks.length,
+      totalAmount: totalPayments,
+      summary: dynamicSummary,
+      status: 'DRAFT'
+    });
+  }
+
   async getTask(taskId, organizationId) {
     const task = await this.repo.getTask(taskId, organizationId);
     if (!task) throw AppError.notFound('Task not found');
@@ -282,7 +356,7 @@ export class FieldForceService {
 
       if (targetLat != null && targetLng != null && location?.lat != null && location?.lng != null) {
         const distance = calculateHaversineDistance(location.lat, location.lng, Number(targetLat), Number(targetLng));
-        if (distance > 100) {
+        if (config.GEO_FENCE_ENABLED && distance > 100) {
           throw AppError.badRequest(`Geo-fence check failed: You are ${distance}m away from customer location. Arrive/Check-In requires being within 100m radius.`);
         }
       }
@@ -343,7 +417,38 @@ export class FieldForceService {
       status,
     } : null;
 
-    return this.repo.updateTaskExecutionState(taskId, organizationId, updateFields, historyEntry, gpsLogEntry);
+    const updatedTask = await this.repo.updateTaskExecutionState(taskId, organizationId, updateFields, historyEntry, gpsLogEntry);
+
+    try {
+      const { notificationsService } = await import('../notifications/notifications.routes.js');
+      const managerId = task.assignedById;
+      if (managerId && managerId !== userId) {
+        let statusTitle = `Mission Update: ${task.title}`;
+        let statusMsg = `Executive updated task status to ${status.replace(/_/g, ' ')}.`;
+        if (status === 'ACCEPTED') statusMsg = `Executive accepted mission: "${task.title}".`;
+        if (status === 'IN_PROGRESS') statusMsg = `Executive started mission: "${task.title}".`;
+        if (status === 'NAVIGATING') statusMsg = `Executive started navigation for: "${task.title}".`;
+        if (status === 'ARRIVED') statusMsg = `Executive arrived at destination for: "${task.title}".`;
+        if (status === 'CHECKED_IN') statusMsg = `Executive checked-in for: "${task.title}".`;
+        if (status === 'PHOTO_UPLOADED') statusMsg = `Executive uploaded photo evidence for: "${task.title}".`;
+        if (status === 'VISIT_NOTES_COMPLETED') statusMsg = `Executive submitted visit notes for: "${task.title}".`;
+        if (status === 'PAYMENT_COLLECTED') statusMsg = `Executive collected payment (₹${payment?.amount || ''}) for: "${task.title}".`;
+        if (status === 'CHECKED_OUT') statusMsg = `Executive checked-out for: "${task.title}".`;
+        if (status === 'COMPLETED') statusMsg = `Mission completed successfully: "${task.title}". 🎉`;
+
+        await notificationsService.sendNotification(organizationId, managerId, {
+          title: statusTitle,
+          message: statusMsg,
+          type: 'IN_APP',
+          referenceType: 'TASK',
+          referenceId: task.id,
+        });
+      }
+    } catch (e) {
+      console.warn('Failed to send task status notification:', e);
+    }
+
+    return updatedTask;
   }
 
   async getTaskRoute(taskId, organizationId, userLocation) {
@@ -352,11 +457,34 @@ export class FieldForceService {
 
     const metadata = task.metadata || {};
     const customer = metadata.customer || {};
-    const destLat = customer.lat ?? metadata.location?.lat ?? 22.7196;
-    const destLng = customer.lng ?? metadata.location?.lng ?? 75.8577;
+    const location = metadata.location || {};
+    const destination = metadata.destination || {};
 
-    const originLat = userLocation?.lat ?? destLat - 0.01;
-    const originLng = userLocation?.lng ?? destLng - 0.01;
+    let destLat = customer.lat ?? location.lat ?? destination.lat ?? metadata.latitude;
+    let destLng = customer.lng ?? location.lng ?? destination.lng ?? metadata.longitude;
+    let address = customer.address || location.address || destination.address || metadata.address || customer.name || 'Customer Location';
+
+    // If coordinates are missing on legacy tasks, perform real-time geocoding fallback if address exists
+    if ((destLat == null || destLng == null) && address && address !== 'Customer Location') {
+      try {
+        const geoRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`, {
+          headers: { 'Accept-Language': 'en', 'User-Agent': 'SFA-FieldForceApp/1.0' }
+        });
+        const geoData = await geoRes.json();
+        if (Array.isArray(geoData) && geoData.length > 0) {
+          destLat = parseFloat(geoData[0].lat);
+          destLng = parseFloat(geoData[0].lon);
+        }
+      } catch (e) {
+        console.warn('Backend geocoding fallback failed:', e);
+      }
+    }
+
+    if (destLat == null) destLat = 22.7196;
+    if (destLng == null) destLng = 75.8577;
+
+    const originLat = userLocation?.lat ?? (destLat - 0.008);
+    const originLng = userLocation?.lng ?? (destLng - 0.008);
 
     const distanceMeters = calculateHaversineDistance(originLat, originLng, destLat, destLng);
     const estimatedMinutes = Math.max(1, Math.round((distanceMeters / 1000) * 3));
@@ -364,7 +492,7 @@ export class FieldForceService {
     return {
       taskId,
       origin: { lat: originLat, lng: originLng },
-      destination: { lat: destLat, lng: destLng, address: customer.address || customer.name || 'Customer Location' },
+      destination: { lat: destLat, lng: destLng, address },
       distanceMeters,
       distanceKm: (distanceMeters / 1000).toFixed(2),
       estimatedMinutes,

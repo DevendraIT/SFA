@@ -4,6 +4,7 @@ import { FieldForceService } from './field-force.service.js';
 import { FieldForceRepository } from './field-force.repository.js';
 import { authenticate, requireOrganization } from '../../middlewares/auth.middleware.js';
 import validate from '../../middlewares/validation.middleware.js';
+import { uploadPhoto } from '../../middlewares/upload.middleware.js';
 import {
   checkInSchema,
   planVisitSchema,
@@ -20,6 +21,9 @@ const service = new FieldForceService(repo);
 const controller = new FieldForceController(service);
 
 router.use(authenticate, requireOrganization);
+
+// ===== FILE UPLOAD =====
+router.post('/upload', uploadPhoto.single('photo'), controller.uploadFile);
 
 // ===== ATTENDANCE =====
 router.post('/attendance/check-in', validate(checkInSchema), controller.checkIn);

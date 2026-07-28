@@ -51,6 +51,9 @@ export default function TaskExecutionPage() {
   const [paymentAmount, setPaymentAmount] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("CASH");
   const [photoUrl, setPhotoUrl] = useState("");
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState("");
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [visitNotes, setVisitNotes] = useState("");
   const [signatureData, setSignatureData] = useState("");
 
@@ -107,7 +110,9 @@ export default function TaskExecutionPage() {
   const requirements = metadata.requirements || {};
   const instructions = metadata.instructions || [];
 
-  const targetCoords = customer.lat && customer.lng ? { lat: Number(customer.lat), lng: Number(customer.lng) } : null;
+  const targetLat = customer.lat ?? metadata.location?.lat ?? metadata.destination?.lat ?? routeInfo?.destination?.lat;
+  const targetLng = customer.lng ?? metadata.location?.lng ?? metadata.destination?.lng ?? routeInfo?.destination?.lng;
+  const targetCoords = targetLat != null && targetLng != null ? { lat: Number(targetLat), lng: Number(targetLng) } : null;
 
   const currentDistance = calculateDistanceMeters(
     gpsLocation?.lat,
@@ -115,7 +120,8 @@ export default function TaskExecutionPage() {
     targetCoords?.lat,
     targetCoords?.lng
   );
-  const isWithinGeoFence = currentDistance !== null ? currentDistance <= 100 : true;
+  const testingMode = true; // Testing Mode: Allow Check-In / Arrived actions from any location
+  const isWithinGeoFence = testingMode ? true : (currentDistance !== null ? currentDistance <= 100 : true);
 
   const handleStatusTransition = async (nextStatus, extraData = {}) => {
     try {
@@ -133,6 +139,34 @@ export default function TaskExecutionPage() {
       toast.error(err?.response?.data?.message || "Failed to update status");
     } finally {
       setActionLoading(false);
+    }
+  };
+
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      setPhotoPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleUploadAndSavePhoto = async () => {
+    if (!selectedFile && !photoUrl) {
+      toast.error("Please select a photo file from your device");
+      return;
+    }
+    try {
+      setUploadingPhoto(true);
+      let finalUrl = photoUrl;
+      if (selectedFile) {
+        const res = await fieldForceApi.uploadPhoto(selectedFile);
+        finalUrl = res.data?.data?.url || res.data?.url || photoUrl;
+      }
+      await handleStatusTransition("PHOTO_UPLOADED", { photoUrl: finalUrl });
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Failed to upload photo file");
+    } finally {
+      setUploadingPhoto(false);
     }
   };
 
@@ -245,6 +279,7 @@ export default function TaskExecutionPage() {
         userLocation={gpsLocation}
         targetLocation={targetCoords}
         accuracy={gpsAccuracy}
+        testingMode={testingMode}
       />
 
       {/* Primary Execution Control Card */}
@@ -307,17 +342,19 @@ export default function TaskExecutionPage() {
           <div className="bg-purple-50 border border-purple-200 rounded-2xl p-6 text-center space-y-4">
             <h4 className="font-bold text-purple-900 text-base">Confirm Arrival at Customer Location</h4>
             <p className="text-xs text-purple-700 max-w-md mx-auto">
-              Confirm your arrival once you have reached within 100 meters of the destination.
+              {testingMode
+                ? "Confirm your arrival at customer location. (Testing Mode: Arrived & Check-In enabled from any location)"
+                : "Confirm your arrival once you have reached within 100 meters of the destination."}
             </p>
             <button
               onClick={() => handleStatusTransition("ARRIVED")}
-              disabled={actionLoading || !isWithinGeoFence}
+              disabled={actionLoading || (!testingMode && !isWithinGeoFence)}
               className="px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-sm shadow-md transition disabled:opacity-50"
             >
               {actionLoading ? <Loader2 size={16} className="animate-spin inline mr-2" /> : <MapPin size={16} className="inline mr-2" />}
               Mark Arrived
             </button>
-            {!isWithinGeoFence && (
+            {!testingMode && !isWithinGeoFence && (
               <p className="text-xs text-red-600 font-medium">Arrival requires being within 100 meters of customer coordinates.</p>
             )}
           </div>
@@ -329,7 +366,7 @@ export default function TaskExecutionPage() {
             </p>
             <button
               onClick={() => handleStatusTransition("CHECKED_IN")}
-              disabled={actionLoading || !isWithinGeoFence}
+              disabled={actionLoading || (!testingMode && !isWithinGeoFence)}
               className="px-6 py-3 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm shadow-md transition disabled:opacity-50"
             >
               {actionLoading ? <Loader2 size={16} className="animate-spin inline mr-2" /> : <ShieldCheck size={16} className="inline mr-2" />}
@@ -395,23 +432,32 @@ export default function TaskExecutionPage() {
         ) : task.status === "PAYMENT_COLLECTED" ? (
           <div className="bg-pink-50 border border-pink-200 rounded-2xl p-6 space-y-4">
             <h4 className="font-bold text-pink-900 text-base">Upload Delivery / Visit Photo Proof</h4>
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Photo Image URL</label>
+            <div className="space-y-3">
+              <label className="block text-xs font-semibold text-slate-700">Select Image File from Device</label>
               <input
-                type="url"
-                value={photoUrl}
-                onChange={(e) => setPhotoUrl(e.target.value)}
-                placeholder="https://example.com/delivery_photo.jpg"
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-pink-500"
+                type="file"
+                accept="image/*"
+                onChange={handleFileSelect}
+                className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 py-1 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-pink-600 file:text-white hover:file:bg-pink-700 cursor-pointer"
               />
+
+              {photoPreview && (
+                <div className="mt-3 relative rounded-2xl overflow-hidden border border-pink-300 max-h-48">
+                  <img src={photoPreview} alt="Preview" className="w-full h-48 object-cover" />
+                  <span className="absolute bottom-2 left-2 bg-slate-900/80 text-white text-[10px] font-bold px-2 py-1 rounded-md">
+                    Photo Preview
+                  </span>
+                </div>
+              )}
             </div>
+
             <button
-              onClick={() => handleStatusTransition("PHOTO_UPLOADED", { photoUrl })}
-              disabled={actionLoading}
-              className="w-full py-3 rounded-xl bg-pink-600 hover:bg-pink-700 text-white font-bold text-sm shadow-md transition disabled:opacity-50"
+              onClick={handleUploadAndSavePhoto}
+              disabled={actionLoading || uploadingPhoto || (!selectedFile && !photoUrl)}
+              className="w-full py-3 rounded-xl bg-pink-600 hover:bg-pink-700 text-white font-bold text-sm shadow-md transition disabled:opacity-50 flex items-center justify-center gap-2"
             >
-              {actionLoading ? <Loader2 size={16} className="animate-spin inline mr-2" /> : <Camera size={16} className="inline mr-2" />}
-              Save Delivery Photo
+              {actionLoading || uploadingPhoto ? <Loader2 size={16} className="animate-spin" /> : <Camera size={16} />}
+              {uploadingPhoto ? "Uploading Photo..." : "Upload & Save Photo Proof"}
             </button>
           </div>
         ) : task.status === "PHOTO_UPLOADED" ? (

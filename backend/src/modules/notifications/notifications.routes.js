@@ -12,6 +12,7 @@ const controller = new NotificationsController(notificationsService);
 router.use(authenticate, requireOrganization);
 
 router.get('/me', controller.getMyNotifications);
+router.patch('/read-all', controller.markAllAsRead);
 router.patch('/:id/read', controller.markAsRead);
 
 export default router;

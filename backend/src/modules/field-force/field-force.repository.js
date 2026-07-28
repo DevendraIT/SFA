@@ -338,6 +338,37 @@ export class FieldForceRepository {
     });
   }
 
+  async upsertDailyActivityReport(organizationId, userId, date, data) {
+    const existing = await prisma.dailyActivityReport.findFirst({
+      where: {
+        organizationId,
+        userId,
+        date: {
+          gte: new Date(new Date(date).setHours(0, 0, 0, 0)),
+          lte: new Date(new Date(date).setHours(23, 59, 59, 999))
+        }
+      }
+    });
+
+    if (existing) {
+      return prisma.dailyActivityReport.update({
+        where: { id: existing.id },
+        data,
+        include: { user: true }
+      });
+    }
+
+    return prisma.dailyActivityReport.create({
+      data: {
+        organizationId,
+        userId,
+        date: new Date(date),
+        ...data
+      },
+      include: { user: true }
+    });
+  }
+
   async getTask(taskId, organizationId) {
     return prisma.task.findFirst({
       where: { id: taskId, organizationId },

@@ -330,10 +330,10 @@ export default function FieldForceDashboard() {
       onClick: () => navigate("/field-force/visits"),
     },
     {
-      label: "Log Expense",
-      icon: IndianRupee,
+      label: "Execute Task",
+      icon: Target,
       iconColor: "text-cyan-600",
-      onClick: () => navigate("/field-force/expenses"),
+      onClick: () => navigate("/field-force/tasks"),
     },
     {
       label: "Submit DAR",

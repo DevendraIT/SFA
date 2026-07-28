@@ -77,6 +77,18 @@ export class FieldForceController {
     }
   };
 
+  uploadFile = async (req, res, next) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ success: false, message: 'No file uploaded' });
+      }
+      const fileUrl = `/uploads/photos/${req.file.filename}`;
+      return successResponse(res, { url: fileUrl, filename: req.file.filename }, 'File uploaded successfully.', 201);
+    } catch (err) {
+      next(err);
+    }
+  };
+
   optimizeRoute = async (req, res, next) => {
     try {
       const result = await this.service.optimizeRoute(req.user.organizationId, req.user.id, req.body.visitIds);
