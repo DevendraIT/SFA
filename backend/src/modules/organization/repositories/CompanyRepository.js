@@ -31,37 +31,41 @@ export class CompanyRepository {
   };
 
   // Build where clause for company queries
-  #buildWhereClause(organizationId, { search } = {}) {
+  #buildWhereClause(organizationId, { search, companyId } = {}) {
     const where = { organizationId };
+
+    if (companyId) {
+      where.id = companyId;
+    }
     
     if (search) {
-  where.OR = [
-    {
-      name: {
-        contains: search,
-        mode: "insensitive",
-      },
-    },
-    {
-      code: {
-        contains: search,
-        mode: "insensitive",
-      },
-    },
-    {
-      email: {
-        contains: search,
-        mode: "insensitive",
-      },
-    },
-    {
-      phone: {
-        contains: search,
-        mode: "insensitive",
-      },
-    },
-  ];
-}
+      where.OR = [
+        {
+          name: {
+            contains: search,
+            mode: "insensitive",
+          },
+        },
+        {
+          code: {
+            contains: search,
+            mode: "insensitive",
+          },
+        },
+        {
+          email: {
+            contains: search,
+            mode: "insensitive",
+          },
+        },
+        {
+          phone: {
+            contains: search,
+            mode: "insensitive",
+          },
+        },
+      ];
+    }
     
     return where;
   }
@@ -72,10 +76,12 @@ export class CompanyRepository {
       take = 20,
       search,
       sortBy = 'createdAt',
-      sortOrder = 'desc'
+      sortOrder = 'desc',
+      companyId,
     } = options;
 
-    const where = this.#buildWhereClause(organizationId, { search });
+    const where = this.#buildWhereClause(organizationId, { search, companyId });
+
 
     const [companies, total] = await Promise.all([
       prisma.company.findMany({

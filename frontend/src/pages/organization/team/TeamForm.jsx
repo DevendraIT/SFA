@@ -1,12 +1,22 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import toast from "react-hot-toast";
 import teamService from "../../../services/team.service";
 import branchService from "../../../services/branch.service";
 import departmentService from "../../../services/department.service";
 import { Loader2 } from "lucide-react";
+import { useAuth } from "../../../context/AuthContext";
 
 export default function TeamForm({ team, onClose, onSuccess }) {
+  const { user: currentUser } = useAuth();
   const isEdit = !!team;
+
+  const isSalesManager = useMemo(() => {
+    if (!currentUser) return false;
+    const roleNames = Array.isArray(currentUser.roles)
+      ? currentUser.roles.map((r) => (typeof r === "string" ? r : r.role?.name || r.name))
+      : [currentUser.role?.name || ""];
+    return roleNames.some((r) => r && r.toLowerCase().includes("sales manager"));
+  }, [currentUser]);
 
   const [form, setForm] = useState({
     branchId: "",
@@ -34,8 +44,18 @@ export default function TeamForm({ team, onClose, onSuccess }) {
       if (team.branchId) {
         loadDepartments(team.branchId);
       }
+    } else if (isSalesManager && currentUser) {
+      setForm((prev) => ({
+        ...prev,
+        branchId: currentUser.branchId || prev.branchId,
+        departmentId: currentUser.departmentId || prev.departmentId,
+      }));
+      if (currentUser.branchId) {
+        loadDepartments(currentUser.branchId);
+      }
     }
-  }, [team]);
+  }, [team, isSalesManager, currentUser]);
+
 
   const loadBranches = async () => {
     try {
@@ -135,7 +155,7 @@ export default function TeamForm({ team, onClose, onSuccess }) {
             name="branchId"
             value={form.branchId}
             onChange={handleChange}
-            disabled={isEdit}
+            disabled={isEdit || isSalesManager}
             className="w-full rounded-xl border border-slate-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-slate-100 disabled:cursor-not-allowed"
           >
             <option value="">Select a branch</option>
@@ -146,9 +166,9 @@ export default function TeamForm({ team, onClose, onSuccess }) {
             ))}
           </select>
         )}
-        {isEdit && (
+        {(isEdit || isSalesManager) && (
           <p className="mt-1 text-xs text-slate-400">
-            Branch cannot be changed after creation.
+            {isSalesManager ? "Branch is fixed to your assigned scope." : "Branch cannot be changed after creation."}
           </p>
         )}
       </div>
@@ -186,8 +206,10 @@ export default function TeamForm({ team, onClose, onSuccess }) {
                 name="departmentId"
                 value={form.departmentId}
                 onChange={handleChange}
-                className="w-full rounded-xl border border-slate-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                disabled={isSalesManager}
+                className="w-full rounded-xl border border-slate-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-slate-100 disabled:cursor-not-allowed"
               >
+
                 <option value="">No department</option>
                 {departments.map((d) => (
                   <option key={d.id} value={d.id}>

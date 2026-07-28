@@ -1,0 +1,830 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// --------------------------------------------------
+// 1. Tenancy Core
+// --------------------------------------------------
+
+model Organization {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  slug      String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  companies   Company[]
+  territories Territory[]
+  teams       Team[]
+  roles       Role[]
+  users       User[]
+  sessions    Session[]
+  auditLogs   AuditLog[]
+
+  attendances           Attendance[]
+  visits                Visit[]
+  expenses              Expense[]
+  dailyActivities       DailyActivityReport[]
+  targets               Target[]
+  notifications         Notification[]
+  notificationTemplates NotificationTemplate[]
+  tasks                 Task[]
+  beatPlans             BeatPlan[]
+  calendarEvents        CalendarEvent[]
+  notificationPrefs     NotificationPreference[]
+  businessRules         BusinessRuleConfig[]
+  customers             Customer[]
+  products              Product[]
+  orders                Order[]
+}
+
+
+// --------------------------------------------------
+// 2. Corporate Hierarchy
+// --------------------------------------------------
+
+model Company {
+  id             String  @id @default(uuid()) @db.Uuid
+  organizationId String  @db.Uuid
+
+  name           String
+  code           String?
+
+  email          String?
+  phone          String?
+  address        String?
+  city           String?
+  state          String?
+  country        String?
+  postalCode     String?
+  gstNumber      String?
+  panNumber      String?
+  isActive       Boolean @default(true)
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  branches     Branch[]
+  territories  Territory[]
+
+  @@unique([organizationId, code])
+}
+
+model Branch {
+  id        String  @id @default(uuid()) @db.Uuid
+  companyId String  @db.Uuid
+  name      String
+  code      String?
+
+  email      String?
+  phone      String?
+  address    String?
+  city       String?
+  state      String?
+  country    String?
+  postalCode String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  company     Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  departments Department[]
+  teams       Team[]
+  users       User[]
+
+  @@unique([companyId, code])
+}
+
+model Department {
+  id       String  @id @default(uuid()) @db.Uuid
+  branchId String  @db.Uuid
+  name     String
+  code     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  branch Branch @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  teams  Team[]
+  users  User[]
+
+  @@unique([branchId, code])
+}
+
+model Territory {
+  id             String  @id @default(uuid()) @db.Uuid
+  organizationId String  @db.Uuid
+  companyId      String? @db.Uuid
+  name           String
+  description    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  company      Company?     @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  teams        Team[]
+  users        User[]
+}
+
+model Team {
+  id             String  @id @default(uuid()) @db.Uuid
+  organizationId String  @db.Uuid
+  branchId       String  @db.Uuid
+  departmentId   String? @db.Uuid
+  territoryId    String? @db.Uuid
+  name           String
+  description    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  branch       Branch       @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  department   Department?  @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  territory    Territory?   @relation(fields: [territoryId], references: [id], onDelete: SetNull)
+  users        User[]
+  targets      Target[]
+}
+
+// --------------------------------------------------
+// 3. Authentication & RBAC
+// --------------------------------------------------
+
+model Role {
+  id             String  @id @default(uuid()) @db.Uuid
+  organizationId String? @db.Uuid
+  name           String
+  description    String?
+  isSystem       Boolean @default(false)
+  level          Int?
+  parentRoleId   String? @db.Uuid
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization Organization?    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parentRole   Role?            @relation("RoleHierarchy", fields: [parentRoleId], references: [id], onDelete: SetNull)
+  childRoles   Role[]           @relation("RoleHierarchy")
+  permissions  RolePermission[]
+  users        UserRole[]
+
+  @@unique([organizationId, name])
+}
+
+model Permission {
+  id          String  @id @default(uuid()) @db.Uuid
+  name        String  @unique
+  slug        String  @unique
+  description String?
+  moduleName  String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  roles RolePermission[]
+}
+
+model RolePermission {
+  roleId       String   @db.Uuid
+  permissionId String   @db.Uuid
+  assignedAt   DateTime @default(now())
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+}
+
+// --------------------------------------------------
+// 4. Users
+// --------------------------------------------------
+
+model User {
+  id             String  @id @default(uuid()) @db.Uuid
+  organizationId String  @db.Uuid
+  branchId       String? @db.Uuid
+  departmentId   String? @db.Uuid
+  teamId         String? @db.Uuid
+  territoryId    String? @db.Uuid
+  managerId      String? @db.Uuid
+
+  email                      String
+  passwordHash               String
+  firstName                  String
+  lastName                   String
+  phoneNumber                String?
+  isActive                   Boolean   @default(true)
+  emailVerifiedAt            DateTime?
+  emailVerificationOtp       String?
+  emailVerificationExpiresAt DateTime?
+  failedLoginAttempts        Int       @default(0)
+  lockoutExpiresAt           DateTime?
+  passwordResetOtp           String?
+  passwordResetExpiresAt     DateTime?
+  lastLoginAt                DateTime?
+  lastPasswordChangedAt      DateTime?
+  deletedAt                  DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  branch       Branch?      @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  department   Department?  @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  team         Team?        @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  territory    Territory?   @relation(fields: [territoryId], references: [id], onDelete: SetNull)
+  manager      User?        @relation("UserReporting", fields: [managerId], references: [id], onDelete: SetNull)
+  subordinates User[]       @relation("UserReporting")
+
+  roles    UserRole[]
+  sessions Session[]
+
+  auditLogs         AuditLog[]
+  passwordHistories PasswordHistory[]
+
+  attendances       Attendance[]
+  visits            Visit[]
+  expenses          Expense[]
+  dailyActivities   DailyActivityReport[]
+  targets           Target[]
+  notifications     Notification[]
+  expensesApproved  Expense[]                @relation("ExpenseApprover")
+  tasksAssigned     Task[]                   @relation("TaskAssignedBy")
+  tasksReceived     Task[]                   @relation("TaskAssignedTo")
+  beatPlans         BeatPlan[]
+  calendarEvents    CalendarEvent[]
+  notificationPrefs NotificationPreference[]
+  orders            Order[]
+
+  @@unique([organizationId, email])
+}
+
+model UserRole {
+  userId     String   @db.Uuid
+  roleId     String   @db.Uuid
+  assignedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+}
+
+// --------------------------------------------------
+// 5. Sessions
+// --------------------------------------------------
+
+model Session {
+  id             String   @id @default(uuid()) @db.Uuid
+  organizationId String   @db.Uuid
+  userId         String   @db.Uuid
+  token          String   @unique
+  device         String?
+  browser        String?
+  userAgent      String?
+  ipAddress      String?
+  refreshToken   String?  @unique
+  loginAt        DateTime @default(now())
+  expiresAt      DateTime
+
+  createdAt DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// --------------------------------------------------
+// 6. Audit & Password History
+// --------------------------------------------------
+
+model AuditLog {
+  id             String  @id @default(uuid()) @db.Uuid
+  organizationId String  @db.Uuid
+  userId         String? @db.Uuid
+  action         String
+  moduleName     String
+  details        Json?
+  ipAddress      String?
+  userAgent      String?
+
+  createdAt DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+}
+
+model PasswordHistory {
+  id           String @id @default(uuid()) @db.Uuid
+  userId       String @db.Uuid
+  passwordHash String
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ==================================================
+// PHASE 3 & 4 — Sales & Order Management
+// ==================================================
+
+model Customer {
+  id             String  @id @default(uuid()) @db.Uuid
+  organizationId String  @db.Uuid
+  name           String
+  email          String?
+  phone          String?
+  industry       String?
+  address        Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  orders       Order[]
+  visits       Visit[]
+}
+
+model Product {
+  id             String  @id @default(uuid()) @db.Uuid
+  organizationId String  @db.Uuid
+  sku            String  @unique
+  name           String
+  description    String?
+  price          Float
+  isActive       Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  orderItems   OrderItem[]
+}
+
+model Order {
+  id             String  @id @default(uuid()) @db.Uuid
+  organizationId String  @db.Uuid
+  orderNumber    String  @unique
+  customerId     String  @db.Uuid
+  ownerId        String  @db.Uuid
+  companyId      String? @db.Uuid
+  branchId       String? @db.Uuid
+  territoryId    String? @db.Uuid
+  status         String  @default("DRAFT")
+  totalAmount    Float   @default(0)
+  currency       String  @default("USD")
+
+  statusChangedAt    DateTime?
+  statusChangedBy    String?   @db.Uuid
+  statusChangeReason String?
+  isDeleted          Boolean   @default(false)
+  deletedAt          DateTime?
+  deletedBy          String?   @db.Uuid
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  customer     Customer     @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  owner        User         @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  items      OrderItem[]
+  activities OrderActivity[]
+  notes      OrderNote[]
+}
+
+model OrderItem {
+  id             String  @id @default(uuid()) @db.Uuid
+  orderId        String  @db.Uuid
+  productId      String? @db.Uuid
+  description    String
+  quantity       Int
+  unitPrice      Float
+  discountAmount Float   @default(0)
+  taxAmount      Float   @default(0)
+
+  order   Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+}
+
+model OrderActivity {
+  id           String   @id @default(uuid()) @db.Uuid
+  orderId      String   @db.Uuid
+  activityType String
+  description  String
+  performedBy  String?  @db.Uuid
+  performedAt  DateTime @default(now())
+  metadata     Json?
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+model OrderNote {
+  id        String   @id @default(uuid()) @db.Uuid
+  orderId   String   @db.Uuid
+  text      String
+  createdBy String?  @db.Uuid
+  createdAt DateTime @default(now())
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+// ==================================================
+// PHASE 6 — Field Force
+// ==================================================
+
+model Attendance {
+  id             String           @id @default(uuid()) @db.Uuid
+  organizationId String           @db.Uuid
+  userId         String           @db.Uuid
+  date           DateTime         @db.Date
+  checkInAt      DateTime?
+  checkOutAt     DateTime?
+  checkInLoc     Json?
+  checkOutLoc    Json?
+  status         AttendanceStatus @default(ABSENT)
+  durationMins   Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([organizationId, date])
+}
+
+model Visit {
+  id             String      @id @default(uuid()) @db.Uuid
+  organizationId String      @db.Uuid
+  userId         String      @db.Uuid
+  customerId     String?     @db.Uuid
+  title          String
+  type           VisitType   @default(MEETING)
+  status         VisitStatus @default(PLANNED)
+  scheduledAt    DateTime
+  completedAt    DateTime?
+  location       Json?
+  notes          String?
+  photoUrl       String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  customer     Customer?    @relation(fields: [customerId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId, userId])
+}
+
+model Expense {
+  id             String          @id @default(uuid()) @db.Uuid
+  organizationId String          @db.Uuid
+  userId         String          @db.Uuid
+  approvedById   String?         @db.Uuid
+  amount         Float
+  category       ExpenseCategory
+  date           DateTime        @db.Date
+  status         ExpenseStatus   @default(PENDING)
+  receiptUrl     String?
+  notes          String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  approvedBy   User?        @relation("ExpenseApprover", fields: [approvedById], references: [id], onDelete: SetNull)
+
+  @@index([organizationId, userId])
+}
+
+model DailyActivityReport {
+  id             String    @id @default(uuid()) @db.Uuid
+  organizationId String    @db.Uuid
+  userId         String    @db.Uuid
+  date           DateTime  @db.Date
+  totalVisits    Int       @default(0)
+  totalOrders    Int       @default(0)
+  summary        String?
+  status         DarStatus @default(DRAFT)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LEAVE
+  HALFDAY
+}
+
+enum VisitType {
+  COLD_CALL
+  FOLLOW_UP
+  MEETING
+  DEMO
+}
+
+enum VisitStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum ExpenseCategory {
+  TRAVEL
+  MEALS
+  ACCOMMODATION
+  OTHER
+}
+
+enum ExpenseStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum DarStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+}
+
+// ==================================================
+// PHASE 7 — Target & Performance
+// ==================================================
+
+model Target {
+  id             String       @id @default(uuid()) @db.Uuid
+  organizationId String       @db.Uuid
+  userId         String?      @db.Uuid
+  teamId         String?      @db.Uuid
+  metric         TargetMetric
+  period         TargetPeriod
+  startDate      DateTime     @db.Date
+  endDate        DateTime     @db.Date
+  targetValue    Float
+  achievedValue  Float        @default(0)
+  status         TargetStatus @default(ACTIVE)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User?        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team         Team?        @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, metric, period])
+}
+
+enum TargetMetric {
+  REVENUE
+  VISITS
+  NEW_LEADS
+  CONVERSIONS
+  ATTENDANCE
+  DAR
+  ACTIVITIES
+}
+
+enum TargetPeriod {
+  MONTHLY
+  QUARTERLY
+  YEARLY
+}
+
+enum TargetStatus {
+  ACTIVE
+  CLOSED
+}
+
+// ==================================================
+// PHASE 8 — Notifications
+// ==================================================
+
+model Notification {
+  id             String             @id @default(uuid()) @db.Uuid
+  organizationId String             @db.Uuid
+  userId         String             @db.Uuid
+  title          String
+  message        String
+  type           NotificationType
+  status         NotificationStatus @default(UNREAD)
+  referenceType  String?
+  referenceId    String?            @db.Uuid
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, userId])
+}
+
+model NotificationTemplate {
+  id             String           @id @default(uuid()) @db.Uuid
+  organizationId String           @db.Uuid
+  name           String           @unique
+  subject        String?
+  body           String
+  type           NotificationType
+  variables      Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+}
+
+enum NotificationType {
+  EMAIL
+  SMS
+  IN_APP
+}
+
+enum NotificationStatus {
+  UNREAD
+  READ
+}
+
+// ==================================================
+// PHASE 9 — Tasks, Beat Plans, Calendar
+// ==================================================
+
+model Task {
+  id             String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+
+  assignedById String @db.Uuid
+  assignedToId String @db.Uuid
+
+  title       String
+  description String?
+
+  status   TaskStatus   @default(PENDING)
+  priority TaskPriority @default(MEDIUM)
+
+  dueDate     DateTime?
+  completedAt DateTime?
+
+  referenceType String?
+  referenceId   String? @db.Uuid
+
+  completionNotes String?
+
+  metadata Json?
+
+  acceptedAt            DateTime?
+  startedAt             DateTime?
+  navigatingAt          DateTime?
+  arrivedAt             DateTime?
+  checkedInAt           DateTime?
+  checkInLocation       Json?
+  deliveryStartedAt     DateTime?
+  paymentCollectedAt    DateTime?
+  paymentAmount         Float?
+  paymentMethod         String?
+  paymentStatus         String?
+  photoUploadedAt       DateTime?
+  photos                Json?
+  visitNotesCompletedAt DateTime?
+  visitNotes            String?
+  signatureCapturedAt   DateTime?
+  customerSignature     String?
+  checkedOutAt          DateTime?
+  checkOutLocation      Json?
+  gpsLogs               Json?
+  executionHistory      Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  assignedBy User @relation("TaskAssignedBy", fields: [assignedById], references: [id], onDelete: Cascade)
+
+  assignedTo User @relation("TaskAssignedTo", fields: [assignedToId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([assignedById])
+  @@index([assignedToId])
+  @@index([status])
+}
+
+enum TaskStatus {
+  PENDING
+  ASSIGNED
+  ACCEPTED
+  IN_PROGRESS
+  NAVIGATING
+  ARRIVED
+  CHECKED_IN
+  DELIVERY_IN_PROGRESS
+  PAYMENT_COLLECTED
+  PHOTO_UPLOADED
+  VISIT_NOTES_COMPLETED
+  CHECKED_OUT
+  COMPLETED
+  CANCELLED
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+model BeatPlan {
+  id             String   @id @default(uuid()) @db.Uuid
+  organizationId String   @db.Uuid
+  userId         String   @db.Uuid
+  title          String
+  startDate      DateTime
+  endDate        DateTime
+  status         String   @default("DRAFT")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, userId])
+}
+
+model CalendarEvent {
+  id             String   @id @default(uuid()) @db.Uuid
+  organizationId String   @db.Uuid
+  userId         String   @db.Uuid
+  title          String
+  description    String?
+  startTime      DateTime
+  endTime        DateTime
+  type           String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, userId])
+}
+
+// ==================================================
+// PHASE 10 — Settings
+// ==================================================
+
+model NotificationPreference {
+  id             String  @id @default(uuid()) @db.Uuid
+  organizationId String  @db.Uuid
+  userId         String  @db.Uuid
+  emailEnabled   Boolean @default(true)
+  smsEnabled     Boolean @default(false)
+  inAppEnabled   Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, userId])
+}
+
+model BusinessRuleConfig {
+  id             String  @id @default(uuid()) @db.Uuid
+  organizationId String  @db.Uuid
+  ruleKey        String // e.g. "MAX_LEADS_PER_DAY"
+  ruleValue      String // e.g. "50"
+  description    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, ruleKey])
+}

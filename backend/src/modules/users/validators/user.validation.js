@@ -46,9 +46,10 @@ export const createUserSchema = z.object({
   teamId: uuidSchema('Team').optional(),
   territoryId: uuidSchema('Territory').optional(),
   managerId: uuidSchema('Manager').optional(),
-  roleIds: z.array(uuidSchema('Role')).min(USER_VALIDATION.ROLE_MIN_COUNT, 'At least one role must be assigned.'),
+  roleIds: z.array(uuidSchema('Role')).optional().default([]),
   isActive: z.boolean().default(true),
 });
+
 
 export const updateUserSchema = z.object({
   firstName: z.string().trim().min(USER_VALIDATION.FIRST_NAME_MIN_LENGTH).max(USER_VALIDATION.FIRST_NAME_MAX_LENGTH).optional(),

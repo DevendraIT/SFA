@@ -11,7 +11,7 @@ export class UserController {
 
   listUsers = async (req, res, next) => {
     try {
-      const { users, meta } = await this.service.listUsers(req.user.organizationId, req.query);
+      const { users, meta } = await this.service.listUsers(req.user.organizationId, req.query, req);
       res.json(ApiResponse.success('Users retrieved successfully.', { users }, meta));
     } catch (error) {
       next(error);
@@ -20,12 +20,13 @@ export class UserController {
 
   getUser = async (req, res, next) => {
     try {
-      const user = await this.service.getUser(req.params.id, req.user.organizationId);
+      const user = await this.service.getUser(req.params.id, req.user.organizationId, req);
       res.json(ApiResponse.success('User retrieved successfully.', user));
     } catch (error) {
       next(error);
     }
   };
+
 
   createUser = async (req, res, next) => {
     try {

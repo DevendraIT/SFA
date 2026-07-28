@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   Plus,
   Search,
@@ -16,8 +16,27 @@ import BranchForm from "./BranchForm";
 import toast from "react-hot-toast";
 import branchService from "../../../services/branch.service";
 import useBranches from "../../../hooks/useBranches";
+import { useAuth } from "../../../context/AuthContext";
 
 export default function BranchList() {
+  const { user } = useAuth();
+
+  const isSalesManager = useMemo(() => {
+    if (!user) return false;
+    const roleNames = Array.isArray(user.roles)
+      ? user.roles.map((r) => (typeof r === "string" ? r : r.role?.name || r.name))
+      : [user.role?.name || ""];
+    return roleNames.some(
+      (r) =>
+        r &&
+        (r.toLowerCase().includes("sales manager") ||
+          r.toLowerCase().includes("head of sales") ||
+          r.toLowerCase().includes("sales executive") ||
+          r.toLowerCase().includes("sales person"))
+    );
+  }, [user]);
+
+
   const { branches, loading, search, setSearch, reload } = useBranches({
     debounce: true,
   });
@@ -54,17 +73,20 @@ export default function BranchList() {
             Manage branches inside your organization.
           </p>
         </div>
-        <button
-          onClick={() => {
-            setSelectedBranch(null);
-            setShowModal(true);
-          }}
-          className="flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-3 text-white hover:bg-indigo-700 transition"
-        >
-          <Plus size={18} />
-          Create Branch
-        </button>
+        {!isSalesManager && (
+          <button
+            onClick={() => {
+              setSelectedBranch(null);
+              setShowModal(true);
+            }}
+            className="flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-3 text-white hover:bg-indigo-700 transition"
+          >
+            <Plus size={18} />
+            Create Branch
+          </button>
+        )}
       </div>
+
 
       {/* Search */}
       <div className="relative max-w-md">
@@ -109,12 +131,14 @@ export default function BranchList() {
                     <p className="mt-2 text-slate-500">
                       Create your first branch to get started.
                     </p>
-                    <button
-                      onClick={() => setShowModal(true)}
-                      className="mt-6 rounded-xl bg-indigo-600 px-6 py-3 text-white hover:bg-indigo-700"
-                    >
-                      Create Branch
-                    </button>
+                    {!isSalesManager && (
+                      <button
+                        onClick={() => setShowModal(true)}
+                        className="mt-6 rounded-xl bg-indigo-600 px-6 py-3 text-white hover:bg-indigo-700"
+                      >
+                        Create Branch
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>
@@ -174,28 +198,33 @@ export default function BranchList() {
                       >
                         <Eye size={17} />
                       </button>
-                      <button
-                        onClick={() => {
-                          setSelectedBranch(branch);
-                          setShowModal(true);
-                        }}
-                        className="rounded-lg border p-2 hover:bg-slate-100"
-                        title="Edit"
-                      >
-                        <Pencil size={17} />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(branch)}
-                        className="rounded-lg border border-red-200 p-2 text-red-600 hover:bg-red-50"
-                        title="Delete"
-                      >
-                        <Trash2 size={17} />
-                      </button>
+                      {!isSalesManager && (
+                        <>
+                          <button
+                            onClick={() => {
+                              setSelectedBranch(branch);
+                              setShowModal(true);
+                            }}
+                            className="rounded-lg border p-2 hover:bg-slate-100"
+                            title="Edit"
+                          >
+                            <Pencil size={17} />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(branch)}
+                            className="rounded-lg border border-red-200 p-2 text-red-600 hover:bg-red-50"
+                            title="Delete"
+                          >
+                            <Trash2 size={17} />
+                          </button>
+                        </>
+                      )}
                     </div>
                   </td>
                 </tr>
               ))
             )}
+
           </tbody>
         </table>
       </div>

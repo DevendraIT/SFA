@@ -38,7 +38,7 @@ export class UserRepository {
   };
 
   // Build where clause for user queries
-  #buildWhereClause(organizationId, { isActive, branchId, departmentId, teamId, territoryId, search } = {}) {
+  #buildWhereClause(organizationId, { isActive, branchId, departmentId, teamId, territoryId, managerId, search } = {}) {
     return {
       organizationId,
       deletedAt: null,
@@ -47,6 +47,7 @@ export class UserRepository {
       ...(departmentId && { departmentId }),
       ...(teamId && { teamId }),
       ...(territoryId && { territoryId }),
+      ...(managerId && { managerId }),
       ...(search && {
         OR: [
           { firstName: { contains: search, mode: 'insensitive' } },
@@ -57,8 +58,9 @@ export class UserRepository {
     };
   }
 
-  async findUsers(organizationId, { skip, take, search, sortBy, sortOrder, isActive, branchId, departmentId, teamId, territoryId }) {
-    const where = this.#buildWhereClause(organizationId, { isActive, branchId, departmentId, teamId, territoryId, search });
+  async findUsers(organizationId, { skip, take, search, sortBy, sortOrder, isActive, branchId, departmentId, teamId, territoryId, managerId }) {
+    const where = this.#buildWhereClause(organizationId, { isActive, branchId, departmentId, teamId, territoryId, managerId, search });
+
 
     const allowedSortFields = ['firstName', 'lastName', 'email', 'createdAt', 'updatedAt'];
     const resolvedSortBy = allowedSortFields.includes(sortBy) ? sortBy : 'createdAt';
@@ -318,4 +320,39 @@ export class UserRepository {
       return 0;
     }
   }
+
+  async findSalesExecutiveRole(organizationId) {
+    let role = await prisma.role.findFirst({
+      where: {
+        organizationId,
+        name: {
+          contains: 'Sales Executive',
+          mode: 'insensitive',
+        },
+      },
+    });
+
+    if (!role) {
+      role = await prisma.role.findFirst({
+        where: {
+          organizationId,
+          name: {
+            contains: 'Executive',
+            mode: 'insensitive',
+          },
+        },
+      });
+    }
+
+    if (!role) {
+      role = await prisma.role.findFirst({
+        where: { organizationId },
+        orderBy: { createdAt: 'desc' },
+      });
+    }
+
+    return role;
+  }
 }
+
+

@@ -1,4 +1,5 @@
-import { ApiResponse } from '../../../shared/response.js';
+import { ApiResponse, AppError } from '../../../shared/response.js';
+
 
 /**
  * Organization Controller
@@ -91,7 +92,12 @@ export class OrganizationController {
 
   listCompanies = async (req, res, next) => {
     try {
-      const { companies, meta } = await this.service.listCompanies(req.user.organizationId, req.query);
+      const isSalesManager = req.user.roles?.some((r) => r.toLowerCase().includes('sales manager'));
+      const query = {
+        ...req.query,
+        ...(isSalesManager && req.user.companyId && { companyId: req.user.companyId }),
+      };
+      const { companies, meta } = await this.service.listCompanies(req.user.organizationId, query);
       res.json(ApiResponse.success('Companies retrieved successfully.', { companies }, meta));
     } catch (error) {
       next(error);
@@ -100,6 +106,10 @@ export class OrganizationController {
 
   getCompany = async (req, res, next) => {
     try {
+      const isSalesManager = req.user.roles?.some((r) => r.toLowerCase().includes('sales manager'));
+      if (isSalesManager && req.user.companyId && req.params.id !== req.user.companyId) {
+        throw AppError.forbidden('Access denied to other company data.');
+      }
       const company = await this.service.getCompany(req.params.id, req.user.organizationId);
       res.json(ApiResponse.success('Company retrieved successfully.', company));
     } catch (error) {
@@ -149,7 +159,12 @@ export class OrganizationController {
 
   listBranches = async (req, res, next) => {
     try {
-      const { branches, meta } = await this.service.listBranches(req.user.organizationId, req.query);
+      const isSalesManager = req.user.roles?.some((r) => r.toLowerCase().includes('sales manager'));
+      const query = {
+        ...req.query,
+        ...(isSalesManager && req.user.branchId && { branchId: req.user.branchId }),
+      };
+      const { branches, meta } = await this.service.listBranches(req.user.organizationId, query);
       res.json(ApiResponse.success('Branches retrieved successfully.', { branches }, meta));
     } catch (error) {
       next(error);
@@ -158,6 +173,10 @@ export class OrganizationController {
 
   getBranch = async (req, res, next) => {
     try {
+      const isSalesManager = req.user.roles?.some((r) => r.toLowerCase().includes('sales manager'));
+      if (isSalesManager && req.user.branchId && req.params.id !== req.user.branchId) {
+        throw AppError.forbidden('Access denied to other branch data.');
+      }
       const branch = await this.service.getBranch(req.params.id, req.user.organizationId);
       res.json(ApiResponse.success('Branch retrieved successfully.', branch));
     } catch (error) {
@@ -207,7 +226,12 @@ export class OrganizationController {
 
   listDepartments = async (req, res, next) => {
     try {
-      const { departments, meta } = await this.service.listDepartments(req.user.organizationId, req.query);
+      const isSalesManager = req.user.roles?.some((r) => r.toLowerCase().includes('sales manager'));
+      const query = {
+        ...req.query,
+        ...(isSalesManager && req.user.departmentId && { departmentId: req.user.departmentId }),
+      };
+      const { departments, meta } = await this.service.listDepartments(req.user.organizationId, query);
       res.json(ApiResponse.success('Departments retrieved successfully.', { departments }, meta));
     } catch (error) {
       next(error);
@@ -216,6 +240,10 @@ export class OrganizationController {
 
   getDepartment = async (req, res, next) => {
     try {
+      const isSalesManager = req.user.roles?.some((r) => r.toLowerCase().includes('sales manager'));
+      if (isSalesManager && req.user.departmentId && req.params.id !== req.user.departmentId) {
+        throw AppError.forbidden('Access denied to other department data.');
+      }
       const department = await this.service.getDepartment(req.params.id, req.user.organizationId);
       res.json(ApiResponse.success('Department retrieved successfully.', department));
     } catch (error) {
@@ -224,6 +252,7 @@ export class OrganizationController {
   };
 
   createDepartment = async (req, res, next) => {
+
     try {
       const department = await this.service.createDepartment(req.user.organizationId, req.body, req);
       res.status(201).json(ApiResponse.success('Department created successfully.', department));

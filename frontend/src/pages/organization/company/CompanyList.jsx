@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   Plus,
   Search,
@@ -15,10 +15,28 @@ import {
 import CompanyForm from "./CompanyForm";
 import toast from "react-hot-toast";
 import companyService from "../../../services/company.service";
+import { useAuth } from "../../../context/AuthContext";
 
 import useCompanies from "../../../hooks/useCompanies";
 
 export default function CompanyList() {
+  const { user } = useAuth();
+
+  const isSalesManager = useMemo(() => {
+    if (!user) return false;
+    const roleNames = Array.isArray(user.roles)
+      ? user.roles.map((r) => (typeof r === "string" ? r : r.role?.name || r.name))
+      : [user.role?.name || ""];
+    return roleNames.some(
+      (r) =>
+        r &&
+        (r.toLowerCase().includes("sales manager") ||
+          r.toLowerCase().includes("head of sales") ||
+          r.toLowerCase().includes("sales executive") ||
+          r.toLowerCase().includes("sales person"))
+    );
+  }, [user]);
+
 
   const {
     companies,
@@ -29,6 +47,7 @@ export default function CompanyList() {
 } = useCompanies({
     debounce: true,
 });
+
 
   const [showModal, setShowModal] = useState(false);
 
@@ -88,18 +107,18 @@ export default function CompanyList() {
 
         </div>
 
-        <button
-          onClick={() => {
-  setSelectedCompany(null);
-  setShowModal(true);
-}}
-          className="flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-3 text-white hover:bg-indigo-700 transition"
-        >
-          <Plus size={18} />
-
-          Create Company
-        </button>
-
+        {!isSalesManager && (
+          <button
+            onClick={() => {
+              setSelectedCompany(null);
+              setShowModal(true);
+            }}
+            className="flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-3 text-white hover:bg-indigo-700 transition"
+          >
+            <Plus size={18} />
+            Create Company
+          </button>
+        )}
       </div>
 
       {/* Search */}
@@ -197,12 +216,14 @@ export default function CompanyList() {
 
                     </p>
 
-                    <button
-                      onClick={() => setShowModal(true)}
-                      className="mt-6 rounded-xl bg-indigo-600 px-6 py-3 text-white hover:bg-indigo-700"
-                    >
-                      Create Company
-                    </button>
+                    {!isSalesManager && (
+                      <button
+                        onClick={() => setShowModal(true)}
+                        className="mt-6 rounded-xl bg-indigo-600 px-6 py-3 text-white hover:bg-indigo-700"
+                      >
+                        Create Company
+                      </button>
+                    )}
 
                   </div>
                 </td>
@@ -288,26 +309,31 @@ export default function CompanyList() {
     <Eye size={17} />
   </button>
 
-  <button
-    onClick={() => {
-      setSelectedCompany(company);
-      setShowModal(true);
-    }}
-    className="rounded-lg border p-2 hover:bg-slate-100"
-    title="Edit"
-  >
-    <Pencil size={17} />
-  </button>
+  {!isSalesManager && (
+    <>
+      <button
+        onClick={() => {
+          setSelectedCompany(company);
+          setShowModal(true);
+        }}
+        className="rounded-lg border p-2 hover:bg-slate-100"
+        title="Edit"
+      >
+        <Pencil size={17} />
+      </button>
 
-  <button
-    onClick={() => handleDelete(company)}
-    className="rounded-lg border border-red-200 p-2 text-red-600 hover:bg-red-50"
-    title="Delete"
-  >
-    <Trash2 size={17} />
-  </button>
+      <button
+        onClick={() => handleDelete(company)}
+        className="rounded-lg border border-red-200 p-2 text-red-600 hover:bg-red-50"
+        title="Delete"
+      >
+        <Trash2 size={17} />
+      </button>
+    </>
+  )}
 
 </div>
+
 
                   </td>
 

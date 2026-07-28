@@ -47,8 +47,19 @@ export class TeamService {
   }
 
   async createTeam(organizationId, data, req) {
+    const isSalesManager = req?.user?.roles?.some(r =>
+      typeof r === 'string'
+        ? r.toLowerCase().includes('sales manager')
+        : r.role?.name?.toLowerCase().includes('sales manager') || r.name?.toLowerCase().includes('sales manager')
+    );
+    if (isSalesManager) {
+      if (req.user.branchId) data.branchId = req.user.branchId;
+      if (req.user.departmentId) data.departmentId = req.user.departmentId;
+    }
+
     const branchExists = await this.repo.branchBelongsToOrg(data.branchId, organizationId);
     if (!branchExists) throw AppError.badRequest('Branch not found within your organization.');
+
 
     if (data.departmentId) {
       const departmentExists = await this.repo.departmentBelongsToOrg(data.departmentId, organizationId);

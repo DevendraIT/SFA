@@ -28,7 +28,7 @@ export class UserService {
     return { skip, take: limit, search, sortBy, sortOrder };
   }
 
-  async listUsers(organizationId, query) {
+  async listUsers(organizationId, query, req) {
     // Validate pagination limits
     if (query.limit > DEFAULT_PAGINATION.MAX_LIMIT) {
       query.limit = DEFAULT_PAGINATION.MAX_LIMIT;
@@ -39,23 +39,42 @@ export class UserService {
       throw AppError.badRequest(`Search query must be at least ${USER_VALIDATION.SEARCH_MIN_LENGTH} characters long.`);
     }
 
+    const isSalesManager = req?.user?.roles?.some(r =>
+      typeof r === 'string'
+        ? r.toLowerCase().includes('sales manager')
+        : r.role?.name?.toLowerCase().includes('sales manager') || r.name?.toLowerCase().includes('sales manager')
+    );
+
     const options = this._buildListOptions(query);
     const { users, total } = await this.repo.findUsers(organizationId, {
       ...options,
       isActive: query.isActive,
-      branchId: query.branchId,
-      departmentId: query.departmentId,
+      branchId: isSalesManager ? req.user.branchId : query.branchId,
+      departmentId: isSalesManager ? req.user.departmentId : query.departmentId,
+      managerId: isSalesManager ? req.user.id : query.managerId,
       teamId: query.teamId,
       territoryId: query.territoryId,
     });
     return { users, meta: this._buildPaginationMeta(total, query.page, query.limit) };
   }
 
-  async getUser(id, organizationId) {
+  async getUser(id, organizationId, req) {
     const user = await this.repo.findUserById(id, organizationId);
     if (!user) throw AppError.notFound('User not found.');
+
+    const isSalesManager = req?.user?.roles?.some(r =>
+      typeof r === 'string'
+        ? r.toLowerCase().includes('sales manager')
+        : r.role?.name?.toLowerCase().includes('sales manager') || r.name?.toLowerCase().includes('sales manager')
+    );
+
+    if (isSalesManager && user.managerId !== req.user.id && user.id !== req.user.id) {
+      throw AppError.forbidden('Access denied. You can only view users created by you.');
+    }
+
     return user;
   }
+
 
   async createUser(organizationId, data, req) {
     // Validate required fields
@@ -93,10 +112,34 @@ export class UserService {
 
     // Validate roles belong to the organization and meet minimum requirements
     const { roleIds, password, ...userFields } = data;
-    if (!roleIds || roleIds.length < USER_VALIDATION.ROLE_MIN_COUNT) {
+    let effectiveRoleIds = roleIds || [];
+
+
+    // Enforce Sales Manager scoping and role restrictions
+    const isSalesManager = req?.user?.roles?.some(r =>
+      typeof r === 'string'
+        ? r.toLowerCase().includes('sales manager')
+        : r.role?.name?.toLowerCase().includes('sales manager') || r.name?.toLowerCase().includes('sales manager')
+    );
+
+    if (isSalesManager) {
+      if (req.user.branchId) userFields.branchId = req.user.branchId;
+      if (req.user.departmentId) userFields.departmentId = req.user.departmentId;
+      userFields.managerId = req.user.id;
+
+      // Force Role to Sales Executive
+      const salesExecRole = await this.repo.findSalesExecutiveRole(organizationId);
+      if (salesExecRole) {
+        effectiveRoleIds = [salesExecRole.id];
+      }
+    }
+
+    if (!effectiveRoleIds || effectiveRoleIds.length < USER_VALIDATION.ROLE_MIN_COUNT) {
       throw AppError.badRequest(`At least ${USER_VALIDATION.ROLE_MIN_COUNT} role is required.`);
     }
-    await this._validateRoles(roleIds, organizationId);
+    await this._validateRoles(effectiveRoleIds, organizationId);
+
+
 
     // Validate password requirements
     if (!password || password.length < USER_VALIDATION.PASSWORD_MIN_LENGTH) {
@@ -128,8 +171,9 @@ export class UserService {
         organizationId,
         emailVerifiedAt: DEFAULT_USER_SETTINGS.AUTO_VERIFY_ADMIN_CREATED ? new Date() : null,
       },
-      roleIds
+      effectiveRoleIds
     );
+
 
     await logAudit({
       organizationId,
@@ -146,6 +190,21 @@ export class UserService {
   async updateUser(id, organizationId, data, req) {
     const user = await this.repo.findUserById(id, organizationId);
     if (!user) throw AppError.notFound(USER_ERRORS.NOT_FOUND);
+
+    const isSalesManager = req?.user?.roles?.some(r =>
+      typeof r === 'string'
+        ? r.toLowerCase().includes('sales manager')
+        : r.role?.name?.toLowerCase().includes('sales manager') || r.name?.toLowerCase().includes('sales manager')
+    );
+
+    if (isSalesManager) {
+      if (user.managerId !== req.user.id) {
+        throw AppError.forbidden('Access denied. You can only update users created by you.');
+      }
+      if (req.user.branchId) data.branchId = req.user.branchId;
+      if (req.user.departmentId) data.departmentId = req.user.departmentId;
+      data.managerId = req.user.id;
+    }
 
     // Validate field lengths if provided
     if (data.firstName && data.firstName.length > USER_VALIDATION.FIRST_NAME_MAX_LENGTH) {
@@ -197,32 +256,48 @@ export class UserService {
   }
 
   async updateUserRoles(id, organizationId, roleIds, req) {
+    const isSalesManager = req?.user?.roles?.some(r =>
+      typeof r === 'string'
+        ? r.toLowerCase().includes('sales manager')
+        : r.role?.name?.toLowerCase().includes('sales manager') || r.name?.toLowerCase().includes('sales manager')
+    );
+
+    if (isSalesManager) {
+      throw AppError.forbidden('Sales Managers are not authorized to modify user roles.');
+    }
+
     const user = await this.repo.findUserById(id, organizationId);
     if (!user) throw AppError.notFound(USER_ERRORS.NOT_FOUND);
 
-    // Prevent role changes for reserved user types
-    // if (user.type && RESERVED_USER_TYPES.includes(user.type.toLowerCase())) {
-    //   throw AppError.badRequest('Roles cannot be modified for reserved user types.');
-    // }
-
     await this._validateRoles(roleIds, organizationId);
-    await this.repo.updateUserRoles(id, roleIds);
+
+    const updated = await this.repo.updateUserRoles(id, roleIds);
 
     await logAudit({
       organizationId,
       userId: req.user.id,
       action: 'user.roles.update',
       moduleName: 'users',
-      details: { targetUserId: id, roleIds },
+      details: { targetUserId: id, newRoleIds: roleIds },
       req,
     });
 
-    return this.repo.findUserById(id, organizationId);
+    return updated;
   }
 
   async activateUser(id, organizationId, req) {
     const user = await this.repo.findUserById(id, organizationId);
     if (!user) throw AppError.notFound(USER_ERRORS.NOT_FOUND);
+
+    const isSalesManager = req?.user?.roles?.some(r =>
+      typeof r === 'string'
+        ? r.toLowerCase().includes('sales manager')
+        : r.role?.name?.toLowerCase().includes('sales manager') || r.name?.toLowerCase().includes('sales manager')
+    );
+
+    if (isSalesManager && user.managerId !== req.user.id) {
+      throw AppError.forbidden('Access denied. You can only activate users created by you.');
+    }
     
     if (user.isActive) {
       throw AppError.badRequest('User is already active.');
@@ -250,15 +325,20 @@ export class UserService {
 
     const user = await this.repo.findUserById(id, organizationId);
     if (!user) throw AppError.notFound(USER_ERRORS.NOT_FOUND);
+
+    const isSalesManager = req?.user?.roles?.some(r =>
+      typeof r === 'string'
+        ? r.toLowerCase().includes('sales manager')
+        : r.role?.name?.toLowerCase().includes('sales manager') || r.name?.toLowerCase().includes('sales manager')
+    );
+
+    if (isSalesManager && user.managerId !== req.user.id) {
+      throw AppError.forbidden('Access denied. You can only deactivate users created by you.');
+    }
     
     if (!user.isActive) {
       throw AppError.badRequest('User is already inactive.');
     }
-
-    // Prevent deactivation of reserved user types
-    // if (user.type && RESERVED_USER_TYPES.includes(user.type.toLowerCase())) {
-    //   throw AppError.badRequest('Reserved user types cannot be deactivated.');
-    // }
 
     const updated = await this.repo.updateUser(id, { isActive: false });
 
@@ -282,6 +362,17 @@ export class UserService {
 
     const user = await this.repo.findUserById(id, organizationId);
     if (!user) throw AppError.notFound(USER_ERRORS.NOT_FOUND);
+
+    const isSalesManager = req?.user?.roles?.some(r =>
+      typeof r === 'string'
+        ? r.toLowerCase().includes('sales manager')
+        : r.role?.name?.toLowerCase().includes('sales manager') || r.name?.toLowerCase().includes('sales manager')
+    );
+
+    if (isSalesManager && user.managerId !== req.user.id) {
+      throw AppError.forbidden('Access denied. You can only delete users created by you.');
+    }
+
 
     // Prevent deletion of reserved user types
     // if (user.type && RESERVED_USER_TYPES.includes(user.type.toLowerCase())) {
