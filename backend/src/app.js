@@ -41,6 +41,16 @@ app.use(`/api/${config.API_VERSION}`, router);
 // Mount health and docs directly at root as fallback convenience paths
 app.use("/health", router);
 
+// Root Route (Render Health Check)
+app.get("/", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "SFA Backend is running 🚀",
+    api: `/api/${config.API_VERSION}`,
+    health: "/health",
+  });
+});
+
 // 8. 404 Route handler
 app.use((req, res, next) => {
   next(AppError.notFound(`Route not found - ${req.originalUrl}`));
