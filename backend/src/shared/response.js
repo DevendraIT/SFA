@@ -101,7 +101,7 @@ export class ApiResponse {
 /**
  * Helper functions for consistent response handling
  */
-export const successResponse = (res, message, data = null, statusCode = 200, meta = null) => {
+export const successResponse = (res, data, message = 'Success', statusCode = 200, meta = null) => {
   return res.status(statusCode).json(ApiResponse.success(message, data, meta));
 };
 

@@ -7,6 +7,17 @@ import TaskStatusBadge, { PriorityBadge } from "./TaskStatusBadge";
 export default function TaskCard({ task, index = 0 }) {
   const navigate = useNavigate();
 
+  // Guard against undefined task (e.g. during loading skeleton)
+  if (!task) {
+    return (
+      <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm animate-pulse">
+        <div className="h-4 bg-slate-200 rounded w-3/4 mb-3" />
+        <div className="h-3 bg-slate-200 rounded w-1/2 mb-2" />
+        <div className="h-3 bg-slate-200 rounded w-2/3" />
+      </div>
+    );
+  }
+
   const isOverdue =
     task.dueDate &&
     task.status !== "COMPLETED" &&
@@ -20,13 +31,21 @@ export default function TaskCard({ task, index = 0 }) {
   const requirements = metadata.requirements || {};
   const category = metadata.category;
 
+  const handleClick = () => {
+    if (window.location.pathname.startsWith("/field-force")) {
+      navigate(`/field-force/tasks/${task.id}/execute`);
+    } else {
+      navigate(`/team/tasks/${task.id}`);
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.03 }}
       whileHover={{ y: -3 }}
-      onClick={() => navigate(`/team/tasks/${task.id}`)}
+      onClick={handleClick}
       className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition-all cursor-pointer"
     >
       <div className="flex items-start justify-between mb-3">

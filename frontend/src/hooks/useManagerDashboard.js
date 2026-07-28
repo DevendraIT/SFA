@@ -13,7 +13,11 @@ export default function useManagerDashboard() {
 
       const response = await dashboardService.getTeamDashboard();
 
-      setDashboard(response.data || response);
+      // After fixing successResponse param order:
+      // response.data = { success: true, message: "...", data: { ... actual dashboard data ... } }
+      // The actual data is in response.data.data
+      const dashboardData = response?.data?.data || response?.data || response;
+      setDashboard(dashboardData);
     } catch (err) {
       console.error("Manager Dashboard Error:", err);
       setError(err?.response?.data || err);

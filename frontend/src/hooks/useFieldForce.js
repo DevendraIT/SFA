@@ -12,15 +12,21 @@ function safeArray(value) {
     if (Array.isArray(value.plans)) return value.plans;
     if (Array.isArray(value.events)) return value.events;
     if (Array.isArray(value.attendance)) return value.attendance;
+    // If it's a plain object with numeric keys, convert to array
+    const vals = Object.values(value);
+    if (vals.length > 0 && typeof vals[0] === 'object') return vals;
   }
-  return [];
+return [];
 }
 
 function safeExtract(res) {
   if (!res?.value) return null;
   const { data } = res.value;
   if (!data) return null;
-  return data.data ?? data;
+  // successResponse(res, dataObj, messageStr) => res.json(ApiResponse.success(message=dataObj, data=messageStr))
+  // => { success: true, message: { tasks, total }, data: 'Tasks retrieved.' }
+  // So the actual data is in data.message, not data.data
+  return data.message ?? data.data ?? data;
 }
 
 export default function useFieldForce(userId) {

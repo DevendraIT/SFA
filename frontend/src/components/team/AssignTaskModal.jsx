@@ -1080,15 +1080,14 @@ export default function AssignTaskModal({
     if (!resp) return [];
     // If it's already an array, return it
     if (Array.isArray(resp)) return resp;
-    // Backend controllers call successResponse(res, dataObj, messageStr)
-    // which maps params as: message=dataObj, data=messageStr (swapped)
-    // So the actual payload is in resp.message[arrayKey]
-    if (resp.message && Array.isArray(resp.message[arrayKey])) return resp.message[arrayKey];
-    // Standard format: resp.data[arrayKey]
-    if (resp.data && Array.isArray(resp.data[arrayKey])) return resp.data[arrayKey];
-    // Fallback: resp[arrayKey]
+    // After fixing successResponse: response.data = { success, message, data: { orders, customers, ... } }
+    // So first try resp.data[arrayKey], then resp[arrayKey]
+    // resp.data is the actual { success, message, data } object
+    if (resp.data && typeof resp.data === 'object' && Array.isArray(resp.data[arrayKey])) return resp.data[arrayKey];
+    // Old fallback: resp.data is actually the data object (when data is the direct object)
+    if (resp.data && typeof resp.data === 'object' && Array.isArray(resp.data.data?.[arrayKey])) return resp.data.data[arrayKey];
     if (Array.isArray(resp[arrayKey])) return resp[arrayKey];
-    // Last resort: check if data itself is the array key
+    // Last resort: check if data.data itself is the array
     if (resp.data && Array.isArray(resp.data)) return resp.data;
     return [];
   };

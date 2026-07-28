@@ -147,8 +147,11 @@ export default function FieldForceDashboard() {
     return <ErrorState message="Failed to load dashboard data" onRetry={refresh} />;
   }
 
-  const pendingTasks = tasks.filter((t) => t.status === "PENDING");
-  const inProgressTasks = tasks.filter((t) => t.status === "IN_PROGRESS");
+  const pendingTasks = tasks.filter((t) => t.status === "PENDING" || t.status === "ASSIGNED" || t.status === "ACCEPTED");
+  const inProgressTasks = tasks.filter((t) => ["IN_PROGRESS", "NAVIGATING", "ARRIVED", "CHECKED_IN", "DELIVERY_IN_PROGRESS", "PAYMENT_COLLECTED", "PHOTO_UPLOADED", "VISIT_NOTES_COMPLETED"].includes(t.status));
+  const completedTasks = tasks.filter((t) => t.status === "COMPLETED" || t.status === "CHECKED_OUT");
+  const todayTasksList = tasks.filter((t) => !t.dueDate || dayjs(t.dueDate).isSame(dayjs(), "day") || dayjs(t.createdAt).isSame(dayjs(), "day"));
+
   const recentActivities = [
     ...visits.slice(0, 3).map((v) => ({
       title: v.status === "COMPLETED" ? "Visit Completed" : "Visit Planned",
@@ -175,7 +178,7 @@ export default function FieldForceDashboard() {
       <DashboardHeader
         welcomeText={`Good ${dayjs().hour() < 12 ? "morning" : dayjs().hour() < 17 ? "afternoon" : "evening"}, ${fullName || "Sales Executive"} 👋`}
         title="Field Force Dashboard"
-        subtitle="Your complete field operations at a glance"
+        subtitle="Your complete field operations & task execution status"
         onRefresh={refresh}
       />
 
@@ -201,12 +204,13 @@ export default function FieldForceDashboard() {
         />
       </div>
 
-      {/* Stats Grid */}
+      {/* Real Task Database Statistics Grid */}
       <StatsGrid>
-        <StatCard title="Today's Visits" value={todayVisits.length} icon={MapPin} color="bg-blue-500" />
-        <StatCard title="Completed" value={visitSummary.completed} icon={CheckCircle2} color="bg-emerald-500" />
+        <StatCard title="Assigned Tasks" value={tasks.length} icon={ClipboardCheck} color="bg-blue-500" />
         <StatCard title="Pending Tasks" value={pendingTasks.length} icon={Clock3} color="bg-amber-500" />
-        <StatCard title="Total Expenses" value={`₹${expenseSummary.totalAmount.toLocaleString("en-IN")}`} icon={IndianRupee} color="bg-cyan-500" />
+        <StatCard title="In Progress Tasks" value={inProgressTasks.length} icon={Activity} color="bg-indigo-500" />
+        <StatCard title="Completed Tasks" value={completedTasks.length} icon={CheckCircle2} color="bg-emerald-500" />
+        <StatCard title="Today's Tasks" value={todayTasksList.length} icon={Target} color="bg-purple-500" />
       </StatsGrid>
 
       {/* Today's Tasks & Quick Actions */}

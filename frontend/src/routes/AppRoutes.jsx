@@ -36,6 +36,7 @@ import CalendarPage from "../pages/field-force/CalendarPage";
 import ActivitiesPage from "../pages/field-force/ActivitiesPage";
 import DARPage from "../pages/field-force/DARPage";
 import ProfilePage from "../pages/field-force/ProfilePage";
+import TaskExecutionPage from "../pages/field-force/TaskExecutionPage";
 
 export default function AppRoutes() {
   return (
@@ -127,6 +128,7 @@ export default function AppRoutes() {
   <Route path="/field-force/beat-plans" element={<BeatPlanningPage />} />
   <Route path="/field-force/route" element={<RouteOptimizationPage />} />
   <Route path="/field-force/tasks" element={<TasksPage />} />
+  <Route path="/field-force/tasks/:id/execute" element={<TaskExecutionPage />} />
   <Route path="/field-force/visits" element={<VisitsPage />} />
   <Route path="/field-force/photo-upload" element={<PhotoUploadPage />} />
   <Route path="/field-force/meeting-notes" element={<MeetingNotesPage />} />

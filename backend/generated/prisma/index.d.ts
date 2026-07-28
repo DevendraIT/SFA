@@ -285,7 +285,17 @@ export type NotificationStatus = (typeof NotificationStatus)[keyof typeof Notifi
 
 export const TaskStatus: {
   PENDING: 'PENDING',
+  ASSIGNED: 'ASSIGNED',
+  ACCEPTED: 'ACCEPTED',
   IN_PROGRESS: 'IN_PROGRESS',
+  NAVIGATING: 'NAVIGATING',
+  ARRIVED: 'ARRIVED',
+  CHECKED_IN: 'CHECKED_IN',
+  DELIVERY_IN_PROGRESS: 'DELIVERY_IN_PROGRESS',
+  PAYMENT_COLLECTED: 'PAYMENT_COLLECTED',
+  PHOTO_UPLOADED: 'PHOTO_UPLOADED',
+  VISIT_NOTES_COMPLETED: 'VISIT_NOTES_COMPLETED',
+  CHECKED_OUT: 'CHECKED_OUT',
   COMPLETED: 'COMPLETED',
   CANCELLED: 'CANCELLED'
 };
@@ -37610,8 +37620,18 @@ export namespace Prisma {
 
   export type AggregateTask = {
     _count: TaskCountAggregateOutputType | null
+    _avg: TaskAvgAggregateOutputType | null
+    _sum: TaskSumAggregateOutputType | null
     _min: TaskMinAggregateOutputType | null
     _max: TaskMaxAggregateOutputType | null
+  }
+
+  export type TaskAvgAggregateOutputType = {
+    paymentAmount: number | null
+  }
+
+  export type TaskSumAggregateOutputType = {
+    paymentAmount: number | null
   }
 
   export type TaskMinAggregateOutputType = {
@@ -37628,6 +37648,22 @@ export namespace Prisma {
     referenceType: string | null
     referenceId: string | null
     completionNotes: string | null
+    acceptedAt: Date | null
+    startedAt: Date | null
+    navigatingAt: Date | null
+    arrivedAt: Date | null
+    checkedInAt: Date | null
+    deliveryStartedAt: Date | null
+    paymentCollectedAt: Date | null
+    paymentAmount: number | null
+    paymentMethod: string | null
+    paymentStatus: string | null
+    photoUploadedAt: Date | null
+    visitNotesCompletedAt: Date | null
+    visitNotes: string | null
+    signatureCapturedAt: Date | null
+    customerSignature: string | null
+    checkedOutAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -37646,6 +37682,22 @@ export namespace Prisma {
     referenceType: string | null
     referenceId: string | null
     completionNotes: string | null
+    acceptedAt: Date | null
+    startedAt: Date | null
+    navigatingAt: Date | null
+    arrivedAt: Date | null
+    checkedInAt: Date | null
+    deliveryStartedAt: Date | null
+    paymentCollectedAt: Date | null
+    paymentAmount: number | null
+    paymentMethod: string | null
+    paymentStatus: string | null
+    photoUploadedAt: Date | null
+    visitNotesCompletedAt: Date | null
+    visitNotes: string | null
+    signatureCapturedAt: Date | null
+    customerSignature: string | null
+    checkedOutAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -37665,11 +37717,40 @@ export namespace Prisma {
     referenceId: number
     completionNotes: number
     metadata: number
+    acceptedAt: number
+    startedAt: number
+    navigatingAt: number
+    arrivedAt: number
+    checkedInAt: number
+    checkInLocation: number
+    deliveryStartedAt: number
+    paymentCollectedAt: number
+    paymentAmount: number
+    paymentMethod: number
+    paymentStatus: number
+    photoUploadedAt: number
+    photos: number
+    visitNotesCompletedAt: number
+    visitNotes: number
+    signatureCapturedAt: number
+    customerSignature: number
+    checkedOutAt: number
+    checkOutLocation: number
+    gpsLogs: number
+    executionHistory: number
     createdAt: number
     updatedAt: number
     _all: number
   }
 
+
+  export type TaskAvgAggregateInputType = {
+    paymentAmount?: true
+  }
+
+  export type TaskSumAggregateInputType = {
+    paymentAmount?: true
+  }
 
   export type TaskMinAggregateInputType = {
     id?: true
@@ -37685,6 +37766,22 @@ export namespace Prisma {
     referenceType?: true
     referenceId?: true
     completionNotes?: true
+    acceptedAt?: true
+    startedAt?: true
+    navigatingAt?: true
+    arrivedAt?: true
+    checkedInAt?: true
+    deliveryStartedAt?: true
+    paymentCollectedAt?: true
+    paymentAmount?: true
+    paymentMethod?: true
+    paymentStatus?: true
+    photoUploadedAt?: true
+    visitNotesCompletedAt?: true
+    visitNotes?: true
+    signatureCapturedAt?: true
+    customerSignature?: true
+    checkedOutAt?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -37703,6 +37800,22 @@ export namespace Prisma {
     referenceType?: true
     referenceId?: true
     completionNotes?: true
+    acceptedAt?: true
+    startedAt?: true
+    navigatingAt?: true
+    arrivedAt?: true
+    checkedInAt?: true
+    deliveryStartedAt?: true
+    paymentCollectedAt?: true
+    paymentAmount?: true
+    paymentMethod?: true
+    paymentStatus?: true
+    photoUploadedAt?: true
+    visitNotesCompletedAt?: true
+    visitNotes?: true
+    signatureCapturedAt?: true
+    customerSignature?: true
+    checkedOutAt?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -37722,6 +37835,27 @@ export namespace Prisma {
     referenceId?: true
     completionNotes?: true
     metadata?: true
+    acceptedAt?: true
+    startedAt?: true
+    navigatingAt?: true
+    arrivedAt?: true
+    checkedInAt?: true
+    checkInLocation?: true
+    deliveryStartedAt?: true
+    paymentCollectedAt?: true
+    paymentAmount?: true
+    paymentMethod?: true
+    paymentStatus?: true
+    photoUploadedAt?: true
+    photos?: true
+    visitNotesCompletedAt?: true
+    visitNotes?: true
+    signatureCapturedAt?: true
+    customerSignature?: true
+    checkedOutAt?: true
+    checkOutLocation?: true
+    gpsLogs?: true
+    executionHistory?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -37765,6 +37899,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: TaskAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: TaskSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: TaskMinAggregateInputType
@@ -37795,6 +37941,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: TaskCountAggregateInputType | true
+    _avg?: TaskAvgAggregateInputType
+    _sum?: TaskSumAggregateInputType
     _min?: TaskMinAggregateInputType
     _max?: TaskMaxAggregateInputType
   }
@@ -37814,9 +37962,32 @@ export namespace Prisma {
     referenceId: string | null
     completionNotes: string | null
     metadata: JsonValue | null
+    acceptedAt: Date | null
+    startedAt: Date | null
+    navigatingAt: Date | null
+    arrivedAt: Date | null
+    checkedInAt: Date | null
+    checkInLocation: JsonValue | null
+    deliveryStartedAt: Date | null
+    paymentCollectedAt: Date | null
+    paymentAmount: number | null
+    paymentMethod: string | null
+    paymentStatus: string | null
+    photoUploadedAt: Date | null
+    photos: JsonValue | null
+    visitNotesCompletedAt: Date | null
+    visitNotes: string | null
+    signatureCapturedAt: Date | null
+    customerSignature: string | null
+    checkedOutAt: Date | null
+    checkOutLocation: JsonValue | null
+    gpsLogs: JsonValue | null
+    executionHistory: JsonValue | null
     createdAt: Date
     updatedAt: Date
     _count: TaskCountAggregateOutputType | null
+    _avg: TaskAvgAggregateOutputType | null
+    _sum: TaskSumAggregateOutputType | null
     _min: TaskMinAggregateOutputType | null
     _max: TaskMaxAggregateOutputType | null
   }
@@ -37850,6 +38021,27 @@ export namespace Prisma {
     referenceId?: boolean
     completionNotes?: boolean
     metadata?: boolean
+    acceptedAt?: boolean
+    startedAt?: boolean
+    navigatingAt?: boolean
+    arrivedAt?: boolean
+    checkedInAt?: boolean
+    checkInLocation?: boolean
+    deliveryStartedAt?: boolean
+    paymentCollectedAt?: boolean
+    paymentAmount?: boolean
+    paymentMethod?: boolean
+    paymentStatus?: boolean
+    photoUploadedAt?: boolean
+    photos?: boolean
+    visitNotesCompletedAt?: boolean
+    visitNotes?: boolean
+    signatureCapturedAt?: boolean
+    customerSignature?: boolean
+    checkedOutAt?: boolean
+    checkOutLocation?: boolean
+    gpsLogs?: boolean
+    executionHistory?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     organization?: boolean | OrganizationDefaultArgs<ExtArgs>
@@ -37872,6 +38064,27 @@ export namespace Prisma {
     referenceId?: boolean
     completionNotes?: boolean
     metadata?: boolean
+    acceptedAt?: boolean
+    startedAt?: boolean
+    navigatingAt?: boolean
+    arrivedAt?: boolean
+    checkedInAt?: boolean
+    checkInLocation?: boolean
+    deliveryStartedAt?: boolean
+    paymentCollectedAt?: boolean
+    paymentAmount?: boolean
+    paymentMethod?: boolean
+    paymentStatus?: boolean
+    photoUploadedAt?: boolean
+    photos?: boolean
+    visitNotesCompletedAt?: boolean
+    visitNotes?: boolean
+    signatureCapturedAt?: boolean
+    customerSignature?: boolean
+    checkedOutAt?: boolean
+    checkOutLocation?: boolean
+    gpsLogs?: boolean
+    executionHistory?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     organization?: boolean | OrganizationDefaultArgs<ExtArgs>
@@ -37894,6 +38107,27 @@ export namespace Prisma {
     referenceId?: boolean
     completionNotes?: boolean
     metadata?: boolean
+    acceptedAt?: boolean
+    startedAt?: boolean
+    navigatingAt?: boolean
+    arrivedAt?: boolean
+    checkedInAt?: boolean
+    checkInLocation?: boolean
+    deliveryStartedAt?: boolean
+    paymentCollectedAt?: boolean
+    paymentAmount?: boolean
+    paymentMethod?: boolean
+    paymentStatus?: boolean
+    photoUploadedAt?: boolean
+    photos?: boolean
+    visitNotesCompletedAt?: boolean
+    visitNotes?: boolean
+    signatureCapturedAt?: boolean
+    customerSignature?: boolean
+    checkedOutAt?: boolean
+    checkOutLocation?: boolean
+    gpsLogs?: boolean
+    executionHistory?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     organization?: boolean | OrganizationDefaultArgs<ExtArgs>
@@ -37916,11 +38150,32 @@ export namespace Prisma {
     referenceId?: boolean
     completionNotes?: boolean
     metadata?: boolean
+    acceptedAt?: boolean
+    startedAt?: boolean
+    navigatingAt?: boolean
+    arrivedAt?: boolean
+    checkedInAt?: boolean
+    checkInLocation?: boolean
+    deliveryStartedAt?: boolean
+    paymentCollectedAt?: boolean
+    paymentAmount?: boolean
+    paymentMethod?: boolean
+    paymentStatus?: boolean
+    photoUploadedAt?: boolean
+    photos?: boolean
+    visitNotesCompletedAt?: boolean
+    visitNotes?: boolean
+    signatureCapturedAt?: boolean
+    customerSignature?: boolean
+    checkedOutAt?: boolean
+    checkOutLocation?: boolean
+    gpsLogs?: boolean
+    executionHistory?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type TaskOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "assignedById" | "assignedToId" | "title" | "description" | "status" | "priority" | "dueDate" | "completedAt" | "referenceType" | "referenceId" | "completionNotes" | "metadata" | "createdAt" | "updatedAt", ExtArgs["result"]["task"]>
+  export type TaskOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "assignedById" | "assignedToId" | "title" | "description" | "status" | "priority" | "dueDate" | "completedAt" | "referenceType" | "referenceId" | "completionNotes" | "metadata" | "acceptedAt" | "startedAt" | "navigatingAt" | "arrivedAt" | "checkedInAt" | "checkInLocation" | "deliveryStartedAt" | "paymentCollectedAt" | "paymentAmount" | "paymentMethod" | "paymentStatus" | "photoUploadedAt" | "photos" | "visitNotesCompletedAt" | "visitNotes" | "signatureCapturedAt" | "customerSignature" | "checkedOutAt" | "checkOutLocation" | "gpsLogs" | "executionHistory" | "createdAt" | "updatedAt", ExtArgs["result"]["task"]>
   export type TaskInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     organization?: boolean | OrganizationDefaultArgs<ExtArgs>
     assignedBy?: boolean | UserDefaultArgs<ExtArgs>
@@ -37959,6 +38214,27 @@ export namespace Prisma {
       referenceId: string | null
       completionNotes: string | null
       metadata: Prisma.JsonValue | null
+      acceptedAt: Date | null
+      startedAt: Date | null
+      navigatingAt: Date | null
+      arrivedAt: Date | null
+      checkedInAt: Date | null
+      checkInLocation: Prisma.JsonValue | null
+      deliveryStartedAt: Date | null
+      paymentCollectedAt: Date | null
+      paymentAmount: number | null
+      paymentMethod: string | null
+      paymentStatus: string | null
+      photoUploadedAt: Date | null
+      photos: Prisma.JsonValue | null
+      visitNotesCompletedAt: Date | null
+      visitNotes: string | null
+      signatureCapturedAt: Date | null
+      customerSignature: string | null
+      checkedOutAt: Date | null
+      checkOutLocation: Prisma.JsonValue | null
+      gpsLogs: Prisma.JsonValue | null
+      executionHistory: Prisma.JsonValue | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["task"]>
@@ -38401,6 +38677,27 @@ export namespace Prisma {
     readonly referenceId: FieldRef<"Task", 'String'>
     readonly completionNotes: FieldRef<"Task", 'String'>
     readonly metadata: FieldRef<"Task", 'Json'>
+    readonly acceptedAt: FieldRef<"Task", 'DateTime'>
+    readonly startedAt: FieldRef<"Task", 'DateTime'>
+    readonly navigatingAt: FieldRef<"Task", 'DateTime'>
+    readonly arrivedAt: FieldRef<"Task", 'DateTime'>
+    readonly checkedInAt: FieldRef<"Task", 'DateTime'>
+    readonly checkInLocation: FieldRef<"Task", 'Json'>
+    readonly deliveryStartedAt: FieldRef<"Task", 'DateTime'>
+    readonly paymentCollectedAt: FieldRef<"Task", 'DateTime'>
+    readonly paymentAmount: FieldRef<"Task", 'Float'>
+    readonly paymentMethod: FieldRef<"Task", 'String'>
+    readonly paymentStatus: FieldRef<"Task", 'String'>
+    readonly photoUploadedAt: FieldRef<"Task", 'DateTime'>
+    readonly photos: FieldRef<"Task", 'Json'>
+    readonly visitNotesCompletedAt: FieldRef<"Task", 'DateTime'>
+    readonly visitNotes: FieldRef<"Task", 'String'>
+    readonly signatureCapturedAt: FieldRef<"Task", 'DateTime'>
+    readonly customerSignature: FieldRef<"Task", 'String'>
+    readonly checkedOutAt: FieldRef<"Task", 'DateTime'>
+    readonly checkOutLocation: FieldRef<"Task", 'Json'>
+    readonly gpsLogs: FieldRef<"Task", 'Json'>
+    readonly executionHistory: FieldRef<"Task", 'Json'>
     readonly createdAt: FieldRef<"Task", 'DateTime'>
     readonly updatedAt: FieldRef<"Task", 'DateTime'>
   }
@@ -43738,6 +44035,27 @@ export namespace Prisma {
     referenceId: 'referenceId',
     completionNotes: 'completionNotes',
     metadata: 'metadata',
+    acceptedAt: 'acceptedAt',
+    startedAt: 'startedAt',
+    navigatingAt: 'navigatingAt',
+    arrivedAt: 'arrivedAt',
+    checkedInAt: 'checkedInAt',
+    checkInLocation: 'checkInLocation',
+    deliveryStartedAt: 'deliveryStartedAt',
+    paymentCollectedAt: 'paymentCollectedAt',
+    paymentAmount: 'paymentAmount',
+    paymentMethod: 'paymentMethod',
+    paymentStatus: 'paymentStatus',
+    photoUploadedAt: 'photoUploadedAt',
+    photos: 'photos',
+    visitNotesCompletedAt: 'visitNotesCompletedAt',
+    visitNotes: 'visitNotes',
+    signatureCapturedAt: 'signatureCapturedAt',
+    customerSignature: 'customerSignature',
+    checkedOutAt: 'checkedOutAt',
+    checkOutLocation: 'checkOutLocation',
+    gpsLogs: 'gpsLogs',
+    executionHistory: 'executionHistory',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -46556,6 +46874,27 @@ export namespace Prisma {
     referenceId?: UuidNullableFilter<"Task"> | string | null
     completionNotes?: StringNullableFilter<"Task"> | string | null
     metadata?: JsonNullableFilter<"Task">
+    acceptedAt?: DateTimeNullableFilter<"Task"> | Date | string | null
+    startedAt?: DateTimeNullableFilter<"Task"> | Date | string | null
+    navigatingAt?: DateTimeNullableFilter<"Task"> | Date | string | null
+    arrivedAt?: DateTimeNullableFilter<"Task"> | Date | string | null
+    checkedInAt?: DateTimeNullableFilter<"Task"> | Date | string | null
+    checkInLocation?: JsonNullableFilter<"Task">
+    deliveryStartedAt?: DateTimeNullableFilter<"Task"> | Date | string | null
+    paymentCollectedAt?: DateTimeNullableFilter<"Task"> | Date | string | null
+    paymentAmount?: FloatNullableFilter<"Task"> | number | null
+    paymentMethod?: StringNullableFilter<"Task"> | string | null
+    paymentStatus?: StringNullableFilter<"Task"> | string | null
+    photoUploadedAt?: DateTimeNullableFilter<"Task"> | Date | string | null
+    photos?: JsonNullableFilter<"Task">
+    visitNotesCompletedAt?: DateTimeNullableFilter<"Task"> | Date | string | null
+    visitNotes?: StringNullableFilter<"Task"> | string | null
+    signatureCapturedAt?: DateTimeNullableFilter<"Task"> | Date | string | null
+    customerSignature?: StringNullableFilter<"Task"> | string | null
+    checkedOutAt?: DateTimeNullableFilter<"Task"> | Date | string | null
+    checkOutLocation?: JsonNullableFilter<"Task">
+    gpsLogs?: JsonNullableFilter<"Task">
+    executionHistory?: JsonNullableFilter<"Task">
     createdAt?: DateTimeFilter<"Task"> | Date | string
     updatedAt?: DateTimeFilter<"Task"> | Date | string
     organization?: XOR<OrganizationScalarRelationFilter, OrganizationWhereInput>
@@ -46578,6 +46917,27 @@ export namespace Prisma {
     referenceId?: SortOrderInput | SortOrder
     completionNotes?: SortOrderInput | SortOrder
     metadata?: SortOrderInput | SortOrder
+    acceptedAt?: SortOrderInput | SortOrder
+    startedAt?: SortOrderInput | SortOrder
+    navigatingAt?: SortOrderInput | SortOrder
+    arrivedAt?: SortOrderInput | SortOrder
+    checkedInAt?: SortOrderInput | SortOrder
+    checkInLocation?: SortOrderInput | SortOrder
+    deliveryStartedAt?: SortOrderInput | SortOrder
+    paymentCollectedAt?: SortOrderInput | SortOrder
+    paymentAmount?: SortOrderInput | SortOrder
+    paymentMethod?: SortOrderInput | SortOrder
+    paymentStatus?: SortOrderInput | SortOrder
+    photoUploadedAt?: SortOrderInput | SortOrder
+    photos?: SortOrderInput | SortOrder
+    visitNotesCompletedAt?: SortOrderInput | SortOrder
+    visitNotes?: SortOrderInput | SortOrder
+    signatureCapturedAt?: SortOrderInput | SortOrder
+    customerSignature?: SortOrderInput | SortOrder
+    checkedOutAt?: SortOrderInput | SortOrder
+    checkOutLocation?: SortOrderInput | SortOrder
+    gpsLogs?: SortOrderInput | SortOrder
+    executionHistory?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     organization?: OrganizationOrderByWithRelationInput
@@ -46603,6 +46963,27 @@ export namespace Prisma {
     referenceId?: UuidNullableFilter<"Task"> | string | null
     completionNotes?: StringNullableFilter<"Task"> | string | null
     metadata?: JsonNullableFilter<"Task">
+    acceptedAt?: DateTimeNullableFilter<"Task"> | Date | string | null
+    startedAt?: DateTimeNullableFilter<"Task"> | Date | string | null
+    navigatingAt?: DateTimeNullableFilter<"Task"> | Date | string | null
+    arrivedAt?: DateTimeNullableFilter<"Task"> | Date | string | null
+    checkedInAt?: DateTimeNullableFilter<"Task"> | Date | string | null
+    checkInLocation?: JsonNullableFilter<"Task">
+    deliveryStartedAt?: DateTimeNullableFilter<"Task"> | Date | string | null
+    paymentCollectedAt?: DateTimeNullableFilter<"Task"> | Date | string | null
+    paymentAmount?: FloatNullableFilter<"Task"> | number | null
+    paymentMethod?: StringNullableFilter<"Task"> | string | null
+    paymentStatus?: StringNullableFilter<"Task"> | string | null
+    photoUploadedAt?: DateTimeNullableFilter<"Task"> | Date | string | null
+    photos?: JsonNullableFilter<"Task">
+    visitNotesCompletedAt?: DateTimeNullableFilter<"Task"> | Date | string | null
+    visitNotes?: StringNullableFilter<"Task"> | string | null
+    signatureCapturedAt?: DateTimeNullableFilter<"Task"> | Date | string | null
+    customerSignature?: StringNullableFilter<"Task"> | string | null
+    checkedOutAt?: DateTimeNullableFilter<"Task"> | Date | string | null
+    checkOutLocation?: JsonNullableFilter<"Task">
+    gpsLogs?: JsonNullableFilter<"Task">
+    executionHistory?: JsonNullableFilter<"Task">
     createdAt?: DateTimeFilter<"Task"> | Date | string
     updatedAt?: DateTimeFilter<"Task"> | Date | string
     organization?: XOR<OrganizationScalarRelationFilter, OrganizationWhereInput>
@@ -46625,11 +47006,34 @@ export namespace Prisma {
     referenceId?: SortOrderInput | SortOrder
     completionNotes?: SortOrderInput | SortOrder
     metadata?: SortOrderInput | SortOrder
+    acceptedAt?: SortOrderInput | SortOrder
+    startedAt?: SortOrderInput | SortOrder
+    navigatingAt?: SortOrderInput | SortOrder
+    arrivedAt?: SortOrderInput | SortOrder
+    checkedInAt?: SortOrderInput | SortOrder
+    checkInLocation?: SortOrderInput | SortOrder
+    deliveryStartedAt?: SortOrderInput | SortOrder
+    paymentCollectedAt?: SortOrderInput | SortOrder
+    paymentAmount?: SortOrderInput | SortOrder
+    paymentMethod?: SortOrderInput | SortOrder
+    paymentStatus?: SortOrderInput | SortOrder
+    photoUploadedAt?: SortOrderInput | SortOrder
+    photos?: SortOrderInput | SortOrder
+    visitNotesCompletedAt?: SortOrderInput | SortOrder
+    visitNotes?: SortOrderInput | SortOrder
+    signatureCapturedAt?: SortOrderInput | SortOrder
+    customerSignature?: SortOrderInput | SortOrder
+    checkedOutAt?: SortOrderInput | SortOrder
+    checkOutLocation?: SortOrderInput | SortOrder
+    gpsLogs?: SortOrderInput | SortOrder
+    executionHistory?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: TaskCountOrderByAggregateInput
+    _avg?: TaskAvgOrderByAggregateInput
     _max?: TaskMaxOrderByAggregateInput
     _min?: TaskMinOrderByAggregateInput
+    _sum?: TaskSumOrderByAggregateInput
   }
 
   export type TaskScalarWhereWithAggregatesInput = {
@@ -46650,6 +47054,27 @@ export namespace Prisma {
     referenceId?: UuidNullableWithAggregatesFilter<"Task"> | string | null
     completionNotes?: StringNullableWithAggregatesFilter<"Task"> | string | null
     metadata?: JsonNullableWithAggregatesFilter<"Task">
+    acceptedAt?: DateTimeNullableWithAggregatesFilter<"Task"> | Date | string | null
+    startedAt?: DateTimeNullableWithAggregatesFilter<"Task"> | Date | string | null
+    navigatingAt?: DateTimeNullableWithAggregatesFilter<"Task"> | Date | string | null
+    arrivedAt?: DateTimeNullableWithAggregatesFilter<"Task"> | Date | string | null
+    checkedInAt?: DateTimeNullableWithAggregatesFilter<"Task"> | Date | string | null
+    checkInLocation?: JsonNullableWithAggregatesFilter<"Task">
+    deliveryStartedAt?: DateTimeNullableWithAggregatesFilter<"Task"> | Date | string | null
+    paymentCollectedAt?: DateTimeNullableWithAggregatesFilter<"Task"> | Date | string | null
+    paymentAmount?: FloatNullableWithAggregatesFilter<"Task"> | number | null
+    paymentMethod?: StringNullableWithAggregatesFilter<"Task"> | string | null
+    paymentStatus?: StringNullableWithAggregatesFilter<"Task"> | string | null
+    photoUploadedAt?: DateTimeNullableWithAggregatesFilter<"Task"> | Date | string | null
+    photos?: JsonNullableWithAggregatesFilter<"Task">
+    visitNotesCompletedAt?: DateTimeNullableWithAggregatesFilter<"Task"> | Date | string | null
+    visitNotes?: StringNullableWithAggregatesFilter<"Task"> | string | null
+    signatureCapturedAt?: DateTimeNullableWithAggregatesFilter<"Task"> | Date | string | null
+    customerSignature?: StringNullableWithAggregatesFilter<"Task"> | string | null
+    checkedOutAt?: DateTimeNullableWithAggregatesFilter<"Task"> | Date | string | null
+    checkOutLocation?: JsonNullableWithAggregatesFilter<"Task">
+    gpsLogs?: JsonNullableWithAggregatesFilter<"Task">
+    executionHistory?: JsonNullableWithAggregatesFilter<"Task">
     createdAt?: DateTimeWithAggregatesFilter<"Task"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Task"> | Date | string
   }
@@ -49595,6 +50020,27 @@ export namespace Prisma {
     referenceId?: string | null
     completionNotes?: string | null
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    acceptedAt?: Date | string | null
+    startedAt?: Date | string | null
+    navigatingAt?: Date | string | null
+    arrivedAt?: Date | string | null
+    checkedInAt?: Date | string | null
+    checkInLocation?: NullableJsonNullValueInput | InputJsonValue
+    deliveryStartedAt?: Date | string | null
+    paymentCollectedAt?: Date | string | null
+    paymentAmount?: number | null
+    paymentMethod?: string | null
+    paymentStatus?: string | null
+    photoUploadedAt?: Date | string | null
+    photos?: NullableJsonNullValueInput | InputJsonValue
+    visitNotesCompletedAt?: Date | string | null
+    visitNotes?: string | null
+    signatureCapturedAt?: Date | string | null
+    customerSignature?: string | null
+    checkedOutAt?: Date | string | null
+    checkOutLocation?: NullableJsonNullValueInput | InputJsonValue
+    gpsLogs?: NullableJsonNullValueInput | InputJsonValue
+    executionHistory?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     organization: OrganizationCreateNestedOneWithoutTasksInput
@@ -49617,6 +50063,27 @@ export namespace Prisma {
     referenceId?: string | null
     completionNotes?: string | null
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    acceptedAt?: Date | string | null
+    startedAt?: Date | string | null
+    navigatingAt?: Date | string | null
+    arrivedAt?: Date | string | null
+    checkedInAt?: Date | string | null
+    checkInLocation?: NullableJsonNullValueInput | InputJsonValue
+    deliveryStartedAt?: Date | string | null
+    paymentCollectedAt?: Date | string | null
+    paymentAmount?: number | null
+    paymentMethod?: string | null
+    paymentStatus?: string | null
+    photoUploadedAt?: Date | string | null
+    photos?: NullableJsonNullValueInput | InputJsonValue
+    visitNotesCompletedAt?: Date | string | null
+    visitNotes?: string | null
+    signatureCapturedAt?: Date | string | null
+    customerSignature?: string | null
+    checkedOutAt?: Date | string | null
+    checkOutLocation?: NullableJsonNullValueInput | InputJsonValue
+    gpsLogs?: NullableJsonNullValueInput | InputJsonValue
+    executionHistory?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -49633,6 +50100,27 @@ export namespace Prisma {
     referenceId?: NullableStringFieldUpdateOperationsInput | string | null
     completionNotes?: NullableStringFieldUpdateOperationsInput | string | null
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    navigatingAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkedInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkInLocation?: NullableJsonNullValueInput | InputJsonValue
+    deliveryStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentCollectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    photoUploadedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    photos?: NullableJsonNullValueInput | InputJsonValue
+    visitNotesCompletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    visitNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureCapturedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerSignature?: NullableStringFieldUpdateOperationsInput | string | null
+    checkedOutAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkOutLocation?: NullableJsonNullValueInput | InputJsonValue
+    gpsLogs?: NullableJsonNullValueInput | InputJsonValue
+    executionHistory?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneRequiredWithoutTasksNestedInput
@@ -49655,6 +50143,27 @@ export namespace Prisma {
     referenceId?: NullableStringFieldUpdateOperationsInput | string | null
     completionNotes?: NullableStringFieldUpdateOperationsInput | string | null
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    navigatingAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkedInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkInLocation?: NullableJsonNullValueInput | InputJsonValue
+    deliveryStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentCollectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    photoUploadedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    photos?: NullableJsonNullValueInput | InputJsonValue
+    visitNotesCompletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    visitNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureCapturedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerSignature?: NullableStringFieldUpdateOperationsInput | string | null
+    checkedOutAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkOutLocation?: NullableJsonNullValueInput | InputJsonValue
+    gpsLogs?: NullableJsonNullValueInput | InputJsonValue
+    executionHistory?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -49674,6 +50183,27 @@ export namespace Prisma {
     referenceId?: string | null
     completionNotes?: string | null
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    acceptedAt?: Date | string | null
+    startedAt?: Date | string | null
+    navigatingAt?: Date | string | null
+    arrivedAt?: Date | string | null
+    checkedInAt?: Date | string | null
+    checkInLocation?: NullableJsonNullValueInput | InputJsonValue
+    deliveryStartedAt?: Date | string | null
+    paymentCollectedAt?: Date | string | null
+    paymentAmount?: number | null
+    paymentMethod?: string | null
+    paymentStatus?: string | null
+    photoUploadedAt?: Date | string | null
+    photos?: NullableJsonNullValueInput | InputJsonValue
+    visitNotesCompletedAt?: Date | string | null
+    visitNotes?: string | null
+    signatureCapturedAt?: Date | string | null
+    customerSignature?: string | null
+    checkedOutAt?: Date | string | null
+    checkOutLocation?: NullableJsonNullValueInput | InputJsonValue
+    gpsLogs?: NullableJsonNullValueInput | InputJsonValue
+    executionHistory?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -49690,6 +50220,27 @@ export namespace Prisma {
     referenceId?: NullableStringFieldUpdateOperationsInput | string | null
     completionNotes?: NullableStringFieldUpdateOperationsInput | string | null
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    navigatingAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkedInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkInLocation?: NullableJsonNullValueInput | InputJsonValue
+    deliveryStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentCollectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    photoUploadedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    photos?: NullableJsonNullValueInput | InputJsonValue
+    visitNotesCompletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    visitNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureCapturedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerSignature?: NullableStringFieldUpdateOperationsInput | string | null
+    checkedOutAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkOutLocation?: NullableJsonNullValueInput | InputJsonValue
+    gpsLogs?: NullableJsonNullValueInput | InputJsonValue
+    executionHistory?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -49709,6 +50260,27 @@ export namespace Prisma {
     referenceId?: NullableStringFieldUpdateOperationsInput | string | null
     completionNotes?: NullableStringFieldUpdateOperationsInput | string | null
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    navigatingAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkedInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkInLocation?: NullableJsonNullValueInput | InputJsonValue
+    deliveryStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentCollectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    photoUploadedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    photos?: NullableJsonNullValueInput | InputJsonValue
+    visitNotesCompletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    visitNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureCapturedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerSignature?: NullableStringFieldUpdateOperationsInput | string | null
+    checkedOutAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkOutLocation?: NullableJsonNullValueInput | InputJsonValue
+    gpsLogs?: NullableJsonNullValueInput | InputJsonValue
+    executionHistory?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -52094,6 +52666,17 @@ export namespace Prisma {
     not?: NestedEnumTaskPriorityFilter<$PrismaModel> | $Enums.TaskPriority
   }
 
+  export type FloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
   export type TaskCountOrderByAggregateInput = {
     id?: SortOrder
     organizationId?: SortOrder
@@ -52109,8 +52692,33 @@ export namespace Prisma {
     referenceId?: SortOrder
     completionNotes?: SortOrder
     metadata?: SortOrder
+    acceptedAt?: SortOrder
+    startedAt?: SortOrder
+    navigatingAt?: SortOrder
+    arrivedAt?: SortOrder
+    checkedInAt?: SortOrder
+    checkInLocation?: SortOrder
+    deliveryStartedAt?: SortOrder
+    paymentCollectedAt?: SortOrder
+    paymentAmount?: SortOrder
+    paymentMethod?: SortOrder
+    paymentStatus?: SortOrder
+    photoUploadedAt?: SortOrder
+    photos?: SortOrder
+    visitNotesCompletedAt?: SortOrder
+    visitNotes?: SortOrder
+    signatureCapturedAt?: SortOrder
+    customerSignature?: SortOrder
+    checkedOutAt?: SortOrder
+    checkOutLocation?: SortOrder
+    gpsLogs?: SortOrder
+    executionHistory?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+  }
+
+  export type TaskAvgOrderByAggregateInput = {
+    paymentAmount?: SortOrder
   }
 
   export type TaskMaxOrderByAggregateInput = {
@@ -52127,6 +52735,22 @@ export namespace Prisma {
     referenceType?: SortOrder
     referenceId?: SortOrder
     completionNotes?: SortOrder
+    acceptedAt?: SortOrder
+    startedAt?: SortOrder
+    navigatingAt?: SortOrder
+    arrivedAt?: SortOrder
+    checkedInAt?: SortOrder
+    deliveryStartedAt?: SortOrder
+    paymentCollectedAt?: SortOrder
+    paymentAmount?: SortOrder
+    paymentMethod?: SortOrder
+    paymentStatus?: SortOrder
+    photoUploadedAt?: SortOrder
+    visitNotesCompletedAt?: SortOrder
+    visitNotes?: SortOrder
+    signatureCapturedAt?: SortOrder
+    customerSignature?: SortOrder
+    checkedOutAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -52145,8 +52769,28 @@ export namespace Prisma {
     referenceType?: SortOrder
     referenceId?: SortOrder
     completionNotes?: SortOrder
+    acceptedAt?: SortOrder
+    startedAt?: SortOrder
+    navigatingAt?: SortOrder
+    arrivedAt?: SortOrder
+    checkedInAt?: SortOrder
+    deliveryStartedAt?: SortOrder
+    paymentCollectedAt?: SortOrder
+    paymentAmount?: SortOrder
+    paymentMethod?: SortOrder
+    paymentStatus?: SortOrder
+    photoUploadedAt?: SortOrder
+    visitNotesCompletedAt?: SortOrder
+    visitNotes?: SortOrder
+    signatureCapturedAt?: SortOrder
+    customerSignature?: SortOrder
+    checkedOutAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+  }
+
+  export type TaskSumOrderByAggregateInput = {
+    paymentAmount?: SortOrder
   }
 
   export type EnumTaskStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -52167,6 +52811,22 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumTaskPriorityFilter<$PrismaModel>
     _max?: NestedEnumTaskPriorityFilter<$PrismaModel>
+  }
+
+  export type FloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
   }
 
   export type BeatPlanCountOrderByAggregateInput = {
@@ -55734,6 +56394,14 @@ export namespace Prisma {
     set?: $Enums.TaskPriority
   }
 
+  export type NullableFloatFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
   export type OrganizationUpdateOneRequiredWithoutTasksNestedInput = {
     create?: XOR<OrganizationCreateWithoutTasksInput, OrganizationUncheckedCreateWithoutTasksInput>
     connectOrCreate?: OrganizationCreateOrConnectWithoutTasksInput
@@ -56367,6 +57035,22 @@ export namespace Prisma {
     _max?: NestedEnumTaskPriorityFilter<$PrismaModel>
   }
 
+  export type NestedFloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
+  }
+
   export type CompanyCreateWithoutOrganizationInput = {
     id?: string
     name: string
@@ -56965,6 +57649,27 @@ export namespace Prisma {
     referenceId?: string | null
     completionNotes?: string | null
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    acceptedAt?: Date | string | null
+    startedAt?: Date | string | null
+    navigatingAt?: Date | string | null
+    arrivedAt?: Date | string | null
+    checkedInAt?: Date | string | null
+    checkInLocation?: NullableJsonNullValueInput | InputJsonValue
+    deliveryStartedAt?: Date | string | null
+    paymentCollectedAt?: Date | string | null
+    paymentAmount?: number | null
+    paymentMethod?: string | null
+    paymentStatus?: string | null
+    photoUploadedAt?: Date | string | null
+    photos?: NullableJsonNullValueInput | InputJsonValue
+    visitNotesCompletedAt?: Date | string | null
+    visitNotes?: string | null
+    signatureCapturedAt?: Date | string | null
+    customerSignature?: string | null
+    checkedOutAt?: Date | string | null
+    checkOutLocation?: NullableJsonNullValueInput | InputJsonValue
+    gpsLogs?: NullableJsonNullValueInput | InputJsonValue
+    executionHistory?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     assignedBy: UserCreateNestedOneWithoutTasksAssignedInput
@@ -56985,6 +57690,27 @@ export namespace Prisma {
     referenceId?: string | null
     completionNotes?: string | null
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    acceptedAt?: Date | string | null
+    startedAt?: Date | string | null
+    navigatingAt?: Date | string | null
+    arrivedAt?: Date | string | null
+    checkedInAt?: Date | string | null
+    checkInLocation?: NullableJsonNullValueInput | InputJsonValue
+    deliveryStartedAt?: Date | string | null
+    paymentCollectedAt?: Date | string | null
+    paymentAmount?: number | null
+    paymentMethod?: string | null
+    paymentStatus?: string | null
+    photoUploadedAt?: Date | string | null
+    photos?: NullableJsonNullValueInput | InputJsonValue
+    visitNotesCompletedAt?: Date | string | null
+    visitNotes?: string | null
+    signatureCapturedAt?: Date | string | null
+    customerSignature?: string | null
+    checkedOutAt?: Date | string | null
+    checkOutLocation?: NullableJsonNullValueInput | InputJsonValue
+    gpsLogs?: NullableJsonNullValueInput | InputJsonValue
+    executionHistory?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -57761,6 +58487,27 @@ export namespace Prisma {
     referenceId?: UuidNullableFilter<"Task"> | string | null
     completionNotes?: StringNullableFilter<"Task"> | string | null
     metadata?: JsonNullableFilter<"Task">
+    acceptedAt?: DateTimeNullableFilter<"Task"> | Date | string | null
+    startedAt?: DateTimeNullableFilter<"Task"> | Date | string | null
+    navigatingAt?: DateTimeNullableFilter<"Task"> | Date | string | null
+    arrivedAt?: DateTimeNullableFilter<"Task"> | Date | string | null
+    checkedInAt?: DateTimeNullableFilter<"Task"> | Date | string | null
+    checkInLocation?: JsonNullableFilter<"Task">
+    deliveryStartedAt?: DateTimeNullableFilter<"Task"> | Date | string | null
+    paymentCollectedAt?: DateTimeNullableFilter<"Task"> | Date | string | null
+    paymentAmount?: FloatNullableFilter<"Task"> | number | null
+    paymentMethod?: StringNullableFilter<"Task"> | string | null
+    paymentStatus?: StringNullableFilter<"Task"> | string | null
+    photoUploadedAt?: DateTimeNullableFilter<"Task"> | Date | string | null
+    photos?: JsonNullableFilter<"Task">
+    visitNotesCompletedAt?: DateTimeNullableFilter<"Task"> | Date | string | null
+    visitNotes?: StringNullableFilter<"Task"> | string | null
+    signatureCapturedAt?: DateTimeNullableFilter<"Task"> | Date | string | null
+    customerSignature?: StringNullableFilter<"Task"> | string | null
+    checkedOutAt?: DateTimeNullableFilter<"Task"> | Date | string | null
+    checkOutLocation?: JsonNullableFilter<"Task">
+    gpsLogs?: JsonNullableFilter<"Task">
+    executionHistory?: JsonNullableFilter<"Task">
     createdAt?: DateTimeFilter<"Task"> | Date | string
     updatedAt?: DateTimeFilter<"Task"> | Date | string
   }
@@ -61035,6 +61782,27 @@ export namespace Prisma {
     referenceId?: string | null
     completionNotes?: string | null
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    acceptedAt?: Date | string | null
+    startedAt?: Date | string | null
+    navigatingAt?: Date | string | null
+    arrivedAt?: Date | string | null
+    checkedInAt?: Date | string | null
+    checkInLocation?: NullableJsonNullValueInput | InputJsonValue
+    deliveryStartedAt?: Date | string | null
+    paymentCollectedAt?: Date | string | null
+    paymentAmount?: number | null
+    paymentMethod?: string | null
+    paymentStatus?: string | null
+    photoUploadedAt?: Date | string | null
+    photos?: NullableJsonNullValueInput | InputJsonValue
+    visitNotesCompletedAt?: Date | string | null
+    visitNotes?: string | null
+    signatureCapturedAt?: Date | string | null
+    customerSignature?: string | null
+    checkedOutAt?: Date | string | null
+    checkOutLocation?: NullableJsonNullValueInput | InputJsonValue
+    gpsLogs?: NullableJsonNullValueInput | InputJsonValue
+    executionHistory?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     organization: OrganizationCreateNestedOneWithoutTasksInput
@@ -61055,6 +61823,27 @@ export namespace Prisma {
     referenceId?: string | null
     completionNotes?: string | null
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    acceptedAt?: Date | string | null
+    startedAt?: Date | string | null
+    navigatingAt?: Date | string | null
+    arrivedAt?: Date | string | null
+    checkedInAt?: Date | string | null
+    checkInLocation?: NullableJsonNullValueInput | InputJsonValue
+    deliveryStartedAt?: Date | string | null
+    paymentCollectedAt?: Date | string | null
+    paymentAmount?: number | null
+    paymentMethod?: string | null
+    paymentStatus?: string | null
+    photoUploadedAt?: Date | string | null
+    photos?: NullableJsonNullValueInput | InputJsonValue
+    visitNotesCompletedAt?: Date | string | null
+    visitNotes?: string | null
+    signatureCapturedAt?: Date | string | null
+    customerSignature?: string | null
+    checkedOutAt?: Date | string | null
+    checkOutLocation?: NullableJsonNullValueInput | InputJsonValue
+    gpsLogs?: NullableJsonNullValueInput | InputJsonValue
+    executionHistory?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -61081,6 +61870,27 @@ export namespace Prisma {
     referenceId?: string | null
     completionNotes?: string | null
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    acceptedAt?: Date | string | null
+    startedAt?: Date | string | null
+    navigatingAt?: Date | string | null
+    arrivedAt?: Date | string | null
+    checkedInAt?: Date | string | null
+    checkInLocation?: NullableJsonNullValueInput | InputJsonValue
+    deliveryStartedAt?: Date | string | null
+    paymentCollectedAt?: Date | string | null
+    paymentAmount?: number | null
+    paymentMethod?: string | null
+    paymentStatus?: string | null
+    photoUploadedAt?: Date | string | null
+    photos?: NullableJsonNullValueInput | InputJsonValue
+    visitNotesCompletedAt?: Date | string | null
+    visitNotes?: string | null
+    signatureCapturedAt?: Date | string | null
+    customerSignature?: string | null
+    checkedOutAt?: Date | string | null
+    checkOutLocation?: NullableJsonNullValueInput | InputJsonValue
+    gpsLogs?: NullableJsonNullValueInput | InputJsonValue
+    executionHistory?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     organization: OrganizationCreateNestedOneWithoutTasksInput
@@ -61101,6 +61911,27 @@ export namespace Prisma {
     referenceId?: string | null
     completionNotes?: string | null
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    acceptedAt?: Date | string | null
+    startedAt?: Date | string | null
+    navigatingAt?: Date | string | null
+    arrivedAt?: Date | string | null
+    checkedInAt?: Date | string | null
+    checkInLocation?: NullableJsonNullValueInput | InputJsonValue
+    deliveryStartedAt?: Date | string | null
+    paymentCollectedAt?: Date | string | null
+    paymentAmount?: number | null
+    paymentMethod?: string | null
+    paymentStatus?: string | null
+    photoUploadedAt?: Date | string | null
+    photos?: NullableJsonNullValueInput | InputJsonValue
+    visitNotesCompletedAt?: Date | string | null
+    visitNotes?: string | null
+    signatureCapturedAt?: Date | string | null
+    customerSignature?: string | null
+    checkedOutAt?: Date | string | null
+    checkOutLocation?: NullableJsonNullValueInput | InputJsonValue
+    gpsLogs?: NullableJsonNullValueInput | InputJsonValue
+    executionHistory?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -68763,6 +69594,27 @@ export namespace Prisma {
     referenceId?: string | null
     completionNotes?: string | null
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    acceptedAt?: Date | string | null
+    startedAt?: Date | string | null
+    navigatingAt?: Date | string | null
+    arrivedAt?: Date | string | null
+    checkedInAt?: Date | string | null
+    checkInLocation?: NullableJsonNullValueInput | InputJsonValue
+    deliveryStartedAt?: Date | string | null
+    paymentCollectedAt?: Date | string | null
+    paymentAmount?: number | null
+    paymentMethod?: string | null
+    paymentStatus?: string | null
+    photoUploadedAt?: Date | string | null
+    photos?: NullableJsonNullValueInput | InputJsonValue
+    visitNotesCompletedAt?: Date | string | null
+    visitNotes?: string | null
+    signatureCapturedAt?: Date | string | null
+    customerSignature?: string | null
+    checkedOutAt?: Date | string | null
+    checkOutLocation?: NullableJsonNullValueInput | InputJsonValue
+    gpsLogs?: NullableJsonNullValueInput | InputJsonValue
+    executionHistory?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -69506,6 +70358,27 @@ export namespace Prisma {
     referenceId?: NullableStringFieldUpdateOperationsInput | string | null
     completionNotes?: NullableStringFieldUpdateOperationsInput | string | null
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    navigatingAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkedInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkInLocation?: NullableJsonNullValueInput | InputJsonValue
+    deliveryStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentCollectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    photoUploadedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    photos?: NullableJsonNullValueInput | InputJsonValue
+    visitNotesCompletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    visitNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureCapturedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerSignature?: NullableStringFieldUpdateOperationsInput | string | null
+    checkedOutAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkOutLocation?: NullableJsonNullValueInput | InputJsonValue
+    gpsLogs?: NullableJsonNullValueInput | InputJsonValue
+    executionHistory?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     assignedBy?: UserUpdateOneRequiredWithoutTasksAssignedNestedInput
@@ -69526,6 +70399,27 @@ export namespace Prisma {
     referenceId?: NullableStringFieldUpdateOperationsInput | string | null
     completionNotes?: NullableStringFieldUpdateOperationsInput | string | null
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    navigatingAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkedInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkInLocation?: NullableJsonNullValueInput | InputJsonValue
+    deliveryStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentCollectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    photoUploadedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    photos?: NullableJsonNullValueInput | InputJsonValue
+    visitNotesCompletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    visitNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureCapturedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerSignature?: NullableStringFieldUpdateOperationsInput | string | null
+    checkedOutAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkOutLocation?: NullableJsonNullValueInput | InputJsonValue
+    gpsLogs?: NullableJsonNullValueInput | InputJsonValue
+    executionHistory?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -69544,6 +70438,27 @@ export namespace Prisma {
     referenceId?: NullableStringFieldUpdateOperationsInput | string | null
     completionNotes?: NullableStringFieldUpdateOperationsInput | string | null
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    navigatingAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkedInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkInLocation?: NullableJsonNullValueInput | InputJsonValue
+    deliveryStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentCollectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    photoUploadedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    photos?: NullableJsonNullValueInput | InputJsonValue
+    visitNotesCompletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    visitNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureCapturedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerSignature?: NullableStringFieldUpdateOperationsInput | string | null
+    checkedOutAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkOutLocation?: NullableJsonNullValueInput | InputJsonValue
+    gpsLogs?: NullableJsonNullValueInput | InputJsonValue
+    executionHistory?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -71022,6 +71937,27 @@ export namespace Prisma {
     referenceId?: string | null
     completionNotes?: string | null
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    acceptedAt?: Date | string | null
+    startedAt?: Date | string | null
+    navigatingAt?: Date | string | null
+    arrivedAt?: Date | string | null
+    checkedInAt?: Date | string | null
+    checkInLocation?: NullableJsonNullValueInput | InputJsonValue
+    deliveryStartedAt?: Date | string | null
+    paymentCollectedAt?: Date | string | null
+    paymentAmount?: number | null
+    paymentMethod?: string | null
+    paymentStatus?: string | null
+    photoUploadedAt?: Date | string | null
+    photos?: NullableJsonNullValueInput | InputJsonValue
+    visitNotesCompletedAt?: Date | string | null
+    visitNotes?: string | null
+    signatureCapturedAt?: Date | string | null
+    customerSignature?: string | null
+    checkedOutAt?: Date | string | null
+    checkOutLocation?: NullableJsonNullValueInput | InputJsonValue
+    gpsLogs?: NullableJsonNullValueInput | InputJsonValue
+    executionHistory?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -71040,6 +71976,27 @@ export namespace Prisma {
     referenceId?: string | null
     completionNotes?: string | null
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    acceptedAt?: Date | string | null
+    startedAt?: Date | string | null
+    navigatingAt?: Date | string | null
+    arrivedAt?: Date | string | null
+    checkedInAt?: Date | string | null
+    checkInLocation?: NullableJsonNullValueInput | InputJsonValue
+    deliveryStartedAt?: Date | string | null
+    paymentCollectedAt?: Date | string | null
+    paymentAmount?: number | null
+    paymentMethod?: string | null
+    paymentStatus?: string | null
+    photoUploadedAt?: Date | string | null
+    photos?: NullableJsonNullValueInput | InputJsonValue
+    visitNotesCompletedAt?: Date | string | null
+    visitNotes?: string | null
+    signatureCapturedAt?: Date | string | null
+    customerSignature?: string | null
+    checkedOutAt?: Date | string | null
+    checkOutLocation?: NullableJsonNullValueInput | InputJsonValue
+    gpsLogs?: NullableJsonNullValueInput | InputJsonValue
+    executionHistory?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -71629,6 +72586,27 @@ export namespace Prisma {
     referenceId?: NullableStringFieldUpdateOperationsInput | string | null
     completionNotes?: NullableStringFieldUpdateOperationsInput | string | null
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    navigatingAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkedInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkInLocation?: NullableJsonNullValueInput | InputJsonValue
+    deliveryStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentCollectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    photoUploadedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    photos?: NullableJsonNullValueInput | InputJsonValue
+    visitNotesCompletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    visitNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureCapturedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerSignature?: NullableStringFieldUpdateOperationsInput | string | null
+    checkedOutAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkOutLocation?: NullableJsonNullValueInput | InputJsonValue
+    gpsLogs?: NullableJsonNullValueInput | InputJsonValue
+    executionHistory?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneRequiredWithoutTasksNestedInput
@@ -71649,6 +72627,27 @@ export namespace Prisma {
     referenceId?: NullableStringFieldUpdateOperationsInput | string | null
     completionNotes?: NullableStringFieldUpdateOperationsInput | string | null
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    navigatingAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkedInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkInLocation?: NullableJsonNullValueInput | InputJsonValue
+    deliveryStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentCollectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    photoUploadedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    photos?: NullableJsonNullValueInput | InputJsonValue
+    visitNotesCompletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    visitNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureCapturedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerSignature?: NullableStringFieldUpdateOperationsInput | string | null
+    checkedOutAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkOutLocation?: NullableJsonNullValueInput | InputJsonValue
+    gpsLogs?: NullableJsonNullValueInput | InputJsonValue
+    executionHistory?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -71667,6 +72666,27 @@ export namespace Prisma {
     referenceId?: NullableStringFieldUpdateOperationsInput | string | null
     completionNotes?: NullableStringFieldUpdateOperationsInput | string | null
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    navigatingAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkedInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkInLocation?: NullableJsonNullValueInput | InputJsonValue
+    deliveryStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentCollectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    photoUploadedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    photos?: NullableJsonNullValueInput | InputJsonValue
+    visitNotesCompletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    visitNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureCapturedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerSignature?: NullableStringFieldUpdateOperationsInput | string | null
+    checkedOutAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkOutLocation?: NullableJsonNullValueInput | InputJsonValue
+    gpsLogs?: NullableJsonNullValueInput | InputJsonValue
+    executionHistory?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -71683,6 +72703,27 @@ export namespace Prisma {
     referenceId?: NullableStringFieldUpdateOperationsInput | string | null
     completionNotes?: NullableStringFieldUpdateOperationsInput | string | null
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    navigatingAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkedInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkInLocation?: NullableJsonNullValueInput | InputJsonValue
+    deliveryStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentCollectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    photoUploadedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    photos?: NullableJsonNullValueInput | InputJsonValue
+    visitNotesCompletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    visitNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureCapturedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerSignature?: NullableStringFieldUpdateOperationsInput | string | null
+    checkedOutAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkOutLocation?: NullableJsonNullValueInput | InputJsonValue
+    gpsLogs?: NullableJsonNullValueInput | InputJsonValue
+    executionHistory?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneRequiredWithoutTasksNestedInput
@@ -71703,6 +72744,27 @@ export namespace Prisma {
     referenceId?: NullableStringFieldUpdateOperationsInput | string | null
     completionNotes?: NullableStringFieldUpdateOperationsInput | string | null
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    navigatingAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkedInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkInLocation?: NullableJsonNullValueInput | InputJsonValue
+    deliveryStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentCollectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    photoUploadedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    photos?: NullableJsonNullValueInput | InputJsonValue
+    visitNotesCompletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    visitNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureCapturedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerSignature?: NullableStringFieldUpdateOperationsInput | string | null
+    checkedOutAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkOutLocation?: NullableJsonNullValueInput | InputJsonValue
+    gpsLogs?: NullableJsonNullValueInput | InputJsonValue
+    executionHistory?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -71721,6 +72783,27 @@ export namespace Prisma {
     referenceId?: NullableStringFieldUpdateOperationsInput | string | null
     completionNotes?: NullableStringFieldUpdateOperationsInput | string | null
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    navigatingAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    arrivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkedInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkInLocation?: NullableJsonNullValueInput | InputJsonValue
+    deliveryStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentCollectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    photoUploadedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    photos?: NullableJsonNullValueInput | InputJsonValue
+    visitNotesCompletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    visitNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureCapturedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customerSignature?: NullableStringFieldUpdateOperationsInput | string | null
+    checkedOutAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkOutLocation?: NullableJsonNullValueInput | InputJsonValue
+    gpsLogs?: NullableJsonNullValueInput | InputJsonValue
+    executionHistory?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

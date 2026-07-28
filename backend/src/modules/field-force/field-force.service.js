@@ -1,8 +1,20 @@
 import { AppError } from '../../shared/response.js';
 import config from "../../config/env.js";
 
-// const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${config.GOOGLE_MAPS_API_KEY}`;
-// console.log("Google Maps API Key:", config.GOOGLE_MAPS_API_KEY);
+export function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
+  if (lat1 == null || lon1 == null || lat2 == null || lon2 == null) return 0;
+  const R = 6371000; // Earth radius in meters
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLon = (lon2 - lon1) * (Math.PI / 180);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * (Math.PI / 180)) *
+      Math.cos(lat2 * (Math.PI / 180)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return Math.round(R * c);
+}
 
 export class FieldForceService {
   constructor(fieldForceRepository) {
@@ -250,6 +262,114 @@ export class FieldForceService {
 
   async completeTask(taskId, organizationId, data) {
     return await this.repo.completeTask(taskId, organizationId, data);
+  }
+
+  async updateTaskStatus(taskId, organizationId, userId, payload) {
+    const task = await this.repo.getTask(taskId, organizationId);
+    if (!task) throw AppError.notFound('Task not found');
+
+    const { status, location, notes, completionNotes, payment, photoUrl, signature } = payload;
+    const now = new Date();
+    const updateFields = { status };
+
+    // Geo-fence validation for ARRIVED and CHECKED_IN
+    if (status === 'ARRIVED' || status === 'CHECKED_IN') {
+      const metadata = task.metadata || {};
+      const targetCustomer = metadata.customer || {};
+      const targetLocation = metadata.location || {};
+      const targetLat = targetCustomer.lat ?? targetLocation.lat;
+      const targetLng = targetCustomer.lng ?? targetLocation.lng;
+
+      if (targetLat != null && targetLng != null && location?.lat != null && location?.lng != null) {
+        const distance = calculateHaversineDistance(location.lat, location.lng, Number(targetLat), Number(targetLng));
+        if (distance > 100) {
+          throw AppError.badRequest(`Geo-fence check failed: You are ${distance}m away from customer location. Arrive/Check-In requires being within 100m radius.`);
+        }
+      }
+    }
+
+    // Set specific timestamp and field updates according to status transition
+    if (status === 'ACCEPTED') updateFields.acceptedAt = now;
+    if (status === 'IN_PROGRESS') updateFields.startedAt = now;
+    if (status === 'NAVIGATING') updateFields.navigatingAt = now;
+    if (status === 'ARRIVED') updateFields.arrivedAt = now;
+    if (status === 'CHECKED_IN') {
+      updateFields.checkedInAt = now;
+      if (location) updateFields.checkInLocation = location;
+    }
+    if (status === 'DELIVERY_IN_PROGRESS') updateFields.deliveryStartedAt = now;
+    if (status === 'PAYMENT_COLLECTED') {
+      updateFields.paymentCollectedAt = now;
+      if (payment) {
+        updateFields.paymentAmount = payment.amount;
+        updateFields.paymentMethod = payment.method || 'CASH';
+        updateFields.paymentStatus = payment.status || 'COLLECTED';
+      }
+    }
+    if (status === 'PHOTO_UPLOADED') {
+      updateFields.photoUploadedAt = now;
+      if (photoUrl) updateFields.photos = photoUrl;
+    }
+    if (status === 'VISIT_NOTES_COMPLETED') {
+      updateFields.visitNotesCompletedAt = now;
+      if (notes) updateFields.visitNotes = notes;
+    }
+    if (status === 'CHECKED_OUT') {
+      updateFields.checkedOutAt = now;
+      if (location) updateFields.checkOutLocation = location;
+      if (signature) {
+        updateFields.signatureCapturedAt = now;
+        updateFields.customerSignature = signature;
+      }
+    }
+    if (status === 'COMPLETED') {
+      updateFields.completedAt = now;
+      if (completionNotes || notes) updateFields.completionNotes = completionNotes || notes;
+    }
+
+    const historyEntry = {
+      status,
+      timestamp: now.toISOString(),
+      userId,
+      location: location || null,
+      notes: notes || completionNotes || null,
+    };
+
+    const gpsLogEntry = location ? {
+      lat: location.lat,
+      lng: location.lng,
+      accuracy: location.accuracy || null,
+      timestamp: now.toISOString(),
+      status,
+    } : null;
+
+    return this.repo.updateTaskExecutionState(taskId, organizationId, updateFields, historyEntry, gpsLogEntry);
+  }
+
+  async getTaskRoute(taskId, organizationId, userLocation) {
+    const task = await this.repo.getTask(taskId, organizationId);
+    if (!task) throw AppError.notFound('Task not found');
+
+    const metadata = task.metadata || {};
+    const customer = metadata.customer || {};
+    const destLat = customer.lat ?? metadata.location?.lat ?? 22.7196;
+    const destLng = customer.lng ?? metadata.location?.lng ?? 75.8577;
+
+    const originLat = userLocation?.lat ?? destLat - 0.01;
+    const originLng = userLocation?.lng ?? destLng - 0.01;
+
+    const distanceMeters = calculateHaversineDistance(originLat, originLng, destLat, destLng);
+    const estimatedMinutes = Math.max(1, Math.round((distanceMeters / 1000) * 3));
+
+    return {
+      taskId,
+      origin: { lat: originLat, lng: originLng },
+      destination: { lat: destLat, lng: destLng, address: customer.address || customer.name || 'Customer Location' },
+      distanceMeters,
+      distanceKm: (distanceMeters / 1000).toFixed(2),
+      estimatedMinutes,
+      googleMapsUrl: `https://www.google.com/maps/dir/?api=1&origin=${originLat},${originLng}&destination=${destLat},${destLng}&travelmode=driving`,
+    };
   }
 
   async getAssignedTasks(organizationId, managerId) {

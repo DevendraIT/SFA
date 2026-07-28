@@ -695,6 +695,28 @@ model Task {
 
   metadata Json?
 
+  acceptedAt            DateTime?
+  startedAt             DateTime?
+  navigatingAt          DateTime?
+  arrivedAt             DateTime?
+  checkedInAt           DateTime?
+  checkInLocation       Json?
+  deliveryStartedAt     DateTime?
+  paymentCollectedAt    DateTime?
+  paymentAmount         Float?
+  paymentMethod         String?
+  paymentStatus         String?
+  photoUploadedAt       DateTime?
+  photos                Json?
+  visitNotesCompletedAt DateTime?
+  visitNotes            String?
+  signatureCapturedAt   DateTime?
+  customerSignature     String?
+  checkedOutAt          DateTime?
+  checkOutLocation      Json?
+  gpsLogs               Json?
+  executionHistory      Json?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -712,7 +734,17 @@ model Task {
 
 enum TaskStatus {
   PENDING
+  ASSIGNED
+  ACCEPTED
   IN_PROGRESS
+  NAVIGATING
+  ARRIVED
+  CHECKED_IN
+  DELIVERY_IN_PROGRESS
+  PAYMENT_COLLECTED
+  PHOTO_UPLOADED
+  VISIT_NOTES_COMPLETED
+  CHECKED_OUT
   COMPLETED
   CANCELLED
 }

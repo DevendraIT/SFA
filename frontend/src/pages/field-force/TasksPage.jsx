@@ -26,9 +26,15 @@ export default function TasksPage() {
     try {
       setLoading(true);
       setError(null);
-      const res = await fieldForceApi.listTasks({ take: 100 });
-      const data = res.data?.data || res.data;
-      setTasks(data?.tasks || data || []);
+      // Pass assignedToId to fetch tasks assigned TO this executive
+      const params = { take: 100 };
+      if (user?.id) params.assignedToId = user.id;
+      const res = await fieldForceApi.listTasks(params);
+      const resp = res.data;
+      // After fixing successResponse: response.data = { success, message, data: { tasks, total } }
+      // So the actual data is at resp.data.tasks
+      const data = resp?.data?.tasks || resp?.message?.tasks || resp?.tasks || [];
+      setTasks(Array.isArray(data) ? data : []);
     } catch (err) {
       setError(err?.response?.data || err);
     } finally {

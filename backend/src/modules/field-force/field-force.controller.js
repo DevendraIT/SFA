@@ -96,10 +96,10 @@ export class FieldForceController {
 //   }
 // };
 
-  createTask = async (req, res, next) => {
+createTask = async (req, res, next) => {
     try {
       const result = await this.service.createTask(req.user.organizationId, req.user.id, req.body);
-      return successResponse(res, result, 'Task created successfully.', 201);
+      return successResponse(res, 'Task created successfully.', result, 201);
     } catch (err) {
       next(err);
     }
@@ -289,12 +289,15 @@ export class FieldForceController {
   listTasksData = async (req, res, next) => {
     try {
       const filters = {
-        assignedToId: req.query.assignedToId || req.user.id,
+        assignedToId: req.query.assignedToId,
         assignedById: req.query.assignedById,
         status: req.query.status,
         skip: parseInt(req.query.skip) || 0,
         take: parseInt(req.query.take) || 20,
       };
+      // Remove undefined keys so they don't interfere
+      Object.keys(filters).forEach(k => filters[k] === undefined && delete filters[k]);
+
       const result = await this.service.listTasks(req.user.organizationId, filters);
       return successResponse(res, result, 'Tasks retrieved.');
     } catch (err) {
@@ -306,6 +309,38 @@ export class FieldForceController {
     try {
       const result = await this.service.completeTask(req.params.id, req.user.organizationId, req.body);
       return successResponse(res, result, 'Task completed.');
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  updateTaskStatus = async (req, res, next) => {
+    try {
+      const result = await this.service.updateTaskStatus(
+        req.params.id,
+        req.user.organizationId,
+        req.user.id,
+        req.body
+      );
+      return successResponse(res, result, 'Task status updated successfully.');
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  getTaskRoute = async (req, res, next) => {
+    try {
+      const userLocation = req.query.lat && req.query.lng ? {
+        lat: parseFloat(req.query.lat),
+        lng: parseFloat(req.query.lng)
+      } : null;
+
+      const result = await this.service.getTaskRoute(
+        req.params.id,
+        req.user.organizationId,
+        userLocation
+      );
+      return successResponse(res, result, 'Task route details retrieved.');
     } catch (err) {
       next(err);
     }

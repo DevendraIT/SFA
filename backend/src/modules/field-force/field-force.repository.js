@@ -62,7 +62,8 @@ export class FieldForceRepository {
   }
 
   async updateVisitStatus(visitId, organizationId, status, data = {}) {
-    const updateData = { status };
+    const updateData = {};
+    if (status) updateData.status = status;
     if (status === 'COMPLETED') {
       updateData.completedAt = new Date();
     }
@@ -173,7 +174,7 @@ export class FieldForceRepository {
     });
   }
 
-  // ===== GET/LIST METHODS (CRITICAL) =====
+  // ===== GET/LIST METHODS =====
 
   async getAttendance(organizationId, userId, date) {
     const startDate = new Date(date);
@@ -282,43 +283,18 @@ export class FieldForceRepository {
     return { expenses, total };
   }
 
-  // async updateExpenseStatus(expenseId, organizationId, status, approvedById = null) {
-  //   const updateData = { status };
-  //   if (approvedById) updateData.approvedById = approvedById;
-  //   if (status === 'APPROVED') updateData.approvedAt = new Date();
-
-  //   return prisma.expense.update({
-  //     where: { id: expenseId, organizationId },
-  //     data: updateData,
-  //     include: { user: true, approvedBy: true },
-  //   });
-  // }
-
   async updateExpenseStatus(expenseId, organizationId, status, approvedById = null) {
-  const updateData = {
-    status,
-  };
+    const updateData = { status };
+    if (approvedById) {
+      updateData.approvedBy = { connect: { id: approvedById } };
+    }
 
-  if (approvedById) {
-    updateData.approvedBy = {
-      connect: {
-        id: approvedById,
-      },
-    };
+    return prisma.expense.update({
+      where: { id: expenseId, organizationId },
+      data: updateData,
+      include: { user: true, approvedBy: true },
+    });
   }
-
-  return prisma.expense.update({
-    where: {
-      id: expenseId,
-      organizationId,
-    },
-    data: updateData,
-    include: {
-      user: true,
-      approvedBy: true,
-    },
-  });
-}
 
   async getDailyActivityReport(darId, organizationId) {
     return prisma.dailyActivityReport.findFirst({
@@ -365,7 +341,14 @@ export class FieldForceRepository {
   async getTask(taskId, organizationId) {
     return prisma.task.findFirst({
       where: { id: taskId, organizationId },
-      include: { assignedTo: true, assignedBy: true },
+      include: {
+        assignedTo: {
+          select: { id: true, firstName: true, lastName: true, email: true, phoneNumber: true }
+        },
+        assignedBy: {
+          select: { id: true, firstName: true, lastName: true, email: true }
+        }
+      },
     });
   }
 
@@ -411,6 +394,44 @@ export class FieldForceRepository {
         completedAt: new Date(),
         completionNotes: data.completionNotes
       },
+      include: { assignedTo: true, assignedBy: true },
+    });
+  }
+
+  async updateTaskExecutionState(taskId, organizationId, updateFields, historyEntry, gpsLogEntry) {
+    const existingTask = await prisma.task.findFirst({
+      where: { id: taskId, organizationId },
+      select: { executionHistory: true, gpsLogs: true, photos: true }
+    });
+
+    const currentHistory = Array.isArray(existingTask?.executionHistory) ? existingTask.executionHistory : [];
+    const currentGpsLogs = Array.isArray(existingTask?.gpsLogs) ? existingTask.gpsLogs : [];
+    const currentPhotos = Array.isArray(existingTask?.photos) ? existingTask.photos : [];
+
+    const newHistory = historyEntry ? [...currentHistory, historyEntry] : currentHistory;
+    const newGpsLogs = gpsLogEntry ? [...currentGpsLogs, gpsLogEntry] : currentGpsLogs;
+
+    let newPhotos = currentPhotos;
+    if (updateFields.photos) {
+      if (Array.isArray(updateFields.photos)) {
+        newPhotos = [...currentPhotos, ...updateFields.photos];
+      } else {
+        newPhotos = [...currentPhotos, updateFields.photos];
+      }
+    }
+
+    const dataToUpdate = {
+      ...updateFields,
+      executionHistory: newHistory,
+      gpsLogs: newGpsLogs,
+    };
+    if (updateFields.photos) {
+      dataToUpdate.photos = newPhotos;
+    }
+
+    return prisma.task.update({
+      where: { id: taskId, organizationId },
+      data: dataToUpdate,
       include: { assignedTo: true, assignedBy: true },
     });
   }

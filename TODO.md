@@ -1,76 +1,43 @@
-# Task Assignment Module - Fix Status
+# Field Force Execution Workflow - Implementation Progress
 
-## ✅ COMPLETED
+## Phase 1: Backend - Prisma Schema Extension
+- [x] `backend/prisma/schema.prisma` - Extend Task model with new statuses and fields
+- [ ] Create Prisma migration
+- [ ] Regenerate Prisma client
 
-### 1. Customer Details Section
-- ✅ Created backend Customer CRUD module:
-  - `backend/src/modules/customers/customers.repository.js` - Prisma queries
-  - `backend/src/modules/customers/customers.service.js` - Business logic
-  - `backend/src/modules/customers/customers.controller.js` - HTTP handler
-  - `backend/src/modules/customers/customers.routes.js` - REST endpoints (GET, POST, PUT, DELETE)
-  - `backend/src/modules/customers/index.js` - Module export
-- ✅ Registered `/customers` routes in `backend/src/routes/index.js`
-- ✅ Created `frontend/src/api/customer.api.js` - API client
-- ✅ Fixed `AssignTaskModal.jsx` to use `customerApi` instead of `userApi.getUsers()`
-- ✅ Customer dropdown now loads from real backend database
+## Phase 2: Backend - Geo-Fencing & Task Workflow API
+- [ ] `backend/src/modules/field-force/field-force.validation.js` - New validation schemas
+- [ ] `backend/src/modules/field-force/field-force.repository.js` - New DB queries
+- [ ] `backend/src/modules/field-force/field-force.service.js` - New workflow + geo-fence logic
+- [ ] `backend/src/modules/field-force/field-force.controller.js` - New endpoints
+- [ ] `backend/src/modules/field-force/field-force.routes.js` - New routes
 
-### 2. Manual Lat/Lng → Address Search
-- ✅ Removed Latitude/Longitude manual input fields
-- ✅ Added address search input with Nominatim (OpenStreetMap) geocoding API
-- ✅ Auto-fetches lat/lng when address is selected
-- ✅ Displays auto-detected coordinates read-only
-- ✅ Map preview via OpenStreetMap embed
-- ✅ "Open in OpenStreetMap" link for navigation
+## Phase 3: Backend - Dashboard Task Metrics
+- [ ] `backend/src/modules/dashboard/dashboard.repository.js` - Add task metrics
+- [ ] `backend/src/modules/dashboard/dashboard.service.js` - Add task metrics
+- [ ] `backend/src/modules/dashboard/dashboard.controller.js` - Add task endpoints (if needed)
 
-### 3. Sales Order Section
-- ✅ Orders load from real backend API
-- ✅ Displays Order Number, Customer, Products, Quantity, Order Value
-- ✅ Shows Delivery Status, Invoice Status
+## Phase 4: Frontend - API & Hooks
+- [ ] `frontend/src/api/fieldForce.api.js` - New API methods
+- [ ] `frontend/src/hooks/useFieldForce.js` - Enhanced task tracking
 
-### 4. Route Assignment
-- ✅ Beat plans load from backend API
-- ✅ Displays Route Name, Start Location, Travel Mode
-- ✅ Backend route optimization endpoint connected
+## Phase 5: Frontend - New Components
+- [ ] Create `frontend/src/components/field-force/RouteMap.jsx`
+- [ ] Create `frontend/src/components/field-force/ProximityChecker.jsx`
 
-### 5. Instructions Section
-- ✅ Add/remove instruction steps
-- ✅ Instruction types: Note, Warning, Action Required, Information
-- ✅ Attachment links support
+## Phase 6: Frontend - Task Execution Page
+- [ ] Create `frontend/src/pages/field-force/TaskExecutionPage.jsx`
+- [ ] Update `frontend/src/pages/field-force/TasksPage.jsx` - Add execution actions
+- [ ] Update `frontend/src/routes/AppRoutes.jsx` - Add new route
 
-### 6. Summary Section
-- ✅ Complete overview of all sections
-- ✅ Executive, Customer, Products, Sales Order, Route, Priority, Due Date, Requirements
+## Phase 7: Frontend - Manager View Updates
+- [ ] Update `frontend/src/pages/team/TaskDetail.jsx` - Add execution log
+- [ ] Update `frontend/src/pages/field-force/FieldForceDashboard.jsx` - Real data display
 
-### 7. Execution Requirements
-- ✅ GPS Tracking toggle
-- ✅ Photo Capture toggle
-- ✅ Digital Signature toggle
-- ✅ Visit Notes toggle
-- ✅ Invoice/ Payment toggles
-- ✅ Geo Check-In / Check-Out toggles
-
-### 8. Backend Fixes
-- ✅ `listTasks` controller updated to support `assignedById` and `assignedToId` query params
-- ✅ `listTasks` repository updated to filter by `assignedById`
-- ✅ Task creation stores full metadata (customer, order, products, route, visit config, requirements, instructions)
-
-### 9. Fixed Missing Imports
-- ✅ Added `Mail`, `Phone`, `Link`, `ExternalLink` to lucide-react imports
-- ✅ Switched `userApi` to `customerApi` for customer data loading
-- ✅ Fixed response data parsing to handle multiple API response formats (`{ data: { orders } }`, `{ orders }`, `[{...}]`)
-
-## ⏳ VERIFICATION STEPS
-
-- [ ] Start backend: `cd backend && npm run dev`
-- [ ] Start frontend: `cd frontend && npm run dev`
-- [ ] Open Assign Task modal and verify:
-  - Customer dropdown populates from database
-  - Address search works with OpenStreetMap
-  - Coordinates auto-fill when address selected
-  - Map preview displays
-  - Sales Orders load correctly
-  - Route/Beat Plans load correctly
-  - All sections render (no blank white pages)
-  - Submit creates task successfully
-- [ ] Check TaskDetail page renders all metadata
-
+## Phase 8: Verify Complete Lifecycle
+- [ ] Verify manager sees assigned tasks
+- [ ] Verify executive sees tasks
+- [ ] Verify full execution workflow
+- [ ] Verify dashboard statistics
+- [ ] Verify geo-fence validation
+- [ ] Verify GPS logs stored correctly

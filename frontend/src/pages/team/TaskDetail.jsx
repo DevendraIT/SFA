@@ -55,7 +55,8 @@ export default function TaskDetail() {
       setLoading(true);
       setError(null);
       const res = await fieldForceApi.getTask(id);
-      setTask(res.data?.data || res.data);
+      const taskData = res.data?.data || res.data?.message || res.data;
+      setTask(taskData);
     } catch (err) {
       setError(err?.response?.data || err);
     } finally {
@@ -63,7 +64,9 @@ export default function TaskDetail() {
     }
   };
 
-  useEffect(() => { loadTask(); }, [id]);
+  useEffect(() => {
+    loadTask();
+  }, [id]);
 
   const handleComplete = async () => {
     try {
@@ -78,9 +81,22 @@ export default function TaskDetail() {
     }
   };
 
-  if (loading) return <div className="flex items-center justify-center h-64"><Loader2 size={32} className="animate-spin text-blue-600" /></div>;
-  if (error) return <div className="p-6"><ErrorState message="Failed to load field mission details" onRetry={loadTask} /></div>;
-  if (!task) return <div className="p-6"><ErrorState message="Field mission not found" /></div>;
+  const roleBasedBackLink = () => {
+    if (window.location.pathname.startsWith('/field-force')) {
+      return '/field-force/tasks';
+    }
+    return '/team/assigned-tasks';
+  };
+
+  if (loading) {
+    return <div className="flex items-center justify-center h-64"><Loader2 size={32} className="animate-spin text-blue-600" /></div>;
+  }
+  if (error) {
+    return <div className="p-6"><ErrorState message="Failed to load field mission details" onRetry={loadTask} /></div>;
+  }
+  if (!task) {
+    return <div className="p-6"><ErrorState message="Field mission not found" /></div>;
+  }
 
   const metadata = task.metadata || {};
   const customer = metadata.customer;
@@ -97,7 +113,7 @@ export default function TaskDetail() {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
       <div className="flex items-center justify-between">
-        <Link to="/team/assigned-tasks" className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-blue-600 transition">
+        <Link to={roleBasedBackLink()} className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-blue-600 transition">
           <ArrowLeft size={16} /> Back to Tasks
         </Link>
         <div className="flex gap-3">
@@ -105,7 +121,8 @@ export default function TaskDetail() {
             <RefreshCw size={16} /> Refresh
           </button>
           {task.status !== "COMPLETED" && task.status !== "CANCELLED" && (
-            <button onClick={handleComplete} disabled={completing} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 transition disabled:opacity-50">
+            <button onClick={handleComplete} disabled={completing}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 transition disabled:opacity-50">
               {completing ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle2 size={16} />}
               {completing ? "Completing..." : "Mark Complete"}
             </button>
@@ -119,12 +136,7 @@ export default function TaskDetail() {
             <div className="flex flex-wrap items-center gap-2 mb-3">
               <TaskStatusBadge status={task.status} size="lg" />
               {task.priority && (
-                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                  task.priority === "URGENT" ? "bg-red-100 text-red-700" :
-                  task.priority === "HIGH" ? "bg-orange-100 text-orange-700" :
-                  task.priority === "MEDIUM" ? "bg-blue-100 text-blue-700" :
-                  "bg-slate-100 text-slate-700"
-                }`}>{task.priority}</span>
+                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${task.priority === "URGENT" ? "bg-red-100 text-red-700" : task.priority === "HIGH" ? "bg-orange-100 text-orange-700" : task.priority === "MEDIUM" ? "bg-blue-100 text-blue-700" : "bg-slate-100 text-slate-700"}`}>{task.priority}</span>
               )}
               {category && <Badge label={category.replace(/_/g, " ")} color="purple" />}
             </div>
@@ -258,11 +270,7 @@ export default function TaskDetail() {
                   <div key={idx} className="flex items-start gap-3">
                     <div className="h-7 w-7 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">{idx + 1}</div>
                     <div className="flex-1">
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
-                        inst.type === "WARNING" ? "bg-red-100 text-red-700" :
-                        inst.type === "ACTION" ? "bg-amber-100 text-amber-700" :
-                        inst.type === "INFO" ? "bg-blue-100 text-blue-700" : "bg-slate-100 text-slate-700"
-                      }`}>{inst.type || "NOTE"}</span>
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${inst.type === "WARNING" ? "bg-red-100 text-red-700" : inst.type === "ACTION" ? "bg-amber-100 text-amber-700" : inst.type === "INFO" ? "bg-blue-100 text-blue-700" : "bg-slate-100 text-slate-700"}`}>{inst.type || "NOTE"}</span>
                       <p className="text-sm text-slate-600 mt-1">{inst.text}</p>
                     </div>
                   </div>
@@ -274,6 +282,66 @@ export default function TaskDetail() {
           {task.completionNotes && (
             <Section title="Completion Notes" icon={FileText}>
               <p className="text-sm text-slate-600">{task.completionNotes}</p>
+            </Section>
+          )}
+
+          {/* Execution History & Audit Logs */}
+          <Section title="Execution Audit Log & GPS Timestamps" icon={Clock}>
+            {Array.isArray(task.executionHistory) && task.executionHistory.length > 0 ? (
+              <div className="space-y-3">
+                {task.executionHistory.map((hist, idx) => (
+                  <div key={idx} className="flex items-start gap-3 border-l-2 border-blue-500 pl-4 py-1">
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-xs text-slate-800 uppercase">{hist.status?.replace(/_/g, " ")}</span>
+                        <span className="text-[10px] text-slate-400">{dayjs(hist.timestamp).format("MMM D, YYYY h:mm A")}</span>
+                      </div>
+                      {hist.location && (
+                        <p className="text-[11px] text-slate-500 mt-0.5">GPS: {hist.location.lat?.toFixed(5)}, {hist.location.lng?.toFixed(5)}</p>
+                      )}
+                      {hist.notes && <p className="text-xs text-slate-600 mt-1 italic">{hist.notes}</p>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-slate-500 italic">No execution logs recorded yet.</p>
+            )}
+          </Section>
+
+          {/* Payment Collection Details */}
+          {(task.paymentAmount || task.paymentStatus) && (
+            <Section title="Payment Collection Log" icon={DollarSign}>
+              <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-4 flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-emerald-700 font-semibold">Amount Collected</p>
+                  <p className="text-xl font-extrabold text-emerald-900 mt-1">₹{task.paymentAmount?.toLocaleString() || "0"}</p>
+                  <p className="text-xs text-slate-500 mt-1">Method: {task.paymentMethod || "CASH"}</p>
+                </div>
+                <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-200 text-emerald-900 uppercase">
+                  {task.paymentStatus || "COLLECTED"}
+                </span>
+              </div>
+            </Section>
+          )}
+
+          {/* Photo & Customer Signature Proof */}
+          {(task.photos || task.customerSignature) && (
+            <Section title="Delivery Proof & Signature" icon={Camera}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {task.photos && (
+                  <div>
+                    <p className="text-xs font-semibold text-slate-600 mb-2">Proof Photo</p>
+                    <img src={Array.isArray(task.photos) ? task.photos[0] : task.photos} alt="Proof" className="w-full h-40 object-cover rounded-xl border border-slate-200 shadow-sm" />
+                  </div>
+                )}
+                {task.customerSignature && (
+                  <div>
+                    <p className="text-xs font-semibold text-slate-600 mb-2">Customer Signature</p>
+                    <img src={task.customerSignature} alt="Signature" className="w-full h-40 object-contain rounded-xl border border-slate-200 bg-slate-50 p-2 shadow-sm" />
+                  </div>
+                )}
+              </div>
             </Section>
           )}
         </div>
@@ -315,7 +383,7 @@ export default function TaskDetail() {
 
           <Section title="Quick Actions" icon={Target}>
             <div className="space-y-3">
-              <Link to="/team/assigned-tasks" className="block w-full text-center px-4 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition">View All Missions</Link>
+              <Link to={roleBasedBackLink()} className="block w-full text-center px-4 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition">View All Missions</Link>
               {task.assignedTo?.id && (
                 <Link to={`/team/members/${task.assignedTo.id}`} className="block w-full text-center px-4 py-2.5 rounded-xl border border-slate-300 text-sm font-medium hover:bg-slate-50 transition">View Executive</Link>
               )}

@@ -27,6 +27,37 @@ export class DashboardRepository {
     });
   }
 
+  async getTaskMetrics(organizationId, userId = null, managerId = null) {
+    const where = { organizationId };
+    if (userId) where.assignedToId = userId;
+    if (managerId) where.assignedById = managerId;
+
+    return prisma.task.groupBy({
+      by: ['status'],
+      where,
+      _count: { id: true },
+    });
+  }
+
+  async getTodayTaskCount(organizationId, userId = null, managerId = null) {
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
+
+    const where = {
+      organizationId,
+      OR: [
+        { dueDate: { gte: todayStart, lte: todayEnd } },
+        { createdAt: { gte: todayStart, lte: todayEnd } }
+      ]
+    };
+    if (userId) where.assignedToId = userId;
+    if (managerId) where.assignedById = managerId;
+
+    return prisma.task.count({ where });
+  }
+
   async getTargetMetrics(organizationId, userId = null) {
     const where = { organizationId, status: 'ACTIVE' };
     if (userId) where.userId = userId;

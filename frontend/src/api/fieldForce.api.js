@@ -91,6 +91,12 @@ const fieldForceApi = {
   getTask(id) {
     return api.get(`${BASE_URL}/tasks/${id}`);
   },
+  getTaskRoute(id, params = {}) {
+    return api.get(`${BASE_URL}/tasks/${id}/route`, { params });
+  },
+  updateTaskStatus(id, data) {
+    return api.patch(`${BASE_URL}/tasks/${id}/status`, data);
+  },
   completeTask(id, data = {}) {
     return api.patch(`${BASE_URL}/tasks/${id}/complete`, data);
   },

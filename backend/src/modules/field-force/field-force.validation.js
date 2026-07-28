@@ -81,3 +81,37 @@ export const calendarEventSchema = z.object({
   endTime: z.string().datetime(),
   type: z.enum(['MEETING', 'CALL', 'REMINDER', 'EVENT']).optional(),
 });
+
+export const updateTaskStatusSchema = z.object({
+  status: z.enum([
+    'PENDING',
+    'ASSIGNED',
+    'ACCEPTED',
+    'IN_PROGRESS',
+    'NAVIGATING',
+    'ARRIVED',
+    'CHECKED_IN',
+    'DELIVERY_IN_PROGRESS',
+    'PAYMENT_COLLECTED',
+    'PHOTO_UPLOADED',
+    'VISIT_NOTES_COMPLETED',
+    'CHECKED_OUT',
+    'COMPLETED',
+    'CANCELLED'
+  ]),
+  location: z.object({
+    lat: z.coerce.number(),
+    lng: z.coerce.number(),
+    address: z.string().optional(),
+    accuracy: z.number().optional(),
+  }).optional(),
+  notes: z.string().optional(),
+  completionNotes: z.string().optional(),
+  payment: z.object({
+    amount: z.coerce.number().positive(),
+    method: z.string().optional(),
+    status: z.string().optional(),
+  }).optional(),
+  photoUrl: z.string().optional(),
+  signature: z.string().optional(),
+});

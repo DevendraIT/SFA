@@ -10,6 +10,7 @@ import {
   completeVisitSchema,
   logExpenseSchema,
   createTaskSchema,
+  updateTaskStatusSchema,
 } from './field-force.validation.js';
 
 const router = Router();
@@ -68,6 +69,8 @@ router.post(
 );
 router.get('/tasks', controller.listTasksData);
 router.get('/tasks/:id', controller.getTaskDetail);
+router.get('/tasks/:id/route', controller.getTaskRoute);
+router.patch('/tasks/:id/status', validate(updateTaskStatusSchema), controller.updateTaskStatus);
 router.patch('/tasks/:id/complete', controller.completeTaskDetail);
 
 // ===== BEAT PLANS =====

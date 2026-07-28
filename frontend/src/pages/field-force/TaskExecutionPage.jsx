@@ -1,0 +1,597 @@
+import React, { useState, useEffect } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import {
+  ArrowLeft, RefreshCw, Loader2, CheckCircle2, Navigation, MapPin, Building2,
+  ShoppingCart, Package, DollarSign, Camera, FileText, FileSignature, Check,
+  Compass, Clock, AlertCircle, ShieldCheck, Phone, Mail, ChevronRight, XCircle
+} from "lucide-react";
+import toast from "react-hot-toast";
+
+import { useAuth } from "../../context/AuthContext";
+import fieldForceApi from "../../api/fieldForce.api";
+import RouteMap from "../../components/field-force/RouteMap";
+import GeoFenceBanner, { calculateDistanceMeters } from "../../components/field-force/GeoFenceBanner";
+import SignaturePad from "../../components/field-force/SignaturePad";
+import TaskStatusBadge from "../../components/team/TaskStatusBadge";
+import ErrorState from "../../components/dashboard/ErrorState";
+import dayjs from "dayjs";
+
+const WORKFLOW_STEPS = [
+  { status: "PENDING", label: "Assigned", icon: Clock },
+  { status: "ACCEPTED", label: "Accepted", icon: CheckCircle2 },
+  { status: "IN_PROGRESS", label: "Started", icon: Clock },
+  { status: "NAVIGATING", label: "Navigating", icon: Navigation },
+  { status: "ARRIVED", label: "Arrived", icon: MapPin },
+  { status: "CHECKED_IN", label: "Checked In", icon: ShieldCheck },
+  { status: "DELIVERY_IN_PROGRESS", label: "Delivering", icon: Package },
+  { status: "PAYMENT_COLLECTED", label: "Payment", icon: DollarSign },
+  { status: "PHOTO_UPLOADED", label: "Photo", icon: Camera },
+  { status: "VISIT_NOTES_COMPLETED", label: "Notes", icon: FileText },
+  { status: "CHECKED_OUT", label: "Checked Out", icon: FileSignature },
+  { status: "COMPLETED", label: "Completed", icon: CheckCircle2 },
+];
+
+export default function TaskExecutionPage() {
+  const { id } = useParams();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const [task, setTask] = useState(null);
+  const [routeInfo, setRouteInfo] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  // GPS Location state
+  const [gpsLocation, setGpsLocation] = useState(null);
+  const [gpsAccuracy, setGpsAccuracy] = useState(null);
+
+  // Form Inputs for specific steps
+  const [paymentAmount, setPaymentAmount] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("CASH");
+  const [photoUrl, setPhotoUrl] = useState("");
+  const [visitNotes, setVisitNotes] = useState("");
+  const [signatureData, setSignatureData] = useState("");
+
+  // Get current GPS Location on mount
+  useEffect(() => {
+    if (navigator.geolocation) {
+      const watchId = navigator.geolocation.watchPosition(
+        (pos) => {
+          setGpsLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+          setGpsAccuracy(pos.coords.accuracy);
+        },
+        (err) => console.warn("GPS error:", err),
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 5000 }
+      );
+      return () => navigator.geolocation.clearWatch(watchId);
+    }
+  }, []);
+
+  const loadTaskData = async () => {
+    if (!id) return;
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await fieldForceApi.getTask(id);
+      const taskData = res.data?.data || res.data?.message || res.data;
+      setTask(taskData);
+
+      if (taskData?.metadata?.payment?.amount) {
+        setPaymentAmount(taskData.metadata.payment.amount.toString());
+      }
+
+      // Fetch route info
+      try {
+        const routeRes = await fieldForceApi.getTaskRoute(id, gpsLocation || {});
+        setRouteInfo(routeRes.data?.data || routeRes.data);
+      } catch (e) {
+        console.warn("Route API error:", e);
+      }
+    } catch (err) {
+      setError(err?.response?.data || err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadTaskData();
+  }, [id]);
+
+  const metadata = task?.metadata || {};
+  const customer = metadata.customer || {};
+  const order = metadata.order || {};
+  const products = metadata.products || [];
+  const requirements = metadata.requirements || {};
+  const instructions = metadata.instructions || [];
+
+  const targetCoords = customer.lat && customer.lng ? { lat: Number(customer.lat), lng: Number(customer.lng) } : null;
+
+  const currentDistance = calculateDistanceMeters(
+    gpsLocation?.lat,
+    gpsLocation?.lng,
+    targetCoords?.lat,
+    targetCoords?.lng
+  );
+  const isWithinGeoFence = currentDistance !== null ? currentDistance <= 100 : true;
+
+  const handleStatusTransition = async (nextStatus, extraData = {}) => {
+    try {
+      setActionLoading(true);
+      const payload = {
+        status: nextStatus,
+        location: gpsLocation || undefined,
+        ...extraData,
+      };
+
+      await fieldForceApi.updateTaskStatus(id, payload);
+      toast.success(`Task status updated to ${nextStatus.replace(/_/g, " ")}`);
+      await loadTaskData();
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Failed to update status");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-80 space-y-4">
+        <Loader2 size={40} className="animate-spin text-blue-600" />
+        <p className="text-sm font-medium text-slate-500">Loading task execution workflow...</p>
+      </div>
+    );
+  }
+
+  if (error || !task) {
+    return <ErrorState message="Failed to load field task details" onRetry={loadTaskData} />;
+  }
+
+  const currentStepIndex = WORKFLOW_STEPS.findIndex((s) => s.status === task.status);
+
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6 max-w-7xl mx-auto pb-12">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <Link
+          to="/field-force/tasks"
+          className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-blue-600 font-medium transition"
+        >
+          <ArrowLeft size={16} /> Back to My Tasks
+        </Link>
+        <button
+          onClick={loadTaskData}
+          className="flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-300 text-sm font-medium hover:bg-slate-50 transition self-start sm:self-auto"
+        >
+          <RefreshCw size={16} /> Refresh Workflow
+        </button>
+      </div>
+
+      {/* Task Header & Status Bar */}
+      <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 space-y-6">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+          <div>
+            <div className="flex flex-wrap items-center gap-2 mb-2">
+              <TaskStatusBadge status={task.status} />
+              {task.priority && (
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-orange-100 text-orange-700">
+                  {task.priority} Priority
+                </span>
+              )}
+              {metadata.category && (
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-700">
+                  {metadata.category}
+                </span>
+              )}
+            </div>
+            <h1 className="text-2xl font-extrabold text-slate-900">{task.title}</h1>
+            {task.description && <p className="text-sm text-slate-600 mt-1">{task.description}</p>}
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="bg-blue-50 border border-blue-200 rounded-2xl p-3 text-right">
+              <p className="text-[10px] text-blue-600 font-bold uppercase tracking-wider">Target Customer</p>
+              <p className="text-sm font-bold text-slate-800 truncate max-w-[200px]">{customer.name || "Customer Visit"}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* 12-Step Visual Timeline Progress Bar */}
+        <div>
+          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Execution Workflow Lifecycle</p>
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-12 gap-2">
+            {WORKFLOW_STEPS.map((step, idx) => {
+              const StepIcon = step.icon;
+              const isPast = currentStepIndex > idx;
+              const isCurrent = currentStepIndex === idx;
+
+              return (
+                <div
+                  key={step.status}
+                  className={`flex flex-col items-center p-2 rounded-xl border text-center transition-all ${
+                    isCurrent
+                      ? "bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/30 scale-105"
+                      : isPast
+                      ? "bg-emerald-50 text-emerald-700 border-emerald-300"
+                      : "bg-slate-50 text-slate-400 border-slate-200"
+                  }`}
+                >
+                  <StepIcon size={16} />
+                  <span className="text-[10px] font-bold mt-1 line-clamp-1">{step.label}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Navigation Route Map */}
+      <RouteMap
+        userLocation={gpsLocation}
+        destination={{
+          lat: targetCoords?.lat,
+          lng: targetCoords?.lng,
+          address: customer.address || customer.name,
+        }}
+        distanceMeters={routeInfo?.distanceMeters || currentDistance}
+        estimatedMinutes={routeInfo?.estimatedMinutes}
+        googleMapsUrl={routeInfo?.googleMapsUrl}
+      />
+
+      {/* Geo-Fence Banner */}
+      <GeoFenceBanner
+        userLocation={gpsLocation}
+        targetLocation={targetCoords}
+        accuracy={gpsAccuracy}
+      />
+
+      {/* Primary Execution Control Card */}
+      <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 space-y-6">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+          <div className="flex items-center gap-2">
+            <Compass className="text-blue-600" size={20} />
+            <h3 className="text-lg font-bold text-slate-900">Next Execution Action</h3>
+          </div>
+          <TaskStatusBadge status={task.status} />
+        </div>
+
+        {/* Step Action Controls */}
+        {task.status === "PENDING" || task.status === "ASSIGNED" ? (
+          <div className="bg-blue-50 border border-blue-200 rounded-2xl p-6 text-center space-y-4">
+            <h4 className="font-bold text-blue-900 text-base">Accept Task Mission</h4>
+            <p className="text-xs text-blue-700 max-w-md mx-auto">
+              Review mission details and accept to signal your manager that you are ready to execute.
+            </p>
+            <button
+              onClick={() => handleStatusTransition("ACCEPTED")}
+              disabled={actionLoading}
+              className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md transition disabled:opacity-50"
+            >
+              {actionLoading ? <Loader2 size={16} className="animate-spin inline mr-2" /> : <CheckCircle2 size={16} className="inline mr-2" />}
+              Accept Task
+            </button>
+          </div>
+        ) : task.status === "ACCEPTED" ? (
+          <div className="bg-indigo-50 border border-indigo-200 rounded-2xl p-6 text-center space-y-4">
+            <h4 className="font-bold text-indigo-900 text-base">Start Field Mission</h4>
+            <p className="text-xs text-indigo-700 max-w-md mx-auto">
+              Click start when you are preparing to head to the customer location.
+            </p>
+            <button
+              onClick={() => handleStatusTransition("IN_PROGRESS")}
+              disabled={actionLoading}
+              className="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-md transition disabled:opacity-50"
+            >
+              {actionLoading ? <Loader2 size={16} className="animate-spin inline mr-2" /> : <Clock size={16} className="inline mr-2" />}
+              Start Mission
+            </button>
+          </div>
+        ) : task.status === "IN_PROGRESS" ? (
+          <div className="bg-cyan-50 border border-cyan-200 rounded-2xl p-6 text-center space-y-4">
+            <h4 className="font-bold text-cyan-900 text-base">Begin Route Navigation</h4>
+            <p className="text-xs text-cyan-700 max-w-md mx-auto">
+              Start turn-by-turn navigation towards the customer coordinates.
+            </p>
+            <button
+              onClick={() => handleStatusTransition("NAVIGATING")}
+              disabled={actionLoading}
+              className="px-6 py-3 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white font-bold text-sm shadow-md transition disabled:opacity-50"
+            >
+              {actionLoading ? <Loader2 size={16} className="animate-spin inline mr-2" /> : <Navigation size={16} className="inline mr-2" />}
+              Start Navigation
+            </button>
+          </div>
+        ) : task.status === "NAVIGATING" ? (
+          <div className="bg-purple-50 border border-purple-200 rounded-2xl p-6 text-center space-y-4">
+            <h4 className="font-bold text-purple-900 text-base">Confirm Arrival at Customer Location</h4>
+            <p className="text-xs text-purple-700 max-w-md mx-auto">
+              Confirm your arrival once you have reached within 100 meters of the destination.
+            </p>
+            <button
+              onClick={() => handleStatusTransition("ARRIVED")}
+              disabled={actionLoading || !isWithinGeoFence}
+              className="px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-sm shadow-md transition disabled:opacity-50"
+            >
+              {actionLoading ? <Loader2 size={16} className="animate-spin inline mr-2" /> : <MapPin size={16} className="inline mr-2" />}
+              Mark Arrived
+            </button>
+            {!isWithinGeoFence && (
+              <p className="text-xs text-red-600 font-medium">Arrival requires being within 100 meters of customer coordinates.</p>
+            )}
+          </div>
+        ) : task.status === "ARRIVED" ? (
+          <div className="bg-teal-50 border border-teal-200 rounded-2xl p-6 text-center space-y-4">
+            <h4 className="font-bold text-teal-900 text-base">Perform Geo Check-In</h4>
+            <p className="text-xs text-teal-700 max-w-md mx-auto">
+              Geo-fence verified. Perform Check-In to log your arrival timestamp and GPS coordinates.
+            </p>
+            <button
+              onClick={() => handleStatusTransition("CHECKED_IN")}
+              disabled={actionLoading || !isWithinGeoFence}
+              className="px-6 py-3 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm shadow-md transition disabled:opacity-50"
+            >
+              {actionLoading ? <Loader2 size={16} className="animate-spin inline mr-2" /> : <ShieldCheck size={16} className="inline mr-2" />}
+              Check-In Now
+            </button>
+          </div>
+        ) : task.status === "CHECKED_IN" ? (
+          <div className="bg-blue-50 border border-blue-200 rounded-2xl p-6 text-center space-y-4">
+            <h4 className="font-bold text-blue-900 text-base">Start Product Delivery / Execution</h4>
+            <p className="text-xs text-blue-700 max-w-md mx-auto">
+              Begin delivery of ordered products or execution of scheduled customer meeting.
+            </p>
+            <button
+              onClick={() => handleStatusTransition("DELIVERY_IN_PROGRESS")}
+              disabled={actionLoading}
+              className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md transition disabled:opacity-50"
+            >
+              {actionLoading ? <Loader2 size={16} className="animate-spin inline mr-2" /> : <Package size={16} className="inline mr-2" />}
+              Start Delivery
+            </button>
+          </div>
+        ) : task.status === "DELIVERY_IN_PROGRESS" ? (
+          <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-6 space-y-4">
+            <h4 className="font-bold text-emerald-900 text-base">Record Payment Collection</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Amount Collected (₹)</label>
+                <input
+                  type="number"
+                  value={paymentAmount}
+                  onChange={(e) => setPaymentAmount(e.target.value)}
+                  placeholder="e.g. 5000"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Payment Method</label>
+                <select
+                  value={paymentMethod}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500"
+                >
+                  <option value="CASH">Cash</option>
+                  <option value="UPI">UPI / Online</option>
+                  <option value="CARD">Credit / Debit Card</option>
+                  <option value="CHEQUE">Cheque</option>
+                </select>
+              </div>
+            </div>
+            <button
+              onClick={() =>
+                handleStatusTransition("PAYMENT_COLLECTED", {
+                  payment: { amount: parseFloat(paymentAmount) || 0, method: paymentMethod, status: "COLLECTED" },
+                })
+              }
+              disabled={actionLoading || !paymentAmount}
+              className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md transition disabled:opacity-50"
+            >
+              {actionLoading ? <Loader2 size={16} className="animate-spin inline mr-2" /> : <DollarSign size={16} className="inline mr-2" />}
+              Confirm Payment Collection
+            </button>
+          </div>
+        ) : task.status === "PAYMENT_COLLECTED" ? (
+          <div className="bg-pink-50 border border-pink-200 rounded-2xl p-6 space-y-4">
+            <h4 className="font-bold text-pink-900 text-base">Upload Delivery / Visit Photo Proof</h4>
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Photo Image URL</label>
+              <input
+                type="url"
+                value={photoUrl}
+                onChange={(e) => setPhotoUrl(e.target.value)}
+                placeholder="https://example.com/delivery_photo.jpg"
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-pink-500"
+              />
+            </div>
+            <button
+              onClick={() => handleStatusTransition("PHOTO_UPLOADED", { photoUrl })}
+              disabled={actionLoading}
+              className="w-full py-3 rounded-xl bg-pink-600 hover:bg-pink-700 text-white font-bold text-sm shadow-md transition disabled:opacity-50"
+            >
+              {actionLoading ? <Loader2 size={16} className="animate-spin inline mr-2" /> : <Camera size={16} className="inline mr-2" />}
+              Save Delivery Photo
+            </button>
+          </div>
+        ) : task.status === "PHOTO_UPLOADED" ? (
+          <div className="bg-violet-50 border border-violet-200 rounded-2xl p-6 space-y-4">
+            <h4 className="font-bold text-violet-900 text-base">Complete Visit Notes</h4>
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Customer Meeting / Visit Summary Notes</label>
+              <textarea
+                rows={3}
+                value={visitNotes}
+                onChange={(e) => setVisitNotes(e.target.value)}
+                placeholder="Enter customer feedback, delivery confirmation details, or follow-up notes..."
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-violet-500"
+              />
+            </div>
+            <button
+              onClick={() => handleStatusTransition("VISIT_NOTES_COMPLETED", { notes: visitNotes })}
+              disabled={actionLoading}
+              className="w-full py-3 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-bold text-sm shadow-md transition disabled:opacity-50"
+            >
+              {actionLoading ? <Loader2 size={16} className="animate-spin inline mr-2" /> : <FileText size={16} className="inline mr-2" />}
+              Save Visit Notes
+            </button>
+          </div>
+        ) : task.status === "VISIT_NOTES_COMPLETED" ? (
+          <div className="bg-orange-50 border border-orange-200 rounded-2xl p-6 space-y-4">
+            <h4 className="font-bold text-orange-900 text-base">Capture Customer Signature & Check-Out</h4>
+            <SignaturePad
+              onSave={(dataUrl) => {
+                setSignatureData(dataUrl);
+                toast.success("Signature captured successfully!");
+              }}
+            />
+            <button
+              onClick={() => handleStatusTransition("CHECKED_OUT", { signature: signatureData })}
+              disabled={actionLoading}
+              className="w-full py-3 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-bold text-sm shadow-md transition disabled:opacity-50"
+            >
+              {actionLoading ? <Loader2 size={16} className="animate-spin inline mr-2" /> : <FileSignature size={16} className="inline mr-2" />}
+              Check-Out & Confirm Signature
+            </button>
+          </div>
+        ) : task.status === "CHECKED_OUT" ? (
+          <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-6 text-center space-y-4">
+            <h4 className="font-bold text-emerald-900 text-base">Finalize Mission Completion</h4>
+            <p className="text-xs text-emerald-700 max-w-md mx-auto">
+              All delivery requirements, payment, photo proof, and customer signature have been logged. Finalize the task.
+            </p>
+            <button
+              onClick={() => handleStatusTransition("COMPLETED")}
+              disabled={actionLoading}
+              className="px-8 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-lg transition disabled:opacity-50"
+            >
+              {actionLoading ? <Loader2 size={16} className="animate-spin inline mr-2" /> : <CheckCircle2 size={16} className="inline mr-2" />}
+              Mark Entire Mission Completed
+            </button>
+          </div>
+        ) : (
+          <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-6 text-center">
+            <CheckCircle2 size={48} className="text-emerald-600 mx-auto mb-2" />
+            <h4 className="font-extrabold text-emerald-900 text-lg">Mission Successfully Completed!</h4>
+            <p className="text-xs text-emerald-700 mt-1">This task lifecycle has been completed and verified.</p>
+          </div>
+        )}
+      </div>
+
+      {/* Detail Metadata Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
+          {/* Customer */}
+          {customer && (
+            <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+              <div className="flex items-center gap-2 mb-4">
+                <Building2 size={20} className="text-blue-600" />
+                <h3 className="text-base font-bold text-slate-900">Customer Details</h3>
+              </div>
+              <div className="rounded-xl bg-blue-50/70 border border-blue-200/60 p-4">
+                <p className="font-bold text-slate-800 text-sm">{customer.name}</p>
+                {customer.email && <div className="flex items-center gap-2 mt-2 text-xs text-slate-600"><Mail size={14} /> {customer.email}</div>}
+                {customer.phone && <div className="flex items-center gap-2 mt-1 text-xs text-slate-600"><Phone size={14} /> {customer.phone}</div>}
+                {customer.address && <div className="flex items-center gap-2 mt-1 text-xs text-slate-600"><MapPin size={14} /> {customer.address}</div>}
+              </div>
+            </div>
+          )}
+
+          {/* Products */}
+          {products.length > 0 && (
+            <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+              <div className="flex items-center gap-2 mb-4">
+                <Package size={20} className="text-amber-600" />
+                <h3 className="text-base font-bold text-slate-900">Order Items / Delivery Products</h3>
+              </div>
+              <div className="space-y-3">
+                {products.map((item, idx) => (
+                  <div key={idx} className="flex items-center justify-between p-3.5 rounded-xl border border-slate-200 bg-slate-50">
+                    <div>
+                      <p className="font-bold text-slate-800 text-sm">{item.name || `Item ${idx + 1}`}</p>
+                      {item.sku && <p className="text-xs text-slate-500">SKU: {item.sku}</p>}
+                    </div>
+                    <span className="px-3 py-1 rounded-lg bg-blue-100 text-blue-800 font-bold text-xs">
+                      Qty: {item.quantity || 1}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Execution Log Timeline */}
+          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+            <div className="flex items-center gap-2 mb-4">
+              <Clock size={20} className="text-indigo-600" />
+              <h3 className="text-base font-bold text-slate-900">Audit Trail & GPS Logs</h3>
+            </div>
+            {Array.isArray(task.executionHistory) && task.executionHistory.length > 0 ? (
+              <div className="space-y-3">
+                {task.executionHistory.map((hist, idx) => (
+                  <div key={idx} className="flex items-start gap-3 border-l-2 border-blue-500 pl-4 py-1">
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-xs text-slate-800 uppercase">{hist.status?.replace(/_/g, " ")}</span>
+                        <span className="text-[10px] text-slate-400">{dayjs(hist.timestamp).format("MMM D, h:mm A")}</span>
+                      </div>
+                      {hist.location && (
+                        <p className="text-[11px] text-slate-500 mt-0.5">GPS: {hist.location.lat?.toFixed(4)}, {hist.location.lng?.toFixed(4)}</p>
+                      )}
+                      {hist.notes && <p className="text-xs text-slate-600 mt-1 italic">{hist.notes}</p>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-slate-500 italic">No execution history recorded yet.</p>
+            )}
+          </div>
+        </div>
+
+        {/* Execution Requirements Checklist */}
+        <div className="space-y-6">
+          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+            <div className="flex items-center gap-2 mb-4">
+              <ShieldCheck size={20} className="text-emerald-600" />
+              <h3 className="text-base font-bold text-slate-900">Execution Requirements</h3>
+            </div>
+            <div className="space-y-2.5">
+              {[
+                { key: "gps", label: "GPS Tracking", value: requirements.gps },
+                { key: "photo", label: "Photo Proof", value: requirements.photo || !!task.photoUploadedAt },
+                { key: "payment", label: "Payment Collection", value: requirements.payment || !!task.paymentCollectedAt },
+                { key: "signature", label: "Digital Signature", value: requirements.signature || !!task.signatureCapturedAt },
+                { key: "visitNotes", label: "Visit Notes", value: requirements.visitNotes || !!task.visitNotesCompletedAt },
+              ].map((req) => (
+                <div key={req.key} className={`flex items-center justify-between p-3 rounded-xl ${req.value ? "bg-emerald-50 text-emerald-800" : "bg-slate-50 text-slate-600"}`}>
+                  <span className="text-xs font-semibold">{req.label}</span>
+                  {req.value ? <Check size={16} className="text-emerald-600" /> : <Clock size={14} className="text-slate-400" />}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Photo & Signature Preview */}
+          {(task.photos || task.customerSignature) && (
+            <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
+              <h3 className="text-base font-bold text-slate-900">Captured Artifacts</h3>
+              {task.photos && (
+                <div>
+                  <p className="text-xs font-semibold text-slate-500 mb-2">Delivery Photo</p>
+                  <img src={Array.isArray(task.photos) ? task.photos[0] : task.photos} alt="Proof" className="w-full h-36 object-cover rounded-xl border border-slate-200" />
+                </div>
+              )}
+              {task.customerSignature && (
+                <div>
+                  <p className="text-xs font-semibold text-slate-500 mb-2">Customer Digital Signature</p>
+                  <img src={task.customerSignature} alt="Signature" className="w-full h-24 object-contain rounded-xl border border-slate-200 bg-slate-50 p-2" />
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </motion.div>
+  );
+}
