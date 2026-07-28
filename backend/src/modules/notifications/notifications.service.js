@@ -20,11 +20,23 @@ export class NotificationsService {
   }
 
   async getMyNotifications(organizationId, userId) {
-    return this.repo.getUnreadNotifications(organizationId, userId);
+    const [unread, all] = await Promise.all([
+      this.repo.getUnreadNotifications(organizationId, userId),
+      this.repo.getAllNotifications(organizationId, userId, 50),
+    ]);
+    return {
+      unread,
+      all,
+      unreadCount: unread.length,
+    };
   }
 
   async markAsRead(notificationId, organizationId, userId) {
     return this.repo.markAsRead(notificationId, organizationId, userId);
+  }
+
+  async markAllAsRead(organizationId, userId) {
+    return this.repo.markAllAsRead(organizationId, userId);
   }
 
   // Mocks for actual external integrations (e.g. AWS SES, Twilio, WebSockets)

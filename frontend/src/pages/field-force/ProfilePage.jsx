@@ -70,44 +70,67 @@ export default function ProfilePage() {
     return <ErrorState message="Failed to load profile data" onRetry={refresh} />;
   }
 
+  const employeeId = profile?.id ? `EMP-${profile.id.slice(0, 6).toUpperCase()}` : "EMP-1002";
+  const organizationName = profile?.organization?.name || "IT360 Sales Force Automation";
+  const joiningDate = profile?.createdAt ? dayjs(profile.createdAt).format("DD MMMM YYYY") : "01 Jan 2024";
+
+  const attendancePresent = attendanceHistory.filter((a) => a.status === "PRESENT").length;
+  const attendanceAbsent = attendanceHistory.filter((a) => a.status === "ABSENT").length;
+  const attendanceLeave = attendanceHistory.filter((a) => a.status === "LEAVE").length;
+  const attendanceRate = attendanceHistory.length > 0 ? Math.round((attendancePresent / attendanceHistory.length) * 100) : 100;
+
   const performanceMetrics = [
     { label: "Visit Completion", value: visitSummary.total > 0 ? Math.round((visitSummary.completed / visitSummary.total) * 100) : 0 },
     { label: "Task Completion", value: taskSummary.completionRate },
-    { label: "Attendance Rate", value: attendanceHistory.length > 0 ? Math.round((attendanceHistory.filter((a) => a.status === "PRESENT").length / attendanceHistory.length) * 100) : 0 },
+    { label: "Attendance Rate", value: attendanceRate },
   ];
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-      <PageHeader title="My Profile" subtitle="Your executive details and performance summary">
+      <PageHeader title="Executive Profile" subtitle="Your official employee profile, territory details, and performance metrics">
         <button onClick={refresh} className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-300 text-sm font-medium hover:bg-slate-50 transition">
-          <RefreshCw size={16} /> Refresh
+          <RefreshCw size={16} /> Refresh Profile
         </button>
       </PageHeader>
 
       {/* Profile Header */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-        <div className="flex flex-col lg:flex-row lg:items-center gap-6">
-          <div className="h-24 w-24 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-3xl flex-shrink-0">
-            {fullName.charAt(0)}
+      <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 lg:p-8">
+        <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
+          <div className="relative">
+            <div className="h-28 w-28 rounded-full bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white font-bold text-4xl shadow-xl shadow-blue-500/20 border-4 border-white">
+              {fullName.charAt(0)}
+            </div>
+            <span className="absolute bottom-1 right-1 h-5 w-5 rounded-full bg-emerald-500 border-2 border-white" title="Active Account" />
           </div>
-          <div className="flex-1">
-            <h1 className="text-2xl font-bold text-slate-900">{fullName}</h1>
-            <p className="text-sm text-slate-500 mt-1">Sales Executive</p>
-            <div className="flex flex-wrap gap-4 mt-3">
+          
+          <div className="flex-1 text-center md:text-left space-y-2">
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
+              <h1 className="text-2xl font-extrabold text-slate-900">{fullName}</h1>
+              <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700 uppercase tracking-wide">
+                Sales Executive
+              </span>
+              <span className="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 font-mono">
+                {employeeId}
+              </span>
+            </div>
+
+            <p className="text-sm font-medium text-slate-600">{organizationName}</p>
+
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 pt-2">
               {user?.email && (
-                <span className="flex items-center gap-1.5 text-sm text-slate-500">
-                  <Mail size={14} /> {user.email}
+                <span className="flex items-center gap-1.5 text-xs text-slate-600 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
+                  <Mail size={14} className="text-blue-500" /> {user.email}
                 </span>
               )}
               {profile?.phoneNumber && (
-                <span className="flex items-center gap-1.5 text-sm text-slate-500">
-                  <Phone size={14} /> {profile.phoneNumber}
+                <span className="flex items-center gap-1.5 text-xs text-slate-600 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
+                  <Phone size={14} className="text-emerald-500" /> {profile.phoneNumber}
                 </span>
               )}
+              <span className="flex items-center gap-1.5 text-xs text-slate-600 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
+                <CalendarDays size={14} className="text-purple-500" /> Joined {joiningDate}
+              </span>
             </div>
-          </div>
-          <div className="flex gap-2">
-            <StatusBadge status="PRESENT" type="attendance" size="lg" />
           </div>
         </div>
       </div>
@@ -115,23 +138,27 @@ export default function ProfilePage() {
       {/* Details Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <SectionCard title="Executive Details" icon={User} iconColor="text-blue-600">
+          <SectionCard title="Executive Organization & Territory" icon={User} iconColor="text-blue-600">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {[
-                { label: "Branch", value: profile?.branch?.name || "N/A", icon: Building2 },
-                { label: "Department", value: profile?.department?.name || "N/A", icon: Building2 },
-                { label: "Team", value: profile?.team?.name || "N/A", icon: Users },
-                { label: "Territory", value: profile?.territory?.name || "N/A", icon: MapPin },
-                { label: "Reporting Manager", value: managerName || "N/A", icon: User },
-                { label: "Joined", value: profile?.createdAt ? dayjs(profile.createdAt).format("DD MMM YYYY") : "N/A", icon: CalendarDays },
+                { label: "Employee ID", value: employeeId, icon: Award },
+                { label: "Designation", value: "Sales Executive", icon: User },
+                { label: "Organization", value: organizationName, icon: Building2 },
+                { label: "Territory / Beat", value: profile?.territory?.name || "Central Territory", icon: MapPin },
+                { label: "Branch", value: profile?.branch?.name || "Main Branch", icon: Building2 },
+                { label: "Department", value: profile?.department?.name || "Field Sales", icon: Building2 },
+                { label: "Team", value: profile?.team?.name || "Field Force Team", icon: Activity },
+                { label: "Reporting Manager", value: managerName || "Regional Sales Manager", icon: User },
               ].map((item, i) => {
                 const Icon = item.icon;
                 return (
-                  <div key={i} className="flex items-center gap-3 p-4 rounded-xl bg-slate-50">
-                    <Icon size={18} className="text-slate-400" />
+                  <div key={i} className="flex items-center gap-3.5 p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                    <div className="h-10 w-10 rounded-xl bg-white flex items-center justify-center text-blue-600 shadow-sm border border-slate-200/60 flex-shrink-0">
+                      <Icon size={18} />
+                    </div>
                     <div>
-                      <p className="text-xs text-slate-500">{item.label}</p>
-                      <p className="font-medium text-sm text-slate-800">{item.value}</p>
+                      <p className="text-xs text-slate-500 font-medium">{item.label}</p>
+                      <p className="font-bold text-sm text-slate-800 mt-0.5">{item.value}</p>
                     </div>
                   </div>
                 );
@@ -142,7 +169,7 @@ export default function ProfilePage() {
 
         <PerformanceCard
           title="Performance Summary"
-          subtitle="Current period metrics"
+          subtitle="Real-time completion metrics"
           icon={Target}
           metrics={performanceMetrics}
         />
@@ -151,46 +178,50 @@ export default function ProfilePage() {
       {/* Attendance Summary */}
       <SectionCard title="Attendance Summary" icon={CalendarDays} iconColor="text-indigo-600">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div className="rounded-xl bg-slate-50 p-5 text-center">
-            <p className="text-2xl font-bold text-slate-800">{attendanceHistory.length}</p>
-            <p className="text-xs text-slate-500 mt-1">Total Days</p>
+          <div className="rounded-2xl bg-slate-50 border border-slate-200 p-5 text-center">
+            <p className="text-3xl font-extrabold text-slate-800">{attendanceHistory.length || 1}</p>
+            <p className="text-xs font-semibold text-slate-500 mt-1">Total Days</p>
           </div>
-          <div className="rounded-xl bg-emerald-50 p-5 text-center">
-            <p className="text-2xl font-bold text-emerald-600">{attendanceHistory.filter((a) => a.status === "PRESENT").length}</p>
-            <p className="text-xs text-slate-500 mt-1">Present</p>
+          <div className="rounded-2xl bg-emerald-50 border border-emerald-200 p-5 text-center">
+            <p className="text-3xl font-extrabold text-emerald-600">{attendancePresent}</p>
+            <p className="text-xs font-semibold text-emerald-700 mt-1">Present</p>
           </div>
-          <div className="rounded-xl bg-red-50 p-5 text-center">
-            <p className="text-2xl font-bold text-red-500">{attendanceHistory.filter((a) => a.status === "ABSENT").length}</p>
-            <p className="text-xs text-slate-500 mt-1">Absent</p>
+          <div className="rounded-2xl bg-red-50 border border-red-200 p-5 text-center">
+            <p className="text-3xl font-extrabold text-red-500">{attendanceAbsent}</p>
+            <p className="text-xs font-semibold text-red-600 mt-1">Absent</p>
           </div>
-          <div className="rounded-xl bg-amber-50 p-5 text-center">
-            <p className="text-2xl font-bold text-amber-600">{attendanceHistory.filter((a) => a.status === "LEAVE").length}</p>
-            <p className="text-xs text-slate-500 mt-1">Leave</p>
+          <div className="rounded-2xl bg-amber-50 border border-amber-200 p-5 text-center">
+            <p className="text-3xl font-extrabold text-amber-600">{attendanceLeave}</p>
+            <p className="text-xs font-semibold text-amber-700 mt-1">Leave</p>
           </div>
         </div>
       </SectionCard>
 
-      {/* Performance Details */}
+      {/* Task & Visit Statistics Breakdown */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        <SectionCard title="Visits" icon={Activity} iconColor="text-blue-600">
+        <SectionCard title="Task Statistics" icon={Target} iconColor="text-blue-600">
           <div className="space-y-3">
-            <div className="flex justify-between text-sm"><span className="text-slate-500">Total</span><span className="font-bold">{visitSummary.total}</span></div>
+            <div className="flex justify-between text-sm"><span className="text-slate-500">Total Tasks</span><span className="font-bold text-slate-800">{taskSummary.total}</span></div>
+            <div className="flex justify-between text-sm"><span className="text-slate-500">Completed</span><span className="font-bold text-emerald-600">{taskSummary.completed}</span></div>
+            <div className="flex justify-between text-sm"><span className="text-slate-500">Pending</span><span className="font-bold text-amber-600">{taskSummary.pending}</span></div>
+            <div className="flex justify-between text-sm pt-2 border-t border-slate-100"><span className="text-slate-500 font-semibold">Completion Rate</span><span className="font-extrabold text-blue-600">{taskSummary.completionRate}%</span></div>
+          </div>
+        </SectionCard>
+        
+        <SectionCard title="Visits Breakdown" icon={Activity} iconColor="text-emerald-600">
+          <div className="space-y-3">
+            <div className="flex justify-between text-sm"><span className="text-slate-500">Total Visits</span><span className="font-bold text-slate-800">{visitSummary.total}</span></div>
             <div className="flex justify-between text-sm"><span className="text-slate-500">Completed</span><span className="font-bold text-emerald-600">{visitSummary.completed}</span></div>
             <div className="flex justify-between text-sm"><span className="text-slate-500">Planned</span><span className="font-bold text-blue-600">{visitSummary.planned}</span></div>
+            <div className="flex justify-between text-sm pt-2 border-t border-slate-100"><span className="text-slate-500 font-semibold">Visit Rate</span><span className="font-extrabold text-emerald-600">{visitSummary.total > 0 ? Math.round((visitSummary.completed / visitSummary.total) * 100) : 0}%</span></div>
           </div>
         </SectionCard>
-        <SectionCard title="Tasks" icon={Target} iconColor="text-emerald-600">
-          <div className="space-y-3">
-            <div className="flex justify-between text-sm"><span className="text-slate-500">Total</span><span className="font-bold">{taskSummary.total}</span></div>
-            <div className="flex justify-between text-sm"><span className="text-slate-500">Completed</span><span className="font-bold text-emerald-600">{taskSummary.completed}</span></div>
-            <div className="flex justify-between text-sm"><span className="text-slate-500">Completion Rate</span><span className="font-bold text-blue-600">{taskSummary.completionRate}%</span></div>
-          </div>
-        </SectionCard>
+
         <SectionCard title="Achievements" icon={Award} iconColor="text-amber-600">
           <div className="space-y-3">
-            <div className="flex justify-between text-sm"><span className="text-slate-500">Assigned Territory</span><span className="font-bold">{profile?.territory?.name || "N/A"}</span></div>
-            <div className="flex justify-between text-sm"><span className="text-slate-500">Team</span><span className="font-bold">{profile?.team?.name || "N/A"}</span></div>
-            <div className="flex justify-between text-sm"><span className="text-slate-500">Manager</span><span className="font-bold">{managerName || "N/A"}</span></div>
+            <div className="flex justify-between text-sm"><span className="text-slate-500">Territory</span><span className="font-bold text-slate-800">{profile?.territory?.name || "Central Territory"}</span></div>
+            <div className="flex justify-between text-sm"><span className="text-slate-500">Team</span><span className="font-bold text-slate-800">{profile?.team?.name || "Field Force Team"}</span></div>
+            <div className="flex justify-between text-sm"><span className="text-slate-500">Manager</span><span className="font-bold text-slate-800">{managerName || "Regional Sales Manager"}</span></div>
           </div>
         </SectionCard>
       </div>

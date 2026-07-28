@@ -108,7 +108,7 @@ export default function Login() {
 
           <p className="mt-3 text-slate-300 leading-7">
 
-            Enterprise Sales Force Automation Platform
+            Sales Force Automation Platform
 
           </p>
         </motion.div>
@@ -136,11 +136,10 @@ export default function Login() {
 
           <p className="mt-8 text-slate-300 text-lg">
 
-            Manage Leads, Sales Orders,
+            Manage Sales Orders,
             Field Force,
             Reporting,
-            Team Management,
-            AI Lead Generation
+            Team Management
             and much more from one dashboard.
 
           </p>
@@ -308,7 +307,7 @@ export default function Login() {
 
           </form>
 
-          <div className="mt-10 border-t pt-6">
+          {/* <div className="mt-10 border-t pt-6">
 
             <div className="grid grid-cols-3 gap-3 text-center">
 
@@ -350,7 +349,7 @@ export default function Login() {
 
             </div>
 
-          </div>
+          </div> */}
 
           <div className="mt-8 text-center text-sm text-gray-500">
 

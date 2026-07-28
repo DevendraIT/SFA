@@ -43,6 +43,13 @@ const fieldForceApi = {
   addVisitNotes(id, data) {
     return api.post(`${BASE_URL}/visits/${id}/notes`, data);
   },
+  uploadPhoto(file) {
+    const formData = new FormData();
+    formData.append("photo", file);
+    return api.post(`${BASE_URL}/upload`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  },
   uploadVisitPhoto(id, data) {
     return api.post(`${BASE_URL}/visits/${id}/photo`, data);
   },

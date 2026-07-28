@@ -1,43 +1,29 @@
-# Field Force Execution Workflow - Implementation Progress
+..# Implementation TODO
 
-## Phase 1: Backend - Prisma Schema Extension
-- [x] `backend/prisma/schema.prisma` - Extend Task model with new statuses and fields
-- [ ] Create Prisma migration
-- [ ] Regenerate Prisma client
+## Task 1: Sidebar Cleanup ✅
+- [x] Edit `frontend/src/config/navigation.js` - Remove standalone items
+- [x] Edit `frontend/src/routes/AppRoutes.jsx` - Remove corresponding routes
 
-## Phase 2: Backend - Geo-Fencing & Task Workflow API
-- [ ] `backend/src/modules/field-force/field-force.validation.js` - New validation schemas
-- [ ] `backend/src/modules/field-force/field-force.repository.js` - New DB queries
-- [ ] `backend/src/modules/field-force/field-force.service.js` - New workflow + geo-fence logic
-- [ ] `backend/src/modules/field-force/field-force.controller.js` - New endpoints
-- [ ] `backend/src/modules/field-force/field-force.routes.js` - New routes
+## Task 2: Dynamic DAR
+- [ ] Edit `backend/prisma/schema.prisma` - Add metadata field to DailyActivityReport
+- [ ] Edit `backend/src/modules/field-force/field-force.service.js` - Enhance generateDar()
+- [ ] Edit `backend/src/modules/field-force/field-force.repository.js` - Update createDar()
+- [ ] Edit `frontend/src/components/field-force/DARCard.jsx` - Show richer data
+- [ ] Edit `frontend/src/pages/field-force/DARPage.jsx` - Display dynamic report
 
-## Phase 3: Backend - Dashboard Task Metrics
-- [ ] `backend/src/modules/dashboard/dashboard.repository.js` - Add task metrics
-- [ ] `backend/src/modules/dashboard/dashboard.service.js` - Add task metrics
-- [ ] `backend/src/modules/dashboard/dashboard.controller.js` - Add task endpoints (if needed)
+## Task 3: Executive Profile
+- [ ] Edit `frontend/src/pages/field-force/ProfilePage.jsx` - Enhance with all required info
 
-## Phase 4: Frontend - API & Hooks
-- [ ] `frontend/src/api/fieldForce.api.js` - New API methods
-- [ ] `frontend/src/hooks/useFieldForce.js` - Enhanced task tracking
+## Task 4: Dynamic Route & Navigation (HIGHEST PRIORITY)
+- [ ] Edit `backend/prisma/schema.prisma` - Add lat/lng fields to Customer model
+- [ ] Edit `backend/src/modules/customers/customers.service.js` - Handle lat/lng on create/update
+- [ ] Edit `backend/src/modules/customers/customers.controller.js` - Support geocoding if not provided
+- [ ] Edit `frontend/src/pages/team/AssignTaskModal.jsx` - Verify geocoding flow works end-to-end
 
-## Phase 5: Frontend - New Components
-- [ ] Create `frontend/src/components/field-force/RouteMap.jsx`
-- [ ] Create `frontend/src/components/field-force/ProximityChecker.jsx`
+## Task 5: Photo Upload
+- [ ] Edit `backend/src/modules/field-force/field-force.controller.js` - Add upload endpoint
+- [ ] Edit `backend/src/modules/field-force/field-force.service.js` - Add upload service using Cloudinary
+- [ ] Edit `backend/src/modules/field-force/field-force.routes.js` - Add upload route
+- [ ] Edit `frontend/src/api/fieldForce.api.js` - Add uploadFile API
+- [ ] Edit `frontend/src/pages/field-force/TaskExecutionPage.jsx` - Replace URL input with file upload
 
-## Phase 6: Frontend - Task Execution Page
-- [ ] Create `frontend/src/pages/field-force/TaskExecutionPage.jsx`
-- [ ] Update `frontend/src/pages/field-force/TasksPage.jsx` - Add execution actions
-- [ ] Update `frontend/src/routes/AppRoutes.jsx` - Add new route
-
-## Phase 7: Frontend - Manager View Updates
-- [ ] Update `frontend/src/pages/team/TaskDetail.jsx` - Add execution log
-- [ ] Update `frontend/src/pages/field-force/FieldForceDashboard.jsx` - Real data display
-
-## Phase 8: Verify Complete Lifecycle
-- [ ] Verify manager sees assigned tasks
-- [ ] Verify executive sees tasks
-- [ ] Verify full execution workflow
-- [ ] Verify dashboard statistics
-- [ ] Verify geo-fence validation
-- [ ] Verify GPS logs stored correctly

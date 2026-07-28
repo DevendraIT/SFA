@@ -28,6 +28,9 @@ const envSchema = z.object({
   RATE_LIMIT_WINDOW_MS: z.string().default("900000"),
   RATE_LIMIT_MAX_REQUESTS: z.string().default("100"),
   
+  // Geo-Fencing Testing Mode Configuration (default false = testing mode enabled)
+  GEO_FENCE_ENABLED: z.string().default("false"),
+
   // Swagger Documentation
   SWAGGER_ENABLED: z.string().default("true"),
 
@@ -104,6 +107,7 @@ export const config = {
     maxRequests: parseInt(parsed.data.RATE_LIMIT_MAX_REQUESTS, 10),
   },
   
+  GEO_FENCE_ENABLED: parsed.data.GEO_FENCE_ENABLED === "true",
   SWAGGER_ENABLED: parsed.data.SWAGGER_ENABLED === "true",
 
   CLOUDINARY: {

@@ -22,4 +22,13 @@ export class NotificationsController {
       next(err);
     }
   };
+
+  markAllAsRead = async (req, res, next) => {
+    try {
+      const result = await this.service.markAllAsRead(req.user.organizationId, req.user.id);
+      return successResponse(res, result, 'All notifications marked as read.');
+    } catch (err) {
+      next(err);
+    }
+  };
 }
